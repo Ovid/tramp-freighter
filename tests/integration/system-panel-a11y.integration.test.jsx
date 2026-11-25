@@ -44,4 +44,36 @@ describe('Integration: SystemPanel accessibility', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onClose.mock.calls[0]).toEqual([]);
   });
+
+  it('is a region named by an h2 of the system name', () => {
+    const id = game.getState().player.currentSystem;
+    render(panel(id));
+    const name = STAR_DATA.find((s) => s.id === id).name;
+    const region = screen.getByRole('region', { name });
+    expect(region.querySelector('h2').textContent).toBe(name);
+  });
+
+  it('keeps focus in the panel when a connected system is picked', () => {
+    const currentId = game.getState().player.currentSystem;
+    const { rerender } = render(panel(currentId));
+    const firstConnection = document.querySelector('.connection-item');
+    firstConnection.focus();
+    const targetId = game.navigationSystem.getConnectedSystems(currentId)[0];
+    rerender(panel(targetId));
+    const target = STAR_DATA.find((s) => s.id === targetId);
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: target.name })
+    );
+  });
+
+  it('does not steal focus from the star map canvas', () => {
+    const canvas = document.createElement('div');
+    canvas.className = 'starmap-container';
+    canvas.tabIndex = 0;
+    document.body.appendChild(canvas);
+    canvas.focus();
+    render(panel(4));
+    expect(document.activeElement).toBe(canvas);
+    canvas.remove();
+  });
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -60,6 +60,8 @@ export function SystemPanel({
   useGameEvent(EVENT_NAMES.ACTIVE_EVENTS_CHANGED);
   const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
+  const headingId = useId();
+  const headingRef = useRef(null);
 
   // Jump validation via Bridge Pattern (passes shipCondition for critical damage check)
   const validation = useJumpValidation(currentSystemId, viewingSystemId, fuel);
@@ -82,6 +84,14 @@ export function SystemPanel({
     }
   }, [viewingSystemId, currentSystemId, isCriticalDamageError]);
 
+  // Picking a connected system replaces the button that had focus, which would
+  // drop keyboard users to <body>. Leave canvas focus alone so arrow-key
+  // rotation keeps working after a mouse pick.
+  useEffect(() => {
+    if (document.activeElement?.closest('.starmap-container')) return;
+    headingRef.current?.focus();
+  }, [viewingSystemId]);
+
   // Get system data
   const viewingSystem = starData.find((s) => s.id === viewingSystemId);
   const currentSystem = starData.find((s) => s.id === currentSystemId);
@@ -92,63 +102,64 @@ export function SystemPanel({
 
   const isCurrentSystem = viewingSystemId === currentSystemId;
 
-  // If viewing a different system, show jump info
-  if (!isCurrentSystem) {
-    const handleJump = async () => {
-      if (!validation.valid) return;
+  const handleJump = async () => {
+    if (!validation.valid) return;
 
-      // Check if this is a dangerous system that requires warning
-      const isDangerous =
-        dangerZone === 'contested' || dangerZone === 'dangerous';
+    // Check if this is a dangerous system that requires warning
+    const isDangerous =
+      dangerZone === 'contested' || dangerZone === 'dangerous';
 
-      if (isDangerous && jumpWarningsEnabled) {
-        setShowDangerWarning(true);
-        return; // Stop here and wait for user decision
+    if (isDangerous && jumpWarningsEnabled) {
+      setShowDangerWarning(true);
+      return; // Stop here and wait for user decision
+    }
+
+    // If not dangerous, proceed directly
+    await executeJumpAfterConfirmation();
+  };
+
+  const executeJumpAfterConfirmation = async () => {
+    // Close panel immediately so user can see the jump animation
+    // Pass true to indicate we're jumping (don't deselect star)
+    onClose(true); // true = keep selection ring visible
+
+    if (onJumpStart) {
+      onJumpStart();
+    }
+
+    try {
+      await executeJump(viewingSystemId);
+    } catch (error) {
+      console.error('Jump failed:', error);
+    } finally {
+      if (onJumpComplete) {
+        onJumpComplete();
       }
+    }
+  };
 
-      // If not dangerous, proceed directly
-      await executeJumpAfterConfirmation();
-    };
+  const handleDangerWarningProceed = () => {
+    setShowDangerWarning(false);
+    executeJumpAfterConfirmation();
+  };
 
-    const executeJumpAfterConfirmation = async () => {
-      // Close panel immediately so user can see the jump animation
-      // Pass true to indicate we're jumping (don't deselect star)
-      onClose(true); // true = keep selection ring visible
+  const handleDangerWarningCancel = () => {
+    setShowDangerWarning(false);
+  };
 
-      if (onJumpStart) {
-        onJumpStart();
-      }
-
-      try {
-        await executeJump(viewingSystemId);
-      } catch (error) {
-        console.error('Jump failed:', error);
-      } finally {
-        if (onJumpComplete) {
-          onJumpComplete();
-        }
-      }
-    };
-
-    const handleDangerWarningProceed = () => {
-      setShowDangerWarning(false);
-      executeJumpAfterConfirmation();
-    };
-
-    const handleDangerWarningCancel = () => {
-      setShowDangerWarning(false);
-    };
-
-    return (
-      <>
-        {showDangerWarning && (
-          <DangerWarningDialog
-            destinationSystemId={viewingSystemId}
-            destinationSystemName={viewingSystem.name}
-            onProceed={handleDangerWarningProceed}
-            onCancel={handleDangerWarningCancel}
-          />
-        )}
+  // The root keeps the same shape in both views so React updates it in place
+  // rather than remounting it when the player switches systems.
+  return (
+    <>
+      {!isCurrentSystem && showDangerWarning && (
+        <DangerWarningDialog
+          destinationSystemId={viewingSystemId}
+          destinationSystemName={viewingSystem.name}
+          onProceed={handleDangerWarningProceed}
+          onCancel={handleDangerWarningCancel}
+        />
+      )}
+      {!isCurrentSystem && (
         <Modal
           isOpen={showCriticalDamageModal}
           onClose={() => setShowCriticalDamageModal(false)}
@@ -164,104 +175,145 @@ export function SystemPanel({
             Understood
           </button>
         </Modal>
-        <div className="system-panel" data-panel>
-          <div className="system-panel-header">
-            <h3>{viewingSystem.name}</h3>
-            <button
-              className="close-btn"
-              onClick={() => onClose()}
-              aria-label="Close"
-            >
-              ×
-            </button>
+      )}
+      <section className="system-panel" data-panel aria-labelledby={headingId}>
+        <div className="system-panel-header">
+          <h2 id={headingId} ref={headingRef} tabIndex={-1}>
+            {viewingSystem.name}
+          </h2>
+          <button
+            className="close-btn"
+            onClick={() => onClose()}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="system-panel-content">
+          <SystemDetails
+            system={viewingSystem}
+            starData={starData}
+            dangerZone={dangerZone}
+            isCurrentSystem={isCurrentSystem}
+          />
+          {isCurrentSystem ? (
+            <ConnectedSystems
+              game={game}
+              currentSystem={currentSystem}
+              starData={starData}
+              shipCondition={shipCondition}
+              quirks={quirks}
+              upgrades={upgrades}
+              currentDay={currentDay}
+              selectStarById={selectStarById}
+            />
+          ) : (
+            <JumpSection validation={validation} onJump={handleJump} />
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SystemDetails({ system, starData, dangerZone, isCurrentSystem }) {
+  return (
+    <div className="system-details">
+      <div className="system-property">
+        <span className="label">Spectral Class:</span>
+        <span className="value">{system.type}</span>
+      </div>
+      <SystemStars star={system} starData={starData} />
+      <div className="system-property">
+        <span className="label">Wormholes:</span>
+        <span className="value">{system.wh}</span>
+      </div>
+      <div className="system-property">
+        <span className="label">Distance from Sol:</span>
+        <span className="value">
+          {calculateDistanceFromSol(system).toFixed(1)} LY
+        </span>
+      </div>
+      <div className="system-property">
+        <span className="label">Security Level:</span>
+        <span className={`value danger-${dangerZone}`}>
+          {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
+        </span>
+      </div>
+      <div className="system-property">
+        <span className="label">Status:</span>
+        <span className="value">
+          {isCurrentSystem
+            ? system.st > 0
+              ? 'Station Available'
+              : 'No Station'
+            : system.r === 1
+              ? 'On the wormhole network'
+              : 'Off the wormhole network'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function JumpSection({ validation, onJump }) {
+  return (
+    <>
+      <div className="system-divider"></div>
+
+      {/* Validation returns zero placeholders when unconnected; showing them reads as a free jump */}
+      {validation.reason !== 'no_connection' && (
+        <div className="jump-information">
+          <div className="jump-info-row">
+            <span className="label">Jump Distance:</span>
+            <span className="value">{validation.distance.toFixed(1)} LY</span>
           </div>
-
-          <div className="system-panel-content">
-            {/* System Details */}
-            <div className="system-details">
-              <div className="system-property">
-                <span className="label">Spectral Class:</span>
-                <span className="value">{viewingSystem.type}</span>
-              </div>
-              <SystemStars star={viewingSystem} starData={starData} />
-              <div className="system-property">
-                <span className="label">Wormholes:</span>
-                <span className="value">{viewingSystem.wh}</span>
-              </div>
-              <div className="system-property">
-                <span className="label">Distance from Sol:</span>
-                <span className="value">
-                  {calculateDistanceFromSol(viewingSystem).toFixed(1)} LY
-                </span>
-              </div>
-              <div className="system-property">
-                <span className="label">Security Level:</span>
-                <span className={`value danger-${dangerZone}`}>
-                  {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
-                </span>
-              </div>
-              <div className="system-property">
-                <span className="label">Status:</span>
-                <span className="value">
-                  {viewingSystem.r === 1
-                    ? 'On the wormhole network'
-                    : 'Off the wormhole network'}
-                </span>
-              </div>
-            </div>
-
-            <div className="system-divider"></div>
-
-            {/* Validation returns zero placeholders when unconnected; showing them reads as a free jump */}
-            {validation.reason !== 'no_connection' && (
-              <div className="jump-information">
-                <div className="jump-info-row">
-                  <span className="label">Jump Distance:</span>
-                  <span className="value">
-                    {validation.distance.toFixed(1)} LY
-                  </span>
-                </div>
-                <div className="jump-info-row">
-                  <span className="label">Fuel Cost:</span>
-                  <span className="value">
-                    {Math.round(validation.fuelCost)}%
-                  </span>
-                </div>
-                <div className="jump-info-row">
-                  <span className="label">Jump Time:</span>
-                  <span className="value">
-                    {validation.jumpTime} day
-                    {validation.jumpTime !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {!validation.valid && (
-              <div className="validation-message error">{validation.error}</div>
-            )}
-
-            <button
-              className="jump-btn"
-              onClick={handleJump}
-              disabled={!validation.valid}
-            >
-              Jump to System
-            </button>
+          <div className="jump-info-row">
+            <span className="label">Fuel Cost:</span>
+            <span className="value">{Math.round(validation.fuelCost)}%</span>
+          </div>
+          <div className="jump-info-row">
+            <span className="label">Jump Time:</span>
+            <span className="value">
+              {validation.jumpTime} day
+              {validation.jumpTime !== 1 ? 's' : ''}
+            </span>
           </div>
         </div>
-      </>
-    );
-  }
+      )}
 
-  // If viewing current system, show system info with connected systems
+      {!validation.valid && (
+        <div className="validation-message error">{validation.error}</div>
+      )}
+
+      <button
+        className="jump-btn"
+        onClick={onJump}
+        disabled={!validation.valid}
+      >
+        Jump to System
+      </button>
+    </>
+  );
+}
+
+function ConnectedSystems({
+  game,
+  currentSystem,
+  starData,
+  shipCondition,
+  quirks,
+  upgrades,
+  currentDay,
+  selectStarById,
+}) {
   const capabilities = game.calculateShipCapabilities();
   const engineCondition = shipCondition?.engine ?? 100;
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');
 
-  const connectedSystemIds =
-    game.navigationSystem.getConnectedSystems(currentSystemId);
-  const connectedSystems = connectedSystemIds
+  const connectedSystems = game.navigationSystem
+    .getConnectedSystems(currentSystem.id)
     .map((id) => {
       const system = starData.find((s) => s.id === id);
       if (!system) return null;
@@ -290,111 +342,62 @@ export function SystemPanel({
     .sort((a, b) => a.distance - b.distance);
 
   return (
-    <div className="system-panel" data-panel>
-      <div className="system-panel-header">
-        <h3>{viewingSystem.name}</h3>
-        <button
-          className="close-btn"
-          onClick={() => onClose()}
-          aria-label="Close"
-        >
-          ×
-        </button>
-      </div>
+    <div className="connected-systems">
+      {connectedSystems.length === 0 ? (
+        <p className="no-connections">No wormhole connections</p>
+      ) : (
+        <div className="connections-list">
+          {connectedSystems.map((system) => {
+            let destinationEvent = null;
+            let destinationEventType = null;
+            if (hasAdvancedSensors) {
+              destinationEvent = game.getActiveEventForSystem(system.id);
+              if (destinationEvent) {
+                destinationEventType = game.getEventType(destinationEvent.type);
+              }
+            }
+            const daysRemaining = destinationEvent
+              ? destinationEvent.endDay - currentDay
+              : 0;
 
-      <div className="system-panel-content">
-        {/* System Details */}
-        <div className="system-details">
-          <div className="system-property">
-            <span className="label">Spectral Class:</span>
-            <span className="value">{viewingSystem.type}</span>
-          </div>
-          <SystemStars star={viewingSystem} starData={starData} />
-          <div className="system-property">
-            <span className="label">Wormholes:</span>
-            <span className="value">{viewingSystem.wh}</span>
-          </div>
-          <div className="system-property">
-            <span className="label">Distance from Sol:</span>
-            <span className="value">
-              {calculateDistanceFromSol(viewingSystem).toFixed(1)} LY
-            </span>
-          </div>
-          <div className="system-property">
-            <span className="label">Security Level:</span>
-            <span className={`value danger-${dangerZone}`}>
-              {dangerZone.charAt(0).toUpperCase() + dangerZone.slice(1)}
-            </span>
-          </div>
-          <div className="system-property">
-            <span className="label">Status:</span>
-            <span className="value">
-              {viewingSystem.st > 0 ? 'Station Available' : 'No Station'}
-            </span>
-          </div>
-        </div>
-
-        {/* Connected Systems */}
-        <div className="connected-systems">
-          {connectedSystems.length === 0 ? (
-            <p className="no-connections">No wormhole connections</p>
-          ) : (
-            <div className="connections-list">
-              {connectedSystems.map((system) => {
-                let destinationEvent = null;
-                let destinationEventType = null;
-                if (hasAdvancedSensors) {
-                  destinationEvent = game.getActiveEventForSystem(system.id);
-                  if (destinationEvent) {
-                    destinationEventType = game.getEventType(
-                      destinationEvent.type
-                    );
+            return (
+              <button
+                key={system.id}
+                className="connection-item"
+                onClick={() => {
+                  if (selectStarById) {
+                    selectStarById(system.id);
                   }
-                }
-                const daysRemaining = destinationEvent
-                  ? destinationEvent.endDay - currentDay
-                  : 0;
-
-                return (
-                  <button
-                    key={system.id}
-                    className="connection-item"
-                    onClick={() => {
-                      if (selectStarById) {
-                        selectStarById(system.id);
-                      }
-                    }}
-                  >
-                    <div className="connection-name">{system.name}</div>
-                    <div className="connection-details">
-                      {system.distance.toFixed(1)} LY •{' '}
-                      {system.fuelCost.toFixed(1)}% fuel • {system.jumpTime}d
+                }}
+              >
+                <div className="connection-name">{system.name}</div>
+                <div className="connection-details">
+                  {system.distance.toFixed(1)} LY • {system.fuelCost.toFixed(1)}
+                  % fuel • {system.jumpTime}d
+                </div>
+                {destinationEventType && daysRemaining >= 0 && (
+                  <div className="system-event-info destination-event">
+                    <div className="event-indicator">
+                      <span className="event-icon">📊</span>
+                      <span className="event-name">
+                        {destinationEventType.name} at {system.name}
+                      </span>
                     </div>
-                    {destinationEventType && daysRemaining >= 0 && (
-                      <div className="system-event-info destination-event">
-                        <div className="event-indicator">
-                          <span className="event-icon">📊</span>
-                          <span className="event-name">
-                            {destinationEventType.name} at {system.name}
-                          </span>
-                        </div>
-                        <div className="event-description">
-                          {destinationEventType.description}
-                        </div>
-                        <div className="event-time-remaining">
-                          {daysRemaining === 0
-                            ? 'Final day'
-                            : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                    <div className="event-description">
+                      {destinationEventType.description}
+                    </div>
+                    <div className="event-time-remaining">
+                      {daysRemaining === 0
+                        ? 'Final day'
+                        : `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`}
+                    </div>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 }

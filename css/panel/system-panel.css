@@ -32,7 +32,7 @@
   background-color: var(--bg-panel);
 }
 
-.system-panel-header h3 {
+.system-panel-header h2 {
   color: var(--color-primary);
   font-size: var(--font-size-title);
   margin: 0;
