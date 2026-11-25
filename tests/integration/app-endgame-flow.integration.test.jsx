@@ -232,6 +232,33 @@ describe('Endgame Flow Integration', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should restart the Pavonis Run after the player cancels once', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+    game.dock();
+
+    game.startPavonisRun();
+    await waitFor(() => {
+      expect(screen.getByTestId('pavonis-run')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Cancel Run'));
+    await waitFor(() => {
+      expect(screen.queryByTestId('pavonis-run')).not.toBeInTheDocument();
+    });
+
+    // Choosing "Let's fly." again must reopen the Point of No Return screen
+    game.startPavonisRun();
+    await waitFor(() => {
+      expect(screen.getByTestId('pavonis-run')).toBeInTheDocument();
+    });
+  });
+
   it('should show Epilogue directly when EPILOGUE_PREVIEW_TRIGGERED is emitted', async () => {
     render(
       <GameProvider game={game}>
