@@ -231,8 +231,6 @@ describe('Integration: SystemPanel accessibility', () => {
       document.querySelector('abbr[title="light-years"]').textContent
     ).toBe('LY');
     const spectral = screen.getByText('Spectral Class:').parentElement;
-    expect(spectral.querySelector('.value').textContent).toBe(
-      'M5 (red dwarf)'
-    );
+    expect(spectral.querySelector('.value').textContent).toBe('M5 (red dwarf)');
   });
 });
