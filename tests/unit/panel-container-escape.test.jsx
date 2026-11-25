@@ -36,6 +36,39 @@ describe('PanelContainer Escape key', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it('leaves Escape to an open aria-modal dialog without a modal overlay', () => {
+    // e.g. the Upgrades purchase confirmation
+    const onClose = vi.fn();
+    render(
+      <>
+        <div role="dialog" aria-modal="true" />
+        <PanelContainer activePanel={EMPTY_PANEL} onClose={onClose} />
+      </>
+    );
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('leaves Escape to another panel that has focus', () => {
+    // e.g. a CustomSelect dropdown inside the dev admin panel
+    const onClose = vi.fn();
+    const { getByText } = render(
+      <>
+        <div id="dev-admin-panel" data-panel>
+          <button>Admin</button>
+        </div>
+        <PanelContainer activePanel={EMPTY_PANEL} onClose={onClose} />
+      </>
+    );
+    getByText('Admin').focus();
+
+    fireEvent.keyDown(document.activeElement, { key: 'Escape' });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('closes only the panel, not the station menu that opened it', () => {
     const onClose = vi.fn();
     const onUndock = vi.fn();
@@ -60,7 +93,7 @@ function StationMenuStandIn({ onUndock }) {
   const ref = useRef(null);
   useClickOutside(ref, onUndock);
   return (
-    <div ref={ref} data-panel>
+    <div id="station-interface" ref={ref} data-panel>
       <button>Trade</button>
     </div>
   );

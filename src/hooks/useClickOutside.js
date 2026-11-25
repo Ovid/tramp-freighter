@@ -30,6 +30,8 @@ export function useClickOutside(ref, onClose, enabled = true) {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         if (document.querySelector('.modal-overlay')) return;
+        // Dialogs without an overlay (upgrade confirmation) also own Escape
+        if (document.querySelector('[aria-modal="true"]')) return;
         // If focus is inside this panel, always allow close
         if (ref.current?.contains(document.activeElement)) {
           onCloseRef.current();
