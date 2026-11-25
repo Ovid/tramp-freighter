@@ -6,6 +6,7 @@ import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
+import { restoreFocus } from '../../hooks/useFocusTrap';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { Modal } from '../../components/Modal';
 import { getCompanions, starKind } from '../../game/utils/star-systems';
@@ -83,6 +84,12 @@ export function SystemPanel({
       setShowCriticalDamageModal(false);
     }
   }, [viewingSystemId, currentSystemId, isCriticalDamageError]);
+
+  // Runs before the heading-focus effect below, so it records the opener.
+  useEffect(() => {
+    const opener = document.activeElement;
+    return () => restoreFocus(opener);
+  }, []);
 
   // Picking a connected system replaces the button that had focus, which would
   // drop keyboard users to <body>. Leave canvas focus alone so arrow-key

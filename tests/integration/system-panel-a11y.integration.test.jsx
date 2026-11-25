@@ -144,4 +144,15 @@ describe('Integration: SystemPanel accessibility', () => {
     expect(document.activeElement).toBe(canvas);
     canvas.remove();
   });
+
+  it('returns focus to the control that opened it when it closes', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const { unmount } = render(panel(4));
+    expect(document.activeElement).not.toBe(opener);
+    unmount();
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
+  });
 });

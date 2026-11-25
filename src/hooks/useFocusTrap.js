@@ -46,13 +46,20 @@ export function useFocusTrap(ref, active = true) {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      // The opener is often unmounted by the dialog's own action (Proceed
-      // closes the panel that held the Jump button); don't strand focus on body.
-      if (previous && previous !== document.body && previous.isConnected) {
-        previous.focus();
-      } else {
-        document.getElementById('main-content')?.focus();
-      }
+      restoreFocus(previous);
     };
   }, [ref, active]);
+}
+
+/**
+ * Focuses `previous` if it is still on the page, else #main-content. The
+ * opener is often unmounted by the closing action itself (Proceed closes the
+ * panel that held the Jump button); this keeps focus off <body>.
+ */
+export function restoreFocus(previous) {
+  if (previous && previous !== document.body && previous.isConnected) {
+    previous.focus();
+  } else {
+    document.getElementById('main-content')?.focus();
+  }
 }
