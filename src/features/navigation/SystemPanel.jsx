@@ -8,7 +8,28 @@ import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { Modal } from '../../components/Modal';
+import {
+  getSystemName,
+  getCompanions,
+  starKind,
+} from '../../game/utils/star-systems';
 import { calculateDistanceFromSol, EVENT_NAMES } from '../../game/constants';
+
+/** Lists every star in a multi-star system; renders nothing for a lone star. */
+function SystemStars({ star, starData }) {
+  const companions = getCompanions(starData, star.id);
+  if (companions.length === 0) return null;
+  return (
+    <div className="system-property system-stars">
+      <span className="label">Stars:</span>
+      <ul className="value">
+        {[star, ...companions].map((s) => (
+          <li key={s.id}>{`${s.name}: ${s.type}, ${starKind(s.type)}`}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /**
  * SystemPanel displays information about a system.
@@ -147,7 +168,7 @@ export function SystemPanel({
         </Modal>
         <div className="system-panel" data-panel>
           <div className="system-panel-header">
-            <h3>{viewingSystem.name}</h3>
+            <h3>{getSystemName(viewingSystem)}</h3>
             <button className="close-btn" onClick={onClose} aria-label="Close">
               ×
             </button>
@@ -160,6 +181,7 @@ export function SystemPanel({
                 <span className="label">Spectral Class:</span>
                 <span className="value">{viewingSystem.type}</span>
               </div>
+              <SystemStars star={viewingSystem} starData={starData} />
               <div className="system-property">
                 <span className="label">Wormholes:</span>
                 <span className="value">{viewingSystem.wh}</span>
@@ -264,7 +286,7 @@ export function SystemPanel({
   return (
     <div className="system-panel" data-panel>
       <div className="system-panel-header">
-        <h3>{viewingSystem.name}</h3>
+        <h3>{getSystemName(viewingSystem)}</h3>
         <button className="close-btn" onClick={onClose} aria-label="Close">
           ×
         </button>
@@ -277,6 +299,7 @@ export function SystemPanel({
             <span className="label">Spectral Class:</span>
             <span className="value">{viewingSystem.type}</span>
           </div>
+          <SystemStars star={viewingSystem} starData={starData} />
           <div className="system-property">
             <span className="label">Wormholes:</span>
             <span className="value">{viewingSystem.wh}</span>

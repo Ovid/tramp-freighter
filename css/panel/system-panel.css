@@ -88,6 +88,14 @@
   color: #ffffff;
 }
 
+/* Right-aligned like the other property values */
+.system-stars ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+}
+
 /* Divider */
 .system-divider {
   height: 1px;
