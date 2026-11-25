@@ -86,3 +86,15 @@ A Cole favor passenger template in `src/game/state/managers/debt.js` has no
 `missions.active`. Fix before wiring favor missions up.
 
 Found during rethink on issue #57.
+
+## Contested-zone config points at the wrong star
+
+`DANGER_CONFIG` in `src/game/constants.js` (around line 1192) has
+`systems: [7, 10], // Sirius, Epsilon Eridani`. Id 10 is `L 726-8 B`, an
+unreachable companion star. Epsilon Eridani is id 13. As a result, Epsilon
+Eridani never gets the contested pirate and inspection rates.
+
+Possible fix: change `10` to `13`. Add a test that looks up each contested id
+in `STAR_DATA` and checks its name.
+
+Found during rethink on multi-star merging (GitHub #56).
