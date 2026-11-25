@@ -44,6 +44,36 @@ export function pxToSpriteScale(px, fovDeg, viewportHeightPx) {
   return (px * 2 * Math.tan((fovDeg * DEG_TO_RAD) / 2)) / viewportHeightPx;
 }
 
+// Reused so per-frame decluttering doesn't allocate
+const _kept = [];
+
+function byClaimOrder(a, b) {
+  return b.pinned - a.pinned || a.depth - b.depth;
+}
+
+function overlapsKept(b) {
+  for (const k of _kept) {
+    if (b.x0 < k.x1 && k.x0 < b.x1 && b.y0 < k.y1 && k.y0 < b.y1) return true;
+  }
+  return false;
+}
+
+/**
+ * Fixed-size labels can't all fit in a dense view, so a label is hidden
+ * when it overlaps one already shown. Pinned labels claim space first,
+ * then nearer ones. Boxes are screen rects {x0, y0, x1, y1, depth, pinned};
+ * `visible` is written on each. Sorts `boxes` in place.
+ * ponytail: O(n²) overlap scan; fine for ~100 labels, use a grid if that grows.
+ */
+export function declutterLabels(boxes) {
+  boxes.sort(byClaimOrder);
+  _kept.length = 0;
+  for (const b of boxes) {
+    b.visible = !overlapsKept(b);
+    if (b.visible) _kept.push(b);
+  }
+}
+
 // Reused so clicks don't allocate
 const _view = new THREE.Vector3();
 const _ndc = new THREE.Vector3();

@@ -939,6 +939,9 @@ export const STARMAP_CONFIG = Object.freeze({
   MIN_PICK_RADIUS_PX: 12,
   MIN_PICK_RADIUS_TOUCH_PX: 22,
   LABEL_HEIGHT_PX: 28,
+  // Label sprites carry transparent padding and glow around the text; overlap
+  // there shouldn't hide a label, so the declutter box is inset this much
+  LABEL_DECLUTTER_INSET_PX: 6,
   RETICLE_SIZE_PX: 96,
   CURRENT_SYSTEM_SIZE_PX: 115,
   MAX_FRAME_DT_SEC: 0.1,

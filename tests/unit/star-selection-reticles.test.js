@@ -8,6 +8,7 @@ import {
   getSelectedStar,
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
+  getCurrentSystemStar,
   updateSelectionRingAnimations,
   _resetState,
 } from '../../src/game/engine/interaction.js';
@@ -471,6 +472,13 @@ describe('Star Selection Reticles', () => {
       );
 
       expect(getCurrentSystemIndicator()).toBe(indicator);
+    });
+  });
+
+  describe('getCurrentSystemStar', () => {
+    it('returns the star the indicator marks, so its label can be pinned', () => {
+      updateCurrentSystemIndicator(scene, camera, stars, 2);
+      expect(getCurrentSystemStar()).toBe(stars[1]);
     });
   });
 });

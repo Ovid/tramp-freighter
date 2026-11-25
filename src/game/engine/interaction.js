@@ -12,6 +12,7 @@ function wrapAngle(angle) {
 // Selection state
 let selectedStar = null;
 let currentSystemIndicator = null;
+let currentSystemStar = null;
 let currentSystemMaterial = null;
 
 /**
@@ -104,6 +105,7 @@ export function updateCurrentSystemIndicator(
   if (!currentStar) {
     return null;
   }
+  currentSystemStar = currentStar;
 
   // Remove old indicator if it exists
   if (currentSystemIndicator) {
@@ -140,12 +142,21 @@ export function getCurrentSystemIndicator() {
 }
 
 /**
+ * Get the star the current system indicator marks
+ * @returns {Object|null} The current system's star or null
+ */
+export function getCurrentSystemStar() {
+  return currentSystemStar;
+}
+
+/**
  * Reset module state (for testing)
  * @private
  */
 export function _resetState() {
   selectedStar = null;
   currentSystemIndicator = null;
+  currentSystemStar = null;
   currentSystemMaterial = null;
 }
 

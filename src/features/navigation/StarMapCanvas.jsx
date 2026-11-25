@@ -21,6 +21,8 @@ import {
   deselectStar,
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
+  getCurrentSystemStar,
+  getSelectedStar,
   updateSelectionRingAnimations,
   _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
@@ -147,6 +149,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // The renderer fills the window (scene.js onWindowResize), so its height is
       // window.innerHeight. unitsPerPx turns CSS px into sprite scale.
       let unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
+      // Reused every frame for label decluttering
+      const viewport = { width: window.innerWidth, height: window.innerHeight };
+      const pinnedStars = [null, null];
 
       // Append renderer to container
       container.appendChild(renderer.domElement);
@@ -293,8 +298,10 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           camera.position.copy(controls.target).add(_tempOffset);
         }
 
-        // Update label scale and opacity based on camera distance
-        updateLabels(stars, camera, unitsPerPx);
+        // Selected and current-system labels always show; others declutter
+        pinnedStars[0] = getSelectedStar();
+        pinnedStars[1] = getCurrentSystemStar();
+        updateLabels(stars, camera, unitsPerPx, viewport, pinnedStars);
 
         // Update selection ring animations (static in reduced-motion mode)
         updateSelectionRingAnimations(currentTime, reducedMotion, unitsPerPx);
@@ -321,6 +328,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       const handleResize = () => {
         onWindowResize(camera, renderer);
         unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
+        viewport.width = window.innerWidth;
+        viewport.height = window.innerHeight;
       };
       window.addEventListener('resize', handleResize);
 

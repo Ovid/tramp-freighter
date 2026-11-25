@@ -3,6 +3,7 @@ import { VISUAL_CONFIG, LABEL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
 import { isCompanion } from '../utils/star-systems.js';
+import { declutterLabels } from './starmap-math.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;
@@ -337,18 +338,34 @@ function calculateLabelOpacity(distance) {
   );
 }
 
-// Temp vector for label distance calculations (reused to avoid allocation)
+// Reused every frame to avoid allocation
 const _tempLabelDistance = new THREE.Vector3();
+const _labelNdc = new THREE.Vector3();
+const _labelBoxes = [];
 
 /**
- * Keep labels a fixed height on screen, fade them with distance, and hide
- * those so close to the camera that they would cover the wormhole lanes.
+ * Keep labels a fixed height on screen, fade them with distance, hide those
+ * so close to the camera that they would cover the wormhole lanes, and hide
+ * those that would overlap a nearer or pinned label (see declutterLabels).
  * @param {Array} stars - Array of star objects
  * @param {THREE.PerspectiveCamera} camera - The camera
  * @param {number} unitsPerPx - Sprite scale per CSS px (see pxToSpriteScale)
+ * @param {{width: number, height: number}} viewport - Canvas size in CSS px
+ * @param {Array} [pinnedStars] - Stars whose labels always show (null entries ignored)
  */
-export function updateLabels(stars, camera, unitsPerPx) {
-  const height = STARMAP_CONFIG.LABEL_HEIGHT_PX * unitsPerPx;
+export function updateLabels(
+  stars,
+  camera,
+  unitsPerPx,
+  viewport,
+  pinnedStars = []
+) {
+  const heightPx = STARMAP_CONFIG.LABEL_HEIGHT_PX;
+  const inset = STARMAP_CONFIG.LABEL_DECLUTTER_INSET_PX;
+  const height = heightPx * unitsPerPx;
+  // Camera matrices are the ones the last render used: at most a frame stale
+  _labelBoxes.length = 0;
+
   for (const star of stars) {
     if (!star.label) continue;
     const distance = _tempLabelDistance
@@ -358,9 +375,29 @@ export function updateLabels(stars, camera, unitsPerPx) {
       star.label.visible = false;
       continue;
     }
-    star.label.visible = true;
     star.label.material.opacity = calculateLabelOpacity(distance);
     const canvas = star.label.material.map.image;
-    star.label.scale.set(height * (canvas.width / canvas.height), height, 1);
+    const aspect = canvas.width / canvas.height;
+    star.label.scale.set(height * aspect, height, 1);
+
+    // Screen box of the label: centred on the star, above it by sprite.center
+    _labelNdc.copy(star.position).project(camera);
+    const sx = ((_labelNdc.x + 1) / 2) * viewport.width;
+    const sy = ((1 - _labelNdc.y) / 2) * viewport.height;
+    const halfWidthPx = (heightPx * aspect) / 2;
+    const bottom = sy + LABEL_CONFIG.anchorCenterY * heightPx;
+
+    // One box per star, created once
+    const box = (star.labelBox ??= { star });
+    box.x0 = sx - halfWidthPx + inset;
+    box.x1 = sx + halfWidthPx - inset;
+    box.y0 = bottom - heightPx + inset;
+    box.y1 = bottom - inset;
+    box.depth = distance;
+    box.pinned = pinnedStars.includes(star);
+    _labelBoxes.push(box);
   }
+
+  declutterLabels(_labelBoxes);
+  for (const box of _labelBoxes) box.star.label.visible = box.visible;
 }
