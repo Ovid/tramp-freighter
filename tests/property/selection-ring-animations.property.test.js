@@ -6,6 +6,8 @@ import {
   selectStar,
   deselectStar,
   updateSelectionRingAnimations,
+  updateCurrentSystemIndicator,
+  getCurrentSystemIndicator,
   _resetState,
 } from '../../src/game/engine/interaction.js';
 import { VISUAL_CONFIG, STARMAP_CONFIG } from '../../src/game/constants.js';
@@ -129,23 +131,24 @@ describe('Selection Ring Animations - Property Tests', () => {
   });
 
   describe('Selection Ring Rotation Animation', () => {
-    it('should always increase rotation over time', () => {
+    // material.rotation is a float32 shader uniform; the caller passes
+    // Date.now()/1000 (~1.8e9), and sin/cos of an unwrapped angle that large
+    // made the reticle and current-system marker vanish on the GPU
+    it('should keep ring and marker rotation within [0, 2π) for wall-clock times', () => {
       fc.assert(
-        fc.property(
-          fc.double({ min: 0, max: 100, noNaN: true }),
-          fc.double({ min: 0.1, max: 10, noNaN: true }),
-          (time, delta) => {
-            selectStar(star, scene, camera);
+        fc.property(fc.double({ min: 0, max: 4e9, noNaN: true }), (time) => {
+          selectStar(star, scene, camera);
+          updateCurrentSystemIndicator(scene, camera, [star], star.data.id);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
 
-            updateSelectionRingAnimations(time, false, UNITS_PER_PX);
-            const rotation1 = star.selectionRing.material.rotation;
-
-            updateSelectionRingAnimations(time + delta, false, UNITS_PER_PX);
-            const rotation2 = star.selectionRing.material.rotation;
-
-            expect(rotation2).toBeGreaterThan(rotation1);
+          for (const rotation of [
+            star.selectionRing.material.rotation,
+            getCurrentSystemIndicator().material.rotation,
+          ]) {
+            expect(rotation).toBeGreaterThanOrEqual(0);
+            expect(rotation).toBeLessThan(2 * Math.PI);
           }
-        )
+        })
       );
     });
 
@@ -179,10 +182,15 @@ describe('Selection Ring Animations - Property Tests', () => {
             updateSelectionRingAnimations(time + delta, false, UNITS_PER_PX);
             const rotation2 = star.selectionRing.material.rotation;
 
-            const rotationSpeed = (rotation2 - rotation1) / delta;
+            // Rotation wraps at 2π, so compare angles modulo a full turn
+            const TWO_PI = 2 * Math.PI;
+            const turned =
+              (((rotation2 - rotation1) % TWO_PI) + TWO_PI) % TWO_PI;
+            const expected = (0.2 * delta) % TWO_PI;
+            const diff = Math.abs(turned - expected);
 
-            // Rotation speed should be 0.2 radians per second
-            expect(Math.abs(rotationSpeed - 0.2)).toBeLessThan(0.001);
+            // 0.2 radians per second
+            expect(Math.min(diff, TWO_PI - diff)).toBeLessThan(0.001);
           }
         )
       );

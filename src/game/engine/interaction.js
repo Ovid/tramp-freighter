@@ -1,6 +1,14 @@
 import { VISUAL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { createSelectionRing } from './stars.js';
 
+const TWO_PI = 2 * Math.PI;
+
+// Sprite rotation is a float32 shader uniform: an unwrapped wall-clock angle
+// (~1e8 rad) breaks sin/cos on the GPU and the sprite disappears
+function wrapAngle(angle) {
+  return ((angle % TWO_PI) + TWO_PI) % TWO_PI;
+}
+
 // Selection state
 let selectedStar = null;
 let currentSystemIndicator = null;
@@ -182,7 +190,9 @@ export function updateSelectionRingAnimations(
           VISUAL_CONFIG.selectionRingOpacityAmplitude;
 
       // Slow rotation for targeting system effect
-      ring.material.rotation = time * VISUAL_CONFIG.selectionRingRotationSpeed;
+      ring.material.rotation = wrapAngle(
+        time * VISUAL_CONFIG.selectionRingRotationSpeed
+      );
     }
   }
 
@@ -209,8 +219,9 @@ export function updateSelectionRingAnimations(
           VISUAL_CONFIG.currentSystemOpacityAmplitude;
 
       // Its material is its own clone, so it spins opposite the selection ring
-      marker.material.rotation =
-        -time * VISUAL_CONFIG.currentSystemRotationSpeed;
+      marker.material.rotation = wrapAngle(
+        -time * VISUAL_CONFIG.currentSystemRotationSpeed
+      );
     }
   }
 }
