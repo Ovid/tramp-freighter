@@ -321,6 +321,19 @@ export function selectChoice(
 
   const selectedChoice = currentNode.choices[choiceIndex];
 
+  // Free conversation rep is paid once per choice, or repeating a chain
+  // farms every rep gate. Penalties and picker choices (which cost cargo)
+  // still apply each time.
+  const shouldAwardRepGain = (choice, id) => {
+    if (choice.repGain < 0 || choice.picker) return true;
+    const npcState = gameStateManager.getNPCState(id);
+    npcState.repGainsClaimed ||= [];
+    const key = `${currentNodeId}:${choiceIndex}`;
+    if (npcState.repGainsClaimed.includes(key)) return false;
+    npcState.repGainsClaimed.push(key);
+    return true;
+  };
+
   // The engine, not the UI, runs picker operations, so no caller can collect
   // the repGain without the cargo actually moving (ADR 0001)
   let message;
@@ -378,7 +391,7 @@ export function selectChoice(
   // Apply reputation gain before advancing to next node
   // Use modifyRepRaw to bypass trust personality modifier — dialogue repGain
   // values are intentional design choices that should apply at face value
-  if (selectedChoice.repGain && selectedChoice.repGain !== 0) {
+  if (selectedChoice.repGain && shouldAwardRepGain(selectedChoice, npcId)) {
     gameStateManager.modifyRepRaw(
       npcId,
       selectedChoice.repGain,
