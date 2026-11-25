@@ -34,3 +34,11 @@ export function resolveAutoRotationSpeed(preference, reducedMotion) {
   if (preference !== null && preference !== undefined) return preference;
   return reducedMotion ? 0 : VISUAL_CONFIG.autoRotationDefaultSpeed;
 }
+
+/**
+ * A sizeAttenuation:false sprite's scale is a fraction of viewport height,
+ * so a fixed pixel size needs the viewport height and field of view.
+ */
+export function pxToSpriteScale(px, fovDeg, viewportHeightPx) {
+  return (px * 2 * Math.tan((fovDeg * DEG_TO_RAD) / 2)) / viewportHeightPx;
+}

@@ -4,6 +4,7 @@ import {
   minPickRadiusFor,
   rotationAngle,
   resolveAutoRotationSpeed,
+  pxToSpriteScale,
 } from '../../src/game/engine/starmap-math.js';
 import { STARMAP_CONFIG, VISUAL_CONFIG } from '../../src/game/constants.js';
 
@@ -79,5 +80,15 @@ describe('resolveAutoRotationSpeed', () => {
 
   it('defaults to 0 under reduced motion', () => {
     expect(resolveAutoRotationSpeed(null, true)).toBe(0);
+  });
+});
+
+describe('pxToSpriteScale', () => {
+  it('converts CSS px to non-attenuated sprite scale', () => {
+    // 60° FOV: on-screen px = scale / tan(30°) × H/2
+    const scale = pxToSpriteScale(100, 60, 1000);
+    expect(scale).toBeCloseTo((100 * 2 * Math.tan(Math.PI / 6)) / 1000);
+    const backToPx = (scale / Math.tan(Math.PI / 6)) * (1000 / 2);
+    expect(backToPx).toBeCloseTo(100);
   });
 });
