@@ -128,3 +128,31 @@ example, `capabilities.js` may be documentation-only by design; the GSM
 refactor notes describe a capabilities object).
 
 Found while executing `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## System panel shows 0.0 LY, 0% fuel, 0 days for systems with no direct wormhole
+
+When the selected system has no direct wormhole link to the current one,
+the SystemPanel jump section shows "Jump Distance: 0.0 LY", "Fuel Cost: 0%"
+and "Jump Time: 0 days" above the "No wormhole connection to target system"
+error. The same panel can say "Status: Reachable" (reachable through the
+network). The zeros read as real values. Seen with Procyon → Sirius and
+Procyon → 82 Eridani. `SystemPanel.jsx`'s jump section and
+`validateJump` in `src/game/game-navigation.js` are unchanged on the
+navigation sphere branch, so this predates it.
+
+Possible fix: hide the distance, fuel and time rows (or show "—") when
+the jump is invalid because there is no connection.
+
+Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## Missions in old saves still name "L 726-8 A" and similar
+
+Missions store their destination name when created. A save made before
+multi-star primaries were renamed keeps text such as "Cargo Run:
+Registered Freight to L 726-8 A" until the mission ends. Cosmetic only; no
+new mission uses the old name.
+
+Possible fix: none needed, or resolve the name from the destination id at
+display time.
+
+Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
