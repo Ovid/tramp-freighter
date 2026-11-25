@@ -330,7 +330,9 @@ export function selectChoice(
     if (choice.repGain < 0 || choice.picker || choice.action) return true;
     const npcState = gameStateManager.getNPCState(id);
     npcState.repGainsClaimed ||= [];
-    const key = `${currentNodeId}:${choiceIndex}`;
+    // Keyed on text, not position, so reordering choices can't misattribute
+    // claims in existing saves; rewording a choice just pays it once more.
+    const key = `${currentNodeId}:${choice.text}`;
     if (npcState.repGainsClaimed.includes(key)) return false;
     npcState.repGainsClaimed.push(key);
     return true;

@@ -9,6 +9,7 @@ import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { showDialogue, selectChoice } from '../../src/game/game-dialogue.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { YUKI_TANAKA_DIALOGUE } from '../../src/game/data/dialogue/tanaka-dialogue.js';
 import {
   NPC_BENEFITS_CONFIG,
   REPUTATION_BOUNDS,
@@ -37,6 +38,27 @@ describe('Dialogue repGain is awarded once per choice', () => {
     askFurther();
 
     expect(afterFirst).toBeGreaterThan(start);
+    expect(game.getNPCState(npcId).rep).toBe(afterFirst);
+  });
+
+  it('keeps a claim when choices are inserted above it in a later version', () => {
+    const npcId = 'tanaka_barnards';
+    const node = YUKI_TANAKA_DIALOGUE.about_work;
+    const askFurther = (index) => {
+      showDialogue(npcId, 'about_work', game);
+      selectChoice(npcId, index, game);
+      game.clearDialogueState();
+    };
+
+    askFurther(0); // "How much further?" (+1)
+    const afterFirst = game.getNPCState(npcId).rep;
+    node.choices.unshift({ text: 'A newly added line', next: null });
+    try {
+      askFurther(1);
+    } finally {
+      node.choices.shift();
+    }
+
     expect(game.getNPCState(npcId).rep).toBe(afterFirst);
   });
 });
