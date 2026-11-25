@@ -916,9 +916,11 @@ export const VISUAL_CONFIG = {
 export const LABEL_CONFIG = {
   maxFontSize: 18, // canvas font size; screen size comes from LABEL_HEIGHT_PX
   maxOpacity: 1.0,
-  minOpacity: 0.3, // Increased from 0.1 to make distant labels more visible at starting zoom
-  nearDistance: 100,
-  farDistance: 500,
+  minOpacity: 0.15,
+  // The fade band spans the overview (initialCameraDistance ± the ~280-unit
+  // star sphere), so front labels read bright and back labels recede
+  nearDistance: 450,
+  farDistance: 950,
   hideDistance: 60, // labels nearer the camera than this hide (they obscure lanes)
   anchorCenterY: -0.3, // sprite.center.y: lifts the label above its star
 };
