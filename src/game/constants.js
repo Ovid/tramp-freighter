@@ -906,6 +906,25 @@ export const LABEL_CONFIG = {
 };
 
 /**
+ * Star map screen-space configuration.
+ *
+ * Sizes are CSS pixels so labels, reticles and click targets look the same
+ * on every screen. starmap-math.js converts px to sprite scale.
+ */
+export const STARMAP_CONFIG = Object.freeze({
+  CLICK_DRAG_THRESHOLD_PX: 5,
+  // A fingertip drifts further than a mouse during a tap, and browsers still
+  // fire click within their touch slop (~15px)
+  CLICK_DRAG_THRESHOLD_TOUCH_PX: 10,
+  MIN_PICK_RADIUS_PX: 12,
+  MIN_PICK_RADIUS_TOUCH_PX: 22,
+  LABEL_HEIGHT_PX: 28,
+  RETICLE_SIZE_PX: 96,
+  CURRENT_SYSTEM_SIZE_PX: 115,
+  MAX_FRAME_DT_SEC: 0.1,
+});
+
+/**
  * UI notification configuration
  *
  * Controls timing for notification display and animations.
