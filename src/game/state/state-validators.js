@@ -5,6 +5,7 @@ import {
   COMMODITY_TYPES,
   DEFAULT_PREFERENCES,
   INTELLIGENCE_CONFIG,
+  MISSION_CARGO_TYPES,
 } from '../constants.js';
 import { TradingSystem } from '../game-trading.js';
 import { devLog, devWarn } from '../utils/dev-logger.js';
@@ -15,6 +16,16 @@ import { devLog, devWarn } from '../utils/dev-logger.js';
  * Handles validation and migration of game save data.
  * Ensures save files are compatible with current game version and have valid structure.
  */
+
+const MISSION_GOODS = [
+  ...MISSION_CARGO_TYPES.legal,
+  ...MISSION_CARGO_TYPES.illegal,
+];
+
+// Older saves stripped missionId from mission goods. Without it they can't
+// be sold, delivered or jettisoned, so they would hold cargo space forever.
+const isOrphanedMissionGood = (stack) =>
+  !stack.missionId && MISSION_GOODS.includes(stack.good);
 
 /**
  * Validate and filter ship configuration IDs (quirks or upgrades).
@@ -694,6 +705,13 @@ export function addStateDefaults(state, systemData) {
   if (state.ship.hiddenCargoCapacity === undefined) {
     state.ship.hiddenCargoCapacity = 0;
   }
+  for (const hold of ['cargo', 'hiddenCargo']) {
+    if (Array.isArray(state.ship[hold])) {
+      state.ship[hold] = state.ship[hold].filter(
+        (stack) => !isOrphanedMissionGood(stack)
+      );
+    }
+  }
   if (state.ship.fuelCapacity === undefined) {
     state.ship.fuelCapacity = SHIP_CONFIG.FUEL_CAPACITY;
   }
@@ -851,11 +869,11 @@ export function addStateDefaults(state, systemData) {
   }
 
   // NPC storage never holds mission cargo. Older saves could store it, so
-  // drop it whether or not its mission is still active.
+  // drop it whether or not its mission is still active, tagged or not.
   for (const npcState of Object.values(state.npcs)) {
     if (Array.isArray(npcState?.storedCargo)) {
       npcState.storedCargo = npcState.storedCargo.filter(
-        (stack) => !stack.missionId
+        (stack) => !stack.missionId && !isOrphanedMissionGood(stack)
       );
     }
   }
