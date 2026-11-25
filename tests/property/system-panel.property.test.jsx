@@ -265,6 +265,57 @@ describe('Property: System Panel', () => {
       expect(screen.getByText(/No wormhole connection/i)).toBeInTheDocument();
     });
 
+    it('hides jump distance, fuel and time when there is no wormhole connection', () => {
+      const currentSystemId = game.getState().player.currentSystem;
+      const unconnectedSystem = STAR_DATA.find(
+        (system) =>
+          system.id !== currentSystemId &&
+          !navigationSystem.areSystemsConnected(currentSystemId, system.id)
+      );
+
+      render(
+        <GameProvider game={game}>
+          <SystemPanel
+            viewingSystemId={unconnectedSystem.id}
+            onClose={() => {}}
+            onJumpStart={() => {}}
+            onJumpComplete={() => {}}
+          />
+        </GameProvider>
+      );
+
+      expect(screen.queryByText('Jump Distance:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Fuel Cost:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Jump Time:')).not.toBeInTheDocument();
+    });
+
+    it.each([
+      [1, 'On the wormhole network'],
+      [0, 'Off the wormhole network'],
+    ])(
+      'status for a system with r=%i reads "%s"',
+      (reachableFlag, expectedStatus) => {
+        const currentSystemId = game.getState().player.currentSystem;
+        const target = STAR_DATA.find(
+          (system) =>
+            system.id !== currentSystemId && system.r === reachableFlag
+        );
+
+        render(
+          <GameProvider game={game}>
+            <SystemPanel
+              viewingSystemId={target.id}
+              onClose={() => {}}
+              onJumpStart={() => {}}
+              onJumpComplete={() => {}}
+            />
+          </GameProvider>
+        );
+
+        expect(screen.getByText(expectedStatus)).toBeInTheDocument();
+      }
+    );
+
     it('should call onClose and onJumpStart when jump button is clicked', async () => {
       const currentSystemId = game.getState().player.currentSystem;
       const connectedIds =

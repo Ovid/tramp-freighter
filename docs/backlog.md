@@ -156,3 +156,16 @@ Possible fix: none needed, or resolve the name from the destination id at
 display time.
 
 Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## JumpDialog is unused and shows zero placeholders
+
+`src/features/navigation/JumpDialog.jsx` isn't imported anywhere in `src`;
+only `tests/property/jump-dialog.property.test.jsx` renders it. Like
+`SystemPanel` before its fix, it shows `validateJump`'s placeholder zeros
+("0.0 LY", "0%", "0 days") when the target has no wormhole connection.
+
+Possible fix: delete the component and its test, or hide the jump rows when
+`validation.reason === 'no_connection'`, as `SystemPanel` now does.
+
+Found while fixing the SystemPanel "0.0 LY / Reachable" display after the
+navigation-sphere UAT.

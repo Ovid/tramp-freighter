@@ -199,35 +199,39 @@ export function SystemPanel({
               <div className="system-property">
                 <span className="label">Status:</span>
                 <span className="value">
-                  {viewingSystem.r === 1 ? 'Reachable' : 'Unreachable'}
+                  {viewingSystem.r === 1
+                    ? 'On the wormhole network'
+                    : 'Off the wormhole network'}
                 </span>
               </div>
             </div>
 
             <div className="system-divider"></div>
 
-            {/* Jump Information */}
-            <div className="jump-information">
-              <div className="jump-info-row">
-                <span className="label">Jump Distance:</span>
-                <span className="value">
-                  {validation.distance.toFixed(1)} LY
-                </span>
+            {/* Validation returns zero placeholders when unconnected; showing them reads as a free jump */}
+            {validation.reason !== 'no_connection' && (
+              <div className="jump-information">
+                <div className="jump-info-row">
+                  <span className="label">Jump Distance:</span>
+                  <span className="value">
+                    {validation.distance.toFixed(1)} LY
+                  </span>
+                </div>
+                <div className="jump-info-row">
+                  <span className="label">Fuel Cost:</span>
+                  <span className="value">
+                    {Math.round(validation.fuelCost)}%
+                  </span>
+                </div>
+                <div className="jump-info-row">
+                  <span className="label">Jump Time:</span>
+                  <span className="value">
+                    {validation.jumpTime} day
+                    {validation.jumpTime !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
-              <div className="jump-info-row">
-                <span className="label">Fuel Cost:</span>
-                <span className="value">
-                  {Math.round(validation.fuelCost)}%
-                </span>
-              </div>
-              <div className="jump-info-row">
-                <span className="label">Jump Time:</span>
-                <span className="value">
-                  {validation.jumpTime} day
-                  {validation.jumpTime !== 1 ? 's' : ''}
-                </span>
-              </div>
-            </div>
+            )}
 
             {!validation.valid && (
               <div className="validation-message error">{validation.error}</div>

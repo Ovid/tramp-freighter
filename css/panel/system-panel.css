@@ -71,6 +71,7 @@
 .system-property {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   padding: 5px 0;
   border-bottom: 1px solid rgba(0, 255, 136, 0.2);
 }
@@ -86,6 +87,7 @@
 
 .system-property .value {
   color: #ffffff;
+  text-align: right;
 }
 
 /* Right-aligned like the other property values */
