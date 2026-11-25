@@ -38,25 +38,25 @@ less.
   `primary: <id>` field.
 - `Proxima Centauri C` is renamed to `Proxima Centauri`. It has no `primary`
   and stays a separate point on the map.
-- Star names keep their letters ("Sirius A", "Sirius B"). Ids do not change.
+- A primary with companions is named for its system (`name: 'Sirius'`) and
+  keeps its lettered star name in a new `starName` field (`'Sirius A'`).
+  Companions keep their letters ("Sirius B"). Ids do not change. (Changed
+  after UAT; see "Changes after UAT".)
 
 **Helpers (new file in `src/game/utils/`)**
 - `isCompanion(star)`: true when the star has a `primary`.
-- `getSystemName(star)`: drops a trailing " A" only when the star has
-  companions, so "Sirius A" becomes "Sirius" and "Barnard's Star" is
-  unchanged.
 - `getCompanions(starData, id)`: returns the companion stars of a system.
 - `starKind(type)`: maps the spectral-class prefix to a plain-English kind of
   star, for example M → red dwarf, D → white dwarf, L/T → brown dwarf. The
   table lives in `constants.js`.
 
 **Consumers**
-- `stars.js`: skip companions, and use the system name for the label.
+- `stars.js`: skip companions, and label each system with its `name`.
 - Find Star (`CameraControls.jsx`, `MobileCameraToolbar.jsx`): skip
   companions, and list system names.
 - `SystemPanel.jsx`: the title is the system name. Multi-star systems get a
   "Stars" list in the form "Sirius A: A1, main-sequence star" and "Sirius B:
-  DA2, white dwarf".
+  DA2, white dwarf", using `starName ?? name`.
 - `game-information-broker.js` rumors (both the best-price rumor and the
   event hint) and `game-events.js` events: skip every star that is not
   connected in the wormhole graph (`getConnectedSystems(id).length === 0` from
@@ -169,9 +169,26 @@ full suite, lint and format passing:
 - Check Sirius shows as one point whose panel lists A and B.
 - Check Find Star has 84 entries.
 
+## Changes after UAT
+
+Both were added after UAT and kept after code review.
+
+- **System names in the data.** The plan's `getSystemName` helper dropped
+  " A" only on the map, so stations, the HUD, NPC lines and dialogue still
+  said "Sirius A" for a place the map called "Sirius". The 26 primaries with
+  companions were renamed in `star-data.js` instead, with `starName` holding
+  the lettered name for the system's star list, and the helper was removed.
+  Missions in old saves keep their stored names (see `docs/backlog.md`).
+- **Label decluttering.** Fixed-size labels overlap in dense views, so a
+  label is hidden when it overlaps one already shown (`declutterLabels` in
+  `starmap-math.js`). The selected and current-system labels are pinned: they
+  claim space before unpinned labels and never fade. Pinned labels are still
+  hidden within `hideDistance`, and a farther pinned label loses to a nearer
+  pinned one. Stars behind the camera are skipped. The fade band was retuned
+  (`LABEL_CONFIG`: minOpacity 0.15, nearDistance 450, farDistance 950).
+
 ## Out of scope
 
 - Flavour text for each system.
-- Renaming "Sirius A" to "Sirius" in station and HUD text.
 - The contested-system id bug (`[7, 10]` should be `[7, 13]`), which is in
   `docs/backlog.md`.

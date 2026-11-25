@@ -22,6 +22,12 @@ fast-check, Testing Library.
 **Design:** `docs/plans/2026-11-25-navigation-sphere-design.md`. Read it
 first.
 
+> **Superseded in part:** `getSystemName` was removed after UAT. Primaries
+> with companions are now named for their system in `star-data.js`, with
+> `starName` for the lettered name. Label decluttering was also added. Read
+> "Changes after UAT" in the design; the steps below that mention
+> `getSystemName` describe what was first built, not the current code.
+
 ---
 
 ## Ground rules (read once)
