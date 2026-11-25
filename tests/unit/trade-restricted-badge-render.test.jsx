@@ -7,7 +7,7 @@ import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import { SOL_SYSTEM_ID } from '../../src/game/constants.js';
 import { createWrapper } from '../react-test-utils.jsx';
 
-const SIRIUS_A_SYSTEM_ID = STAR_DATA.find((s) => s.name === 'Sirius A').id;
+const SIRIUS_SYSTEM_ID = STAR_DATA.find((s) => s.name === 'Sirius').id;
 
 /**
  * Render test for the RESTRICTED badge in TradePanel.
@@ -63,7 +63,7 @@ describe('TradePanel restricted badge rendering', () => {
 
     const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
-    gsm.state.player.currentSystem = SIRIUS_A_SYSTEM_ID; // Sirius — contested zone
+    gsm.state.player.currentSystem = SIRIUS_SYSTEM_ID; // Sirius — contested zone
 
     const wrapper = createWrapper(gsm);
     render(<TradePanel onClose={() => {}} />, { wrapper });
@@ -101,7 +101,7 @@ describe('TradePanel restricted badge rendering', () => {
 
     const gsm = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
     gsm.initNewGame();
-    gsm.state.player.currentSystem = SIRIUS_A_SYSTEM_ID; // Sirius — not a core system
+    gsm.state.player.currentSystem = SIRIUS_SYSTEM_ID; // Sirius — not a core system
 
     const wrapper = createWrapper(gsm);
     render(<TradePanel onClose={() => {}} />, { wrapper });

@@ -7,7 +7,6 @@ import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
-import { getSystemName } from '../../src/game/utils/star-systems';
 
 describe('Property: System Panel', () => {
   let game;
@@ -184,7 +183,7 @@ describe('Property: System Panel', () => {
       // Should display target system name
       const targetSystem = STAR_DATA.find((s) => s.id === targetSystemId);
       expect(
-        screen.getByRole('heading', { name: getSystemName(targetSystem) })
+        screen.getByRole('heading', { name: targetSystem.name })
       ).toBeInTheDocument();
 
       // Should display jump information

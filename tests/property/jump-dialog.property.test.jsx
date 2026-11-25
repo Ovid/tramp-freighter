@@ -18,7 +18,7 @@ describe('Property: Jump Dialog', () => {
   });
 
   it('should display target system name and jump information', () => {
-    // Sol (0) to Alpha Centauri A (1) - connected systems
+    // Sol (0) to Alpha Centauri (1) - connected systems
     const targetSystemId = 1;
 
     render(
@@ -32,7 +32,7 @@ describe('Property: Jump Dialog', () => {
     );
 
     // Should display system name
-    expect(screen.getByText(/Alpha Centauri A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Alpha Centauri/i)).toBeInTheDocument();
 
     // Should display distance, fuel cost, and jump time
     expect(screen.getByText(/Distance:/i)).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe('Property: Jump Dialog', () => {
   });
 
   it('should have enabled jump button for valid jumps', () => {
-    const targetSystemId = 1; // Alpha Centauri A - connected to Sol
+    const targetSystemId = 1; // Alpha Centauri - connected to Sol
 
     render(
       <GameProvider game={game}>
@@ -180,7 +180,7 @@ describe('Property: Jump Dialog', () => {
   });
 
   it('should calculate correct fuel cost and jump time', () => {
-    const targetSystemId = 1; // Alpha Centauri A
+    const targetSystemId = 1; // Alpha Centauri
 
     render(
       <GameProvider game={game}>

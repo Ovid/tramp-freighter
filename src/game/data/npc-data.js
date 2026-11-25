@@ -235,7 +235,7 @@ export const FATHER_OKONKWO = {
 };
 
 /**
- * Whisper - Information Broker at Sirius A
+ * Whisper - Information Broker at Sirius
  *
  * Embodies the "morally ambiguous useful contact" archetype. Her balanced trust/loyalty
  * with high greed and low morality creates a relationship where players must weigh
@@ -255,7 +255,7 @@ export const WHISPER = {
   id: 'whisper_sirius',
   name: 'Whisper',
   role: 'Information Broker',
-  system: 7, // Sirius A
+  system: 7, // Sirius
   station: 'Sirius Exchange',
   personality: {
     trust: 0.5, // Moderately trusting
@@ -325,7 +325,7 @@ export const CAPTAIN_VASQUEZ = {
   initialRep: 5, // Starts with 5 rep as mentor figure
   tips: [
     "Barnard's Star always needs ore. Mining station, you know.",
-    'Sirius A pays top credit for luxury goods. Rich folks.',
+    'Sirius pays top credit for luxury goods. Rich folks.',
     'The Procyon run is profitable if you can afford the fuel.',
   ],
   discountService: null, // Mentor, not service provider

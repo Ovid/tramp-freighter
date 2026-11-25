@@ -29,4 +29,19 @@ describe('star data: multi-star systems', () => {
     expect(proxima.name).toBe('Proxima Centauri');
     expect(proxima.primary).toBeUndefined();
   });
+
+  it('a primary is named for its system and keeps its star name in starName', () => {
+    const sirius = byId.get(7);
+    expect(sirius.name).toBe('Sirius');
+    expect(sirius.starName).toBe('Sirius A');
+
+    const primaryIds = new Set(companions.map((c) => c.primary));
+    for (const s of STAR_DATA) {
+      if (primaryIds.has(s.id)) {
+        expect(s.starName, s.name).toBe(`${s.name} A`);
+      } else {
+        expect(s.starName, s.name).toBeUndefined();
+      }
+    }
+  });
 });

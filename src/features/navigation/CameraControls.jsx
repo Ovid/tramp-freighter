@@ -12,7 +12,7 @@ import { MobileCameraToolbar } from './MobileCameraToolbar';
 import { RotationSpeedSlider } from './RotationSpeedSlider';
 import { resolveAutoRotationSpeed } from '../../game/engine/starmap-math';
 import { prefersReducedMotion } from '../../game/utils/reduced-motion';
-import { isCompanion, getSystemName } from '../../game/utils/star-systems';
+import { isCompanion } from '../../game/utils/star-systems';
 import { EVENT_NAMES } from '../../game/constants';
 
 export function CameraControls({
@@ -53,7 +53,6 @@ export function CameraControls({
     if (!starData) return [];
     return starData
       .filter((s) => !isCompanion(s))
-      .map((s) => ({ id: s.id, name: getSystemName(s) }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [starData]);
 

@@ -1,7 +1,6 @@
 import { it, expect } from 'vitest';
 import {
   isCompanion,
-  getSystemName,
   getCompanions,
   starKind,
 } from '../../src/game/utils/star-systems.js';
@@ -11,15 +10,8 @@ const byName = (n) => STAR_DATA.find((s) => s.name === n);
 
 it('isCompanion', () => {
   expect(isCompanion(byName('Sirius B'))).toBe(true);
-  expect(isCompanion(byName('Sirius A'))).toBe(false);
+  expect(isCompanion(byName('Sirius'))).toBe(false);
   expect(isCompanion(byName('Proxima Centauri'))).toBe(false);
-});
-
-it('getSystemName drops " A" only for stars with companions', () => {
-  expect(getSystemName(byName('Sirius A'))).toBe('Sirius');
-  expect(getSystemName(byName('Lalande 27173 A'))).toBe('Lalande 27173');
-  expect(getSystemName(byName("Barnard's Star"))).toBe("Barnard's Star");
-  expect(getSystemName(byName('Proxima Centauri'))).toBe('Proxima Centauri');
 });
 
 it('getCompanions', () => {

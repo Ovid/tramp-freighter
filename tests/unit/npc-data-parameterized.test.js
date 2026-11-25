@@ -35,7 +35,7 @@ import { NPC_INITIAL_REPUTATION } from '../../src/game/constants.js';
 const NPC_TEST_CASES = [
   {
     npc: WHISPER,
-    label: 'Whisper (Information Broker at Sirius A)',
+    label: 'Whisper (Information Broker at Sirius)',
     expectedBasic: {
       id: 'whisper_sirius',
       name: 'Whisper',
@@ -83,7 +83,7 @@ const NPC_TEST_CASES = [
     expectedDiscountService: null,
     expectedTipSamples: [
       "Barnard's Star always needs ore. Mining station, you know.",
-      'Sirius A pays top credit for luxury goods. Rich folks.',
+      'Sirius pays top credit for luxury goods. Rich folks.',
       'The Procyon run is profitable if you can afford the fuel.',
     ],
   },

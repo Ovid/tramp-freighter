@@ -1,7 +1,7 @@
 /**
  * @fileoverview Whisper Dialogue Tree
  *
- * Information Broker at Sirius A - A mysterious information broker who deals in secrets
+ * Information Broker at Sirius - A mysterious information broker who deals in secrets
  * and intelligence. Uses formal speech with educated vocabulary and cryptic measured tones.
  * Provides intel discounts and trading tips based on relationship tier.
  *
@@ -34,10 +34,10 @@ const STORAGE = buildStorageDialogue({
 });
 
 /**
- * Whisper Dialogue Tree - Information Broker at Sirius A
+ * Whisper Dialogue Tree - Information Broker at Sirius
  *
  * Character Profile:
- * - Role: Information Broker at Sirius A
+ * - Role: Information Broker at Sirius
  * - Personality: Mysterious, deals in secrets and intelligence
  * - Speech Style: Formal vocabulary, educated terms, cryptic measured tones
  * - Benefits: Intel discounts and trading tips based on relationship tier

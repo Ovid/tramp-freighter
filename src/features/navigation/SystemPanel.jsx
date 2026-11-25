@@ -8,11 +8,7 @@ import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { DangerWarningDialog } from '../danger/DangerWarningDialog';
 import { Modal } from '../../components/Modal';
-import {
-  getSystemName,
-  getCompanions,
-  starKind,
-} from '../../game/utils/star-systems';
+import { getCompanions, starKind } from '../../game/utils/star-systems';
 import { calculateDistanceFromSol, EVENT_NAMES } from '../../game/constants';
 
 /** Lists every star in a multi-star system; renders nothing for a lone star. */
@@ -24,7 +20,9 @@ function SystemStars({ star, starData }) {
       <span className="label">Stars:</span>
       <ul className="value">
         {[star, ...companions].map((s) => (
-          <li key={s.id}>{`${s.name}: ${s.type}, ${starKind(s.type)}`}</li>
+          <li
+            key={s.id}
+          >{`${s.starName ?? s.name}: ${s.type}, ${starKind(s.type)}`}</li>
         ))}
       </ul>
     </div>
@@ -168,7 +166,7 @@ export function SystemPanel({
         </Modal>
         <div className="system-panel" data-panel>
           <div className="system-panel-header">
-            <h3>{getSystemName(viewingSystem)}</h3>
+            <h3>{viewingSystem.name}</h3>
             <button className="close-btn" onClick={onClose} aria-label="Close">
               ×
             </button>
@@ -286,7 +284,7 @@ export function SystemPanel({
   return (
     <div className="system-panel" data-panel>
       <div className="system-panel-header">
-        <h3>{getSystemName(viewingSystem)}</h3>
+        <h3>{viewingSystem.name}</h3>
         <button className="close-btn" onClick={onClose} aria-label="Close">
           ×
         </button>

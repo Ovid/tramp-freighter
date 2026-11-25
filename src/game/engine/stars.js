@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { VISUAL_CONFIG, LABEL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
-import { isCompanion, getSystemName } from '../utils/star-systems.js';
+import { isCompanion } from '../utils/star-systems.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;
@@ -161,7 +161,7 @@ export function createStarSystems(scene, starData) {
     scene.add(sprite);
 
     // Create label for star system
-    const label = createLabel(getSystemName(data), LABEL_CONFIG.maxFontSize);
+    const label = createLabel(data.name, LABEL_CONFIG.maxFontSize);
 
     // At the star; the screen-space offset above it lives in sprite.center
     label.position.set(data.x, data.y, data.z);
