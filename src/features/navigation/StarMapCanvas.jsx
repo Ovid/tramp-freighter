@@ -39,8 +39,8 @@ import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
+import { useReducedMotion } from '../../hooks/useMediaQuery';
 import { CameraControls } from './CameraControls';
-import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 
 // Reusable Three.js objects for keyboard rotation (avoid per-keypress allocation)
 const _keyboardOffset = new THREE.Vector3();
@@ -74,6 +74,12 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   useEffect(() => {
     autoRotationPrefRef.current = preferences?.autoRotationSpeed;
   }, [preferences]);
+  // Same live OS setting the rotation slider shows, so the two never disagree
+  const reducedMotion = useReducedMotion();
+  const reducedMotionRef = useRef(reducedMotion);
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+  }, [reducedMotion]);
 
   // Starmap interaction methods for context
   const starmapMethods = useRef({
@@ -132,9 +138,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       lights,
       animationFrameId,
       animationSystem;
-
-    // Check once at init time — the player can still choose a rotation speed
-    const reducedMotion = prefersReducedMotion();
 
     try {
       // Initialize Three.js scene once
@@ -274,7 +277,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         lastFrameTime = currentTime;
         const speed = resolveAutoRotationSpeed(
           autoRotationPrefRef.current,
-          reducedMotion
+          reducedMotionRef.current
         );
 
         if (speed > 0 && controls && controls.target) {
@@ -304,7 +307,11 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         updateLabels(stars, camera, unitsPerPx, viewport, pinnedStars);
 
         // Update selection ring animations (static in reduced-motion mode)
-        updateSelectionRingAnimations(currentTime, reducedMotion, unitsPerPx);
+        updateSelectionRingAnimations(
+          currentTime,
+          reducedMotionRef.current,
+          unitsPerPx
+        );
 
         // Ensure current system indicator is always visible
         const currentIndicator = getCurrentSystemIndicator();

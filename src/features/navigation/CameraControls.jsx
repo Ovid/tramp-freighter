@@ -8,10 +8,10 @@ import { useMobile } from '../../context/MobileContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { useReducedMotion } from '../../hooks/useMediaQuery';
 import { MobileCameraToolbar } from './MobileCameraToolbar';
 import { RotationSpeedSlider } from './RotationSpeedSlider';
 import { resolveAutoRotationSpeed } from '../../game/engine/starmap-math';
-import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 import { isCompanion } from '../../game/utils/star-systems';
 import { EVENT_NAMES } from '../../game/constants';
 
@@ -35,10 +35,11 @@ export function CameraControls({
   const controlsRef = useRef(null);
 
   const { isMobile } = useMobile();
+  const reducedMotion = useReducedMotion();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
   const autoRotationSpeed = resolveAutoRotationSpeed(
     preferences?.autoRotationSpeed,
-    prefersReducedMotion()
+    reducedMotion
   );
   const setAutoRotationSpeed = (value) =>
     game.setPreference('autoRotationSpeed', value);
