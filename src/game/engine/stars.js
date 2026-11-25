@@ -285,16 +285,12 @@ function createTargetingReticleTexture() {
 }
 
 /**
- * Create selection ring for a star with targeting reticle
- * @returns {THREE.Mesh} The selection ring mesh
+ * Create selection ring for a star with targeting reticle.
+ * A non-attenuated sprite: a fixed size on screen and always facing the
+ * camera. updateSelectionRingAnimations sets its scale every frame.
+ * @returns {THREE.Sprite} The selection ring sprite
  */
 export function createSelectionRing() {
-  // Create a plane geometry for the reticle
-  const reticleGeometry = new THREE.PlaneGeometry(
-    VISUAL_CONFIG.selectionRingSize * 3,
-    VISUAL_CONFIG.selectionRingSize * 3
-  );
-
   // Texture creation is expensive; cache and reuse across all selection rings
   if (!sharedReticleTexture) {
     sharedReticleTexture = createTargetingReticleTexture();
@@ -302,20 +298,17 @@ export function createSelectionRing() {
 
   // Material creation is expensive; cache and reuse across all selection rings
   if (!sharedReticleMaterial) {
-    sharedReticleMaterial = new THREE.MeshBasicMaterial({
+    sharedReticleMaterial = new THREE.SpriteMaterial({
       map: sharedReticleTexture,
       transparent: true,
       opacity: 1.0,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-      side: THREE.DoubleSide,
+      sizeAttenuation: false,
     });
   }
 
-  // Create mesh with shared material
-  const reticle = new THREE.Mesh(reticleGeometry, sharedReticleMaterial);
-
-  return reticle;
+  return new THREE.Sprite(sharedReticleMaterial);
 }
 
 /**

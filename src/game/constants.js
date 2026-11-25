@@ -841,7 +841,6 @@ export const VISUAL_CONFIG = {
   starSize: 30,
   pulseAmplitude: 0.15,
   pulseSpeed: 2.0,
-  selectionRingSize: 40,
   selectionRingPulseSpeed: 3.0,
   selectionColor: 0xffff00,
   currentSystemColor: 0x00ff88,
@@ -857,7 +856,6 @@ export const VISUAL_CONFIG = {
   selectionRingOpacityFrequency: 1.5, // Frequency multiplier for opacity pulse
   selectionRingRotationSpeed: 0.2, // Rotation speed in radians per second
   // Current system indicator animation parameters
-  currentSystemBaseScale: 1.2, // Base scale (20% larger than selection ring)
   currentSystemScaleAmplitude: 0.1, // Scale variation for pulse effect (10%)
   currentSystemScaleFrequency: 0.8, // Frequency multiplier for scale pulse
   currentSystemBaseOpacity: 0.7, // Base opacity for current system indicator

@@ -19,7 +19,6 @@ import { JumpAnimationSystem } from '../../game/engine/game-animation';
 import {
   selectStar,
   deselectStar,
-  getSelectedStar,
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
   updateSelectionRingAnimations,
@@ -298,21 +297,12 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         updateLabels(stars, camera, unitsPerPx);
 
         // Update selection ring animations (static in reduced-motion mode)
-        updateSelectionRingAnimations(currentTime, reducedMotion);
+        updateSelectionRingAnimations(currentTime, reducedMotion, unitsPerPx);
 
-        // Orient selection rings to face camera
-        const selectedStar = getSelectedStar();
-        if (selectedStar && selectedStar.selectionRing) {
-          selectedStar.selectionRing.lookAt(camera.position);
-        }
-
+        // Ensure current system indicator is always visible
         const currentIndicator = getCurrentSystemIndicator();
-        if (currentIndicator) {
-          currentIndicator.lookAt(camera.position);
-          // Ensure current system indicator is always visible
-          if (!currentIndicator.visible) {
-            currentIndicator.visible = true;
-          }
+        if (currentIndicator && !currentIndicator.visible) {
+          currentIndicator.visible = true;
         }
 
         // Update controls (damping)

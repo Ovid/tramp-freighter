@@ -1,4 +1,4 @@
-import { VISUAL_CONFIG } from '../constants.js';
+import { VISUAL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { createSelectionRing } from './stars.js';
 
 // Selection state
@@ -10,9 +10,9 @@ let currentSystemMaterial = null;
  * Select a star and show targeting reticle
  * @param {Object} star - The star to select
  * @param {THREE.Scene} scene - The scene
- * @param {THREE.PerspectiveCamera} camera - The camera
+ * @param {THREE.PerspectiveCamera} _camera - Unused: the reticle is a sprite, so it always faces the camera
  */
-export function selectStar(star, scene, camera) {
+export function selectStar(star, scene, _camera) {
   if (selectedStar) {
     deselectStar();
   }
@@ -35,7 +35,6 @@ export function selectStar(star, scene, camera) {
       star.position.y,
       star.position.z
     );
-    star.selectionRing.lookAt(camera.position);
     scene.add(star.selectionRing);
   } else {
     star.selectionRing.visible = true;
@@ -100,9 +99,8 @@ export function updateCurrentSystemIndicator(
 
   // Remove old indicator if it exists
   if (currentSystemIndicator) {
+    // Sprites share one geometry and the material is shared, so nothing to dispose
     scene.remove(currentSystemIndicator);
-    // Dispose geometry to free GPU memory (material is shared, don't dispose)
-    currentSystemIndicator.geometry.dispose();
   }
 
   // Create new indicator at current system
@@ -111,14 +109,6 @@ export function updateCurrentSystemIndicator(
     currentStar.position.x,
     currentStar.position.y,
     currentStar.position.z
-  );
-  currentSystemIndicator.lookAt(camera.position);
-
-  // Make it slightly larger and different color to distinguish from selection
-  currentSystemIndicator.scale.set(
-    VISUAL_CONFIG.currentSystemBaseScale,
-    VISUAL_CONFIG.currentSystemBaseScale,
-    1
   );
 
   // Create shared material once to avoid repeated cloning
@@ -152,29 +142,37 @@ export function _resetState() {
 }
 
 /**
- * Update selection ring animations
+ * Update selection ring animations.
+ * Sizes are fixed in screen px, so scale comes from unitsPerPx; rotation is
+ * the sprite material's screen-space rotation.
  * @param {number} time - Current time in seconds
  * @param {boolean} reducedMotion - When true, use static values instead of pulsing
+ * @param {number} unitsPerPx - Sprite scale per CSS px (see pxToSpriteScale)
  */
-export function updateSelectionRingAnimations(time, reducedMotion = false) {
+export function updateSelectionRingAnimations(
+  time,
+  reducedMotion = false,
+  unitsPerPx
+) {
+  const ringBase = STARMAP_CONFIG.RETICLE_SIZE_PX * unitsPerPx;
+  const markerBase = STARMAP_CONFIG.CURRENT_SYSTEM_SIZE_PX * unitsPerPx;
+
   if (selectedStar && selectedStar.selectionRing) {
+    const ring = selectedStar.selectionRing;
     if (reducedMotion) {
-      selectedStar.selectionRing.scale.set(1, 1, 1);
-      selectedStar.selectionRing.material.opacity =
-        VISUAL_CONFIG.selectionRingBaseOpacity;
-      selectedStar.selectionRing.rotation.z = 0;
+      ring.scale.set(ringBase, ringBase, 1);
+      ring.material.opacity = VISUAL_CONFIG.selectionRingBaseOpacity;
+      ring.material.rotation = 0;
     } else {
       // Subtle pulsing scale for targeting lock effect
-      const pulseScale =
-        1.0 +
+      const pulse =
+        1 +
         Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
           VISUAL_CONFIG.selectionRingScaleAmplitude;
-
-      // Apply pulsing to reticle scale
-      selectedStar.selectionRing.scale.set(pulseScale, pulseScale, 1);
+      ring.scale.set(ringBase * pulse, ringBase * pulse, 1);
 
       // Pulse the opacity for "scanning" effect
-      const pulseOpacity =
+      ring.material.opacity =
         VISUAL_CONFIG.selectionRingBaseOpacity +
         Math.sin(
           time *
@@ -182,46 +180,36 @@ export function updateSelectionRingAnimations(time, reducedMotion = false) {
             VISUAL_CONFIG.selectionRingOpacityFrequency
         ) *
           VISUAL_CONFIG.selectionRingOpacityAmplitude;
-      selectedStar.selectionRing.material.opacity = pulseOpacity;
 
       // Slow rotation for targeting system effect
-      selectedStar.selectionRing.rotation.z =
-        time * VISUAL_CONFIG.selectionRingRotationSpeed;
+      ring.material.rotation = time * VISUAL_CONFIG.selectionRingRotationSpeed;
     }
   }
 
-  // Update current system indicator
   if (currentSystemIndicator) {
+    const marker = currentSystemIndicator;
     if (reducedMotion) {
-      currentSystemIndicator.scale.set(
-        VISUAL_CONFIG.currentSystemBaseScale,
-        VISUAL_CONFIG.currentSystemBaseScale,
-        1
-      );
-      currentSystemIndicator.material.opacity =
-        VISUAL_CONFIG.currentSystemBaseOpacity;
-      currentSystemIndicator.rotation.z = 0;
+      marker.scale.set(markerBase, markerBase, 1);
+      marker.material.opacity = VISUAL_CONFIG.currentSystemBaseOpacity;
+      marker.material.rotation = 0;
     } else {
-      // Pulsing for current system indicator
-      const pulseScale =
-        VISUAL_CONFIG.currentSystemBaseScale +
+      const pulse =
+        1 +
         Math.sin(
           time *
             VISUAL_CONFIG.selectionRingPulseSpeed *
             VISUAL_CONFIG.currentSystemScaleFrequency
         ) *
           VISUAL_CONFIG.currentSystemScaleAmplitude;
-      currentSystemIndicator.scale.set(pulseScale, pulseScale, 1);
+      marker.scale.set(markerBase * pulse, markerBase * pulse, 1);
 
-      // Pulse opacity
-      const pulseOpacity =
+      marker.material.opacity =
         VISUAL_CONFIG.currentSystemBaseOpacity +
         Math.sin(time * VISUAL_CONFIG.selectionRingPulseSpeed) *
           VISUAL_CONFIG.currentSystemOpacityAmplitude;
-      currentSystemIndicator.material.opacity = pulseOpacity;
 
-      // Rotate in opposite direction from selection ring
-      currentSystemIndicator.rotation.z =
+      // Its material is its own clone, so it spins opposite the selection ring
+      marker.material.rotation =
         -time * VISUAL_CONFIG.currentSystemRotationSpeed;
     }
   }

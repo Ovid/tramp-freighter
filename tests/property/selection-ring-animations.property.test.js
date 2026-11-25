@@ -8,7 +8,12 @@ import {
   updateSelectionRingAnimations,
   _resetState,
 } from '../../src/game/engine/interaction.js';
-import { VISUAL_CONFIG } from '../../src/game/constants.js';
+import { VISUAL_CONFIG, STARMAP_CONFIG } from '../../src/game/constants.js';
+
+const UNITS_PER_PX = 0.002;
+const RING_BASE = STARMAP_CONFIG.RETICLE_SIZE_PX * UNITS_PER_PX;
+const RING_MIN = RING_BASE * (1 - VISUAL_CONFIG.selectionRingScaleAmplitude);
+const RING_MAX = RING_BASE * (1 + VISUAL_CONFIG.selectionRingScaleAmplitude);
 
 describe('Selection Ring Animations - Property Tests', () => {
   let scene, camera, star;
@@ -42,13 +47,13 @@ describe('Selection Ring Animations - Property Tests', () => {
       fc.assert(
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
 
           const scale = star.selectionRing.scale.x;
 
-          // Scale should be between 0.92 and 1.08 (1.0 ± 0.08)
-          expect(scale).toBeGreaterThanOrEqual(0.92);
-          expect(scale).toBeLessThanOrEqual(1.08);
+          // Scale stays within the base size ± the pulse amplitude
+          expect(scale).toBeGreaterThanOrEqual(RING_MIN - 1e-12);
+          expect(scale).toBeLessThanOrEqual(RING_MAX + 1e-12);
         })
       );
     });
@@ -58,10 +63,10 @@ describe('Selection Ring Animations - Property Tests', () => {
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
 
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           const scale1 = star.selectionRing.scale.x;
 
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           const scale2 = star.selectionRing.scale.x;
 
           expect(scale1).toBe(scale2);
@@ -77,10 +82,10 @@ describe('Selection Ring Animations - Property Tests', () => {
           // Calculate period based on pulse speed
           const period = (2 * Math.PI) / VISUAL_CONFIG.selectionRingPulseSpeed;
 
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           const scale1 = star.selectionRing.scale.x;
 
-          updateSelectionRingAnimations(time + period);
+          updateSelectionRingAnimations(time + period, false, UNITS_PER_PX);
           const scale2 = star.selectionRing.scale.x;
 
           // Should be approximately equal (within floating point precision)
@@ -95,7 +100,7 @@ describe('Selection Ring Animations - Property Tests', () => {
       fc.assert(
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
 
           const opacity = star.selectionRing.material.opacity;
 
@@ -111,10 +116,10 @@ describe('Selection Ring Animations - Property Tests', () => {
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
 
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           const opacity1 = star.selectionRing.material.opacity;
 
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           const opacity2 = star.selectionRing.material.opacity;
 
           expect(opacity1).toBe(opacity2);
@@ -132,11 +137,11 @@ describe('Selection Ring Animations - Property Tests', () => {
           (time, delta) => {
             selectStar(star, scene, camera);
 
-            updateSelectionRingAnimations(time);
-            const rotation1 = star.selectionRing.rotation.z;
+            updateSelectionRingAnimations(time, false, UNITS_PER_PX);
+            const rotation1 = star.selectionRing.material.rotation;
 
-            updateSelectionRingAnimations(time + delta);
-            const rotation2 = star.selectionRing.rotation.z;
+            updateSelectionRingAnimations(time + delta, false, UNITS_PER_PX);
+            const rotation2 = star.selectionRing.material.rotation;
 
             expect(rotation2).toBeGreaterThan(rotation1);
           }
@@ -149,11 +154,11 @@ describe('Selection Ring Animations - Property Tests', () => {
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
 
-          updateSelectionRingAnimations(time);
-          const rotation1 = star.selectionRing.rotation.z;
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
+          const rotation1 = star.selectionRing.material.rotation;
 
-          updateSelectionRingAnimations(time);
-          const rotation2 = star.selectionRing.rotation.z;
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
+          const rotation2 = star.selectionRing.material.rotation;
 
           expect(rotation1).toBe(rotation2);
         })
@@ -168,11 +173,11 @@ describe('Selection Ring Animations - Property Tests', () => {
           (time, delta) => {
             selectStar(star, scene, camera);
 
-            updateSelectionRingAnimations(time);
-            const rotation1 = star.selectionRing.rotation.z;
+            updateSelectionRingAnimations(time, false, UNITS_PER_PX);
+            const rotation1 = star.selectionRing.material.rotation;
 
-            updateSelectionRingAnimations(time + delta);
-            const rotation2 = star.selectionRing.rotation.z;
+            updateSelectionRingAnimations(time + delta, false, UNITS_PER_PX);
+            const rotation2 = star.selectionRing.material.rotation;
 
             const rotationSpeed = (rotation2 - rotation1) / delta;
 
@@ -191,7 +196,9 @@ describe('Selection Ring Animations - Property Tests', () => {
           fc.double({ min: -1000, max: 1000, noNaN: true }),
           (time) => {
             selectStar(star, scene, camera);
-            expect(() => updateSelectionRingAnimations(time)).not.toThrow();
+            expect(() =>
+              updateSelectionRingAnimations(time, false, UNITS_PER_PX)
+            ).not.toThrow();
           }
         )
       );
@@ -208,14 +215,16 @@ describe('Selection Ring Animations - Property Tests', () => {
             selectStar(star, scene, camera);
 
             times.forEach((time) => {
-              expect(() => updateSelectionRingAnimations(time)).not.toThrow();
+              expect(() =>
+                updateSelectionRingAnimations(time, false, UNITS_PER_PX)
+              ).not.toThrow();
 
               // Verify values are still valid
               const scale = star.selectionRing.scale.x;
               const opacity = star.selectionRing.material.opacity;
 
-              expect(scale).toBeGreaterThanOrEqual(0.92);
-              expect(scale).toBeLessThanOrEqual(1.08);
+              expect(scale).toBeGreaterThanOrEqual(RING_MIN - 1e-12);
+              expect(scale).toBeLessThanOrEqual(RING_MAX + 1e-12);
               expect(opacity).toBeGreaterThanOrEqual(0.5);
               expect(opacity).toBeLessThanOrEqual(1.0);
             });
@@ -253,7 +262,7 @@ describe('Selection Ring Animations - Property Tests', () => {
       fc.assert(
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
 
           expect(star.selectionRing.visible).toBe(true);
         })
@@ -264,7 +273,7 @@ describe('Selection Ring Animations - Property Tests', () => {
       fc.assert(
         fc.property(fc.double({ min: 0, max: 1000, noNaN: true }), (time) => {
           selectStar(star, scene, camera);
-          updateSelectionRingAnimations(time);
+          updateSelectionRingAnimations(time, false, UNITS_PER_PX);
           deselectStar();
 
           expect(star.selectionRing.visible).toBe(false);
