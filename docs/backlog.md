@@ -169,3 +169,76 @@ Possible fix: delete the component and its test, or hide the jump rows when
 
 Found while fixing the SystemPanel "0.0 LY / Reachable" display after the
 navigation-sphere UAT.
+
+## SystemPanel close button leaves the selection ring on
+
+`onClick={onClose}` in `src/features/navigation/SystemPanel.jsx` (both ×
+buttons) passes the click event as `keepSelection` to
+`handleCloseSystemPanel(keepSelection = false)` in `src/App.jsx`. The event
+object is truthy, so `deselectStar()` never runs and the 3D selection ring
+stays after closing.
+
+Possible fix: `onClick={() => onClose()}`.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## Jump camera animation ignores reduced motion
+
+`playJumpAnimation` in `src/game/engine/game-animation.js` runs a 3–5 s
+zoom/pan with input locked, and never checks `prefers-reduced-motion`.
+`StarMapCanvas` and `CameraControls` already use `useReducedMotion`, and the
+CSS rule in `css/base.css` can't reach Three.js tweens. WCAG 2.3.3 (AAA);
+a vestibular trigger.
+
+Possible fix: pass the reduced-motion flag into `JumpAnimationSystem` and,
+when it is set, skip the tweens (move the ship marker, call
+`onTravelNearEnd()`, resolve).
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## useFocusTrap has no fallback when the element to restore is gone
+
+`src/hooks/useFocusTrap.js` puts focus back on `previous` only if it is still
+in the document. When the dialog's trigger was unmounted (the SystemPanel
+Jump button after DangerWarningDialog "Proceed", or a Modal opened from an
+effect), focus is dropped to `<body>`. WCAG 2.4.3 (A), app-wide.
+
+Possible fix: fall back to `#main-content` (already `tabIndex={-1}`) or an
+optional fallback ref.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## Escape handling in Modal and DangerWarningDialog
+
+- `src/components/Modal.jsx` puts its Escape listener on the document and
+  doesn't stop propagation, so if Modals were stacked, they would all close
+  together. This doesn't happen in current flows.
+- `src/features/danger/DangerWarningDialog.jsx` has no Escape handler at all.
+  It isn't a trap, because Cancel works, but it breaks the dialog convention.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## Duplicate panel CSS rules depend on import order
+
+`css/panel/system-info.css` and `css/panel/jump-dialog.css` redefine
+`.system-property`, `.connection-item`, `.connections-list` and `.jump-btn`
+without a scope, using values that differ from `css/panel/system-panel.css`.
+The panel looks right only because `system-panel.css` is imported last in
+`src/main.jsx`.
+
+Possible fix: scope or delete the duplicates.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## DangerWarningDialog "alternative routes" text is vague
+
+`src/features/danger/DangerWarningDialog.jsx` says "Alternative routes through
+safer systems may be available" but doesn't name any or say how to find them.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
