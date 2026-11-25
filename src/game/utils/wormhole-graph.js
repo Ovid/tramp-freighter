@@ -205,3 +205,11 @@ export function _resetCacheForTesting() {
   starNameMap = null;
   starByIdMap = null;
 }
+
+/**
+ * Gameplay targets (rumors, events) must be reachable by lane.
+ * See paad/adrs/0002-gameplay-targets-wormhole-connected-systems.md.
+ */
+export function isWormholeConnected(systemId) {
+  return getConnectedSystems(systemId).length > 0;
+}

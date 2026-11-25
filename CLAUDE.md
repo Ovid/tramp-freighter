@@ -8,7 +8,7 @@ Use `.worktrees/` (project-local, hidden) for all git worktrees.
 
 ## Project Overview
 
-Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real star systems within 20 light-years of Sol, connected by wormhole networks. Core gameplay: commodity trading, ship resource management, NPC relationships, and danger encounters.
+Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real stars in 84 systems within 20 light-years of Sol, connected by wormhole networks. Core gameplay: commodity trading, ship resource management, NPC relationships, and danger encounters.
 
 IMPORTANT: you must NEVER BE SYCOPHANTIC or a "yes man." You have to think about what's being asked and offer honest feedback. After that, if the user insists, assume there's a reason for and you go with it.
 

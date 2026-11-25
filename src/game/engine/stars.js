@@ -1,7 +1,9 @@
 import * as THREE from 'three';
-import { VISUAL_CONFIG, LABEL_CONFIG } from '../constants.js';
+import { VISUAL_CONFIG, LABEL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
+import { isCompanion } from '../utils/star-systems.js';
+import { declutterLabels } from './starmap-math.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;
@@ -89,14 +91,13 @@ function createLabel(text, fontSize = 18) {
     transparent: true,
     depthTest: false,
     depthWrite: false,
+    // Fixed screen size; updateLabels sets the scale every frame
+    sizeAttenuation: false,
   });
 
-  // Create sprite
   const sprite = new THREE.Sprite(spriteMaterial);
-
-  // Scale sprite to appropriate size
-  const scale = fontSize * 2;
-  sprite.scale.set(scale * (canvas.width / canvas.height), scale, 1);
+  // Anchor below the label so it sits above its star at any zoom
+  sprite.center.set(0.5, LABEL_CONFIG.anchorCenterY);
 
   return sprite;
 }
@@ -104,7 +105,7 @@ function createLabel(text, fontSize = 18) {
 /**
  * Create star systems with sprites and labels.
  *
- * PERFORMANCE NOTE: This function creates 117 star sprites with shared textures
+ * PERFORMANCE NOTE: This function creates one sprite per system with shared textures
  * and materials. It should only be called once during scene initialization.
  *
  * Star colors and sizes are determined by spectral classification using
@@ -123,6 +124,9 @@ export function createStarSystems(scene, starData) {
   }
 
   starData.forEach((data) => {
+    // A multi-star system is one point on the map, drawn at its primary
+    if (isCompanion(data)) return;
+
     // Get astronomically accurate color and size for this star's spectral type
     const visuals = getStarVisuals(data.type);
 
@@ -133,7 +137,7 @@ export function createStarSystems(scene, starData) {
     // Base size is VISUAL_CONFIG.starSize (30), scaled by relative radius
     const spriteSize = VISUAL_CONFIG.starSize * visuals.radius;
 
-    // Reduces 117 materials down to ~7 (one per spectral class)
+    // One material per spectral class (~7), not one per sprite
     let spriteMaterial = starMaterials.get(color);
     if (!spriteMaterial) {
       spriteMaterial = new THREE.SpriteMaterial({
@@ -160,8 +164,8 @@ export function createStarSystems(scene, starData) {
     // Create label for star system
     const label = createLabel(data.name, LABEL_CONFIG.maxFontSize);
 
-    // Position label near the star (offset slightly above)
-    label.position.set(data.x, data.y + 15, data.z);
+    // At the star; the screen-space offset above it lives in sprite.center
+    label.position.set(data.x, data.y, data.z);
 
     // Add label to scene
     scene.add(label);
@@ -286,16 +290,12 @@ function createTargetingReticleTexture() {
 }
 
 /**
- * Create selection ring for a star with targeting reticle
- * @returns {THREE.Mesh} The selection ring mesh
+ * Create selection ring for a star with targeting reticle.
+ * A non-attenuated sprite: a fixed size on screen and always facing the
+ * camera. updateSelectionRingAnimations sets its scale every frame.
+ * @returns {THREE.Sprite} The selection ring sprite
  */
 export function createSelectionRing() {
-  // Create a plane geometry for the reticle
-  const reticleGeometry = new THREE.PlaneGeometry(
-    VISUAL_CONFIG.selectionRingSize * 3,
-    VISUAL_CONFIG.selectionRingSize * 3
-  );
-
   // Texture creation is expensive; cache and reuse across all selection rings
   if (!sharedReticleTexture) {
     sharedReticleTexture = createTargetingReticleTexture();
@@ -303,84 +303,108 @@ export function createSelectionRing() {
 
   // Material creation is expensive; cache and reuse across all selection rings
   if (!sharedReticleMaterial) {
-    sharedReticleMaterial = new THREE.MeshBasicMaterial({
+    sharedReticleMaterial = new THREE.SpriteMaterial({
       map: sharedReticleTexture,
       transparent: true,
       opacity: 1.0,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
-      side: THREE.DoubleSide,
+      sizeAttenuation: false,
     });
   }
 
-  // Create mesh with shared material
-  const reticle = new THREE.Mesh(reticleGeometry, sharedReticleMaterial);
-
-  return reticle;
+  return new THREE.Sprite(sharedReticleMaterial);
 }
 
 /**
- * Calculate label properties based on distance from camera
+ * Label opacity by distance from camera: nearer labels are brighter.
  * @param {number} distance - Distance from camera
- * @returns {Object} Label properties: { fontSize, opacity }
+ * @returns {number} Opacity
  */
-function calculateLabelProperties(distance) {
-  // Clamp distance to configured range
+function calculateLabelOpacity(distance) {
   const clampedDistance = Math.max(
     LABEL_CONFIG.nearDistance,
     Math.min(distance, LABEL_CONFIG.farDistance)
   );
 
-  // Calculate interpolation factor (0 at near, 1 at far)
+  // 0 at near, 1 at far
   const t =
     (clampedDistance - LABEL_CONFIG.nearDistance) /
     (LABEL_CONFIG.farDistance - LABEL_CONFIG.nearDistance);
 
-  // Calculate font size (linear interpolation)
-  const fontSize =
-    LABEL_CONFIG.maxFontSize -
-    (LABEL_CONFIG.maxFontSize - LABEL_CONFIG.minFontSize) * t;
-
-  // Calculate opacity (linear interpolation)
-  const opacity =
+  return (
     LABEL_CONFIG.maxOpacity -
-    (LABEL_CONFIG.maxOpacity - LABEL_CONFIG.minOpacity) * t;
-
-  return { fontSize, opacity };
+    (LABEL_CONFIG.maxOpacity - LABEL_CONFIG.minOpacity) * t
+  );
 }
 
-// Temp vector for label distance calculations (reused to avoid allocation)
+// Reused every frame to avoid allocation
 const _tempLabelDistance = new THREE.Vector3();
+const _labelNdc = new THREE.Vector3();
+const _labelBoxes = [];
 
 /**
- * Update label scale and opacity based on camera distance
+ * Keep labels a fixed height on screen, fade them with distance, hide those
+ * so close to the camera that they would cover the wormhole lanes, and hide
+ * those that would overlap a nearer or pinned label (see declutterLabels).
  * @param {Array} stars - Array of star objects
  * @param {THREE.PerspectiveCamera} camera - The camera
+ * @param {number} unitsPerPx - Sprite scale per CSS px (see pxToSpriteScale)
+ * @param {{width: number, height: number}} viewport - Canvas size in CSS px
+ * @param {Array} [pinnedStars] - Stars whose labels beat unpinned ones in declutter
+ *   and never fade; still hidden within hideDistance (null entries ignored)
  */
-export function updateLabelScale(stars, camera) {
-  stars.forEach((star) => {
-    if (star.label) {
-      // Reuse temp vector to avoid allocation (117 stars * 60fps = 7,020 allocations/sec)
-      _tempLabelDistance.subVectors(camera.position, star.position);
-      const distance = _tempLabelDistance.length();
+export function updateLabels(
+  stars,
+  camera,
+  unitsPerPx,
+  viewport,
+  pinnedStars = []
+) {
+  const heightPx = STARMAP_CONFIG.LABEL_HEIGHT_PX;
+  const inset = STARMAP_CONFIG.LABEL_DECLUTTER_INSET_PX;
+  const height = heightPx * unitsPerPx;
+  // Camera matrices are the ones the last render used: at most a frame stale
+  _labelBoxes.length = 0;
 
-      // Get label properties for this distance
-      const { fontSize, opacity } = calculateLabelProperties(distance);
-
-      // Update label opacity
-      star.label.material.opacity = opacity;
-
-      // Update label scale based on font size
-      const scaleFactor = fontSize / LABEL_CONFIG.maxFontSize;
-      const baseScale = LABEL_CONFIG.maxFontSize * 2;
-      const canvas = star.label.material.map.image;
-      const aspectRatio = canvas.width / canvas.height;
-
-      star.label.scale.set(
-        baseScale * aspectRatio * scaleFactor,
-        baseScale * scaleFactor,
-        1
-      );
+  for (const star of stars) {
+    if (!star.label) continue;
+    const distance = _tempLabelDistance
+      .subVectors(camera.position, star.position)
+      .length();
+    // NDC z > 1 means behind the camera (or past the far plane): not drawn,
+    // and project() would mirror it onto the screen to steal a visible slot
+    _labelNdc.copy(star.position).project(camera);
+    if (distance < LABEL_CONFIG.hideDistance || _labelNdc.z > 1) {
+      star.label.visible = false;
+      continue;
     }
-  });
+    const pinned = pinnedStars.includes(star);
+    // The player is looking for a pinned label, so it never fades
+    star.label.material.opacity = pinned
+      ? LABEL_CONFIG.maxOpacity
+      : calculateLabelOpacity(distance);
+    const canvas = star.label.material.map.image;
+    const aspect = canvas.width / canvas.height;
+    star.label.scale.set(height * aspect, height, 1);
+
+    // Screen box of the label: centred on the star, above it by sprite.center
+    const sx = ((_labelNdc.x + 1) / 2) * viewport.width;
+    const sy = ((1 - _labelNdc.y) / 2) * viewport.height;
+    const halfWidthPx = (heightPx * aspect) / 2;
+    const bottom = sy + LABEL_CONFIG.anchorCenterY * heightPx;
+
+    // One box per star, created once
+    const box = (star.labelBox ??= { star });
+    box.x0 = sx - halfWidthPx + inset;
+    box.x1 = sx + halfWidthPx - inset;
+    box.y0 = bottom - heightPx + inset;
+    box.y1 = bottom - inset;
+    box.depth = distance;
+    box.pinned = pinned;
+    _labelBoxes.push(box);
+  }
+
+  declutterLabels(_labelBoxes);
+  for (const box of _labelBoxes) box.star.label.visible = box.visible;
 }

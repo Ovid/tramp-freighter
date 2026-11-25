@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as THREE from 'three';
 import { createStarSystems } from '../../src/game/engine/stars.js';
 import { getStarVisuals } from '../../src/game/utils/star-visuals.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
 
 describe('Star Rendering with Visual Properties', () => {
   let scene;
@@ -27,6 +28,12 @@ describe('Star Rendering with Visual Properties', () => {
     }
     // Restore console.log
     consoleLogSpy.mockRestore();
+  });
+
+  it('creates one star per system, skipping companions', () => {
+    const stars = createStarSystems(scene, STAR_DATA);
+    expect(stars).toHaveLength(84);
+    expect(stars.some((s) => s.data.primary !== undefined)).toBe(false);
   });
 
   describe('Star Color Integration', () => {

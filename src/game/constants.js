@@ -556,6 +556,7 @@ export const COLE_DEBT_CONFIG = {
  */
 export const DEFAULT_PREFERENCES = Object.freeze({
   jumpWarningsEnabled: true,
+  autoRotationSpeed: null, // degrees per second; null = not chosen yet
 });
 
 /**
@@ -830,6 +831,21 @@ export const PASSENGER_CONFIG = {
  */
 export const SAVE_KEY = 'trampFreighterSave';
 
+/** Plain-English kind of star by spectral-class prefix (SystemPanel). */
+export const STAR_KINDS = Object.freeze({
+  O: 'main-sequence star',
+  B: 'main-sequence star',
+  A: 'main-sequence star',
+  F: 'main-sequence star',
+  G: 'main-sequence star',
+  K: 'main-sequence star',
+  M: 'red dwarf',
+  D: 'white dwarf',
+  L: 'brown dwarf',
+  T: 'brown dwarf',
+  Y: 'brown dwarf',
+});
+
 /**
  * Visual configuration for starmap rendering
  *
@@ -840,7 +856,6 @@ export const VISUAL_CONFIG = {
   starSize: 30,
   pulseAmplitude: 0.15,
   pulseSpeed: 2.0,
-  selectionRingSize: 40,
   selectionRingPulseSpeed: 3.0,
   selectionColor: 0xffff00,
   currentSystemColor: 0x00ff88,
@@ -856,7 +871,6 @@ export const VISUAL_CONFIG = {
   selectionRingOpacityFrequency: 1.5, // Frequency multiplier for opacity pulse
   selectionRingRotationSpeed: 0.2, // Rotation speed in radians per second
   // Current system indicator animation parameters
-  currentSystemBaseScale: 1.2, // Base scale (20% larger than selection ring)
   currentSystemScaleAmplitude: 0.1, // Scale variation for pulse effect (10%)
   currentSystemScaleFrequency: 0.8, // Frequency multiplier for scale pulse
   currentSystemBaseOpacity: 0.7, // Base opacity for current system indicator
@@ -879,7 +893,9 @@ export const VISUAL_CONFIG = {
   // Camera controls
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
-  autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
+  autoRotationDefaultSpeed: 3, // degrees per second
+  autoRotationMaxSpeed: 12, // degrees per second (old 0.2°/frame at 60Hz)
+  autoRotationStep: 0.5,
   keyboardRotationStep: 5, // Degrees per key press for camera orbit
   // Initial camera position (slightly closer view for better label visibility)
   initialCameraDistance: 700, // Distance from origin (0,0,0) - equivalent to ~2 zoom clicks from default
@@ -894,16 +910,42 @@ export const VISUAL_CONFIG = {
 /**
  * Label configuration for star system names
  *
- * Distance-based scaling provides depth perception without cluttering the view.
+ * Labels are a fixed size on screen (STARMAP_CONFIG.LABEL_HEIGHT_PX); distance
+ * only fades them, which gives depth without cluttering the view.
  */
 export const LABEL_CONFIG = {
-  maxFontSize: 18,
-  minFontSize: 8,
+  maxFontSize: 18, // canvas font size; screen size comes from LABEL_HEIGHT_PX
   maxOpacity: 1.0,
-  minOpacity: 0.3, // Increased from 0.1 to make distant labels more visible at starting zoom
-  nearDistance: 100,
-  farDistance: 500,
+  minOpacity: 0.15,
+  // The fade band spans the overview (initialCameraDistance ± the ~280-unit
+  // star sphere), so front labels read bright and back labels recede
+  nearDistance: 450,
+  farDistance: 950,
+  hideDistance: 60, // labels nearer the camera than this hide (they obscure lanes)
+  anchorCenterY: -0.3, // sprite.center.y: lifts the label above its star
 };
+
+/**
+ * Star map screen-space configuration.
+ *
+ * Sizes are CSS pixels so labels, reticles and click targets look the same
+ * on every screen. starmap-math.js converts px to sprite scale.
+ */
+export const STARMAP_CONFIG = Object.freeze({
+  CLICK_DRAG_THRESHOLD_PX: 5,
+  // A fingertip drifts further than a mouse during a tap, and browsers still
+  // fire click within their touch slop (~15px)
+  CLICK_DRAG_THRESHOLD_TOUCH_PX: 10,
+  MIN_PICK_RADIUS_PX: 12,
+  MIN_PICK_RADIUS_TOUCH_PX: 22,
+  LABEL_HEIGHT_PX: 28,
+  // Label sprites carry transparent padding and glow around the text; overlap
+  // there shouldn't hide a label, so the declutter box is inset this much
+  LABEL_DECLUTTER_INSET_PX: 6,
+  RETICLE_SIZE_PX: 96,
+  CURRENT_SYSTEM_SIZE_PX: 115,
+  MAX_FRAME_DT_SEC: 0.1,
+});
 
 /**
  * UI notification configuration

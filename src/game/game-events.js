@@ -1,4 +1,5 @@
 import { SeededRandom } from './utils/seeded-random.js';
+import { isWormholeConnected } from './utils/wormhole-graph.js';
 import { SOL_SYSTEM_ID, ALPHA_CENTAURI_SYSTEM_ID } from './constants.js';
 
 /**
@@ -83,6 +84,9 @@ export class EconomicEventsSystem {
 
       // Check each system for potential event trigger
       for (const system of starData) {
+        // Events only matter where the player can trade (ADR 0002)
+        if (!isWormholeConnected(system.id)) continue;
+
         // Skip if system already has an active event
         if (activeEvents.some((event) => event.systemId === system.id)) {
           continue;

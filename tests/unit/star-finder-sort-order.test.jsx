@@ -42,10 +42,9 @@ describe('Star finder dropdown sort order', () => {
   it('should list stars in alphabetical order by name', async () => {
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         onZoomIn={vi.fn()}
         onZoomOut={vi.fn()}
-        onToggleRotation={vi.fn()}
         onToggleBoundary={vi.fn()}
       />
     );

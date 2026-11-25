@@ -230,7 +230,9 @@ export function OutcomePanel({ outcome, onClose, onContinue }) {
               {outcomeAnalysis.consequences.additionalEffects.map(
                 (effect, index) => (
                   <div key={index} className="effect-item">
-                    <span className="effect-icon">•</span>
+                    <span className="effect-icon" aria-hidden="true">
+                      •
+                    </span>
                     <span className="effect-text">{effect}</span>
                   </div>
                 )

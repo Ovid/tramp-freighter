@@ -12,8 +12,19 @@ describe('Label Opacity Visibility', () => {
     expect(LABEL_CONFIG.minOpacity).toBeGreaterThan(0.1);
   });
 
-  it('should set minOpacity to 0.3 for improved distant label visibility', () => {
-    expect(LABEL_CONFIG.minOpacity).toBe(0.3);
+  it('should set minOpacity to 0.15 so the far hemisphere recedes', () => {
+    expect(LABEL_CONFIG.minOpacity).toBe(0.15);
+  });
+
+  it('should fade across the overview, so near and far labels differ', () => {
+    // When the whole fade band was nearer than the overview camera, every
+    // label clamped to minOpacity and front and back labels blurred together
+    expect(VISUAL_CONFIG.initialCameraDistance).toBeGreaterThan(
+      LABEL_CONFIG.nearDistance
+    );
+    expect(VISUAL_CONFIG.initialCameraDistance).toBeLessThan(
+      LABEL_CONFIG.farDistance
+    );
   });
 
   it('should keep maxOpacity at full visibility', () => {
@@ -32,11 +43,6 @@ describe('Label Opacity Visibility', () => {
   });
 
   it.each([
-    [
-      'initial camera distance',
-      VISUAL_CONFIG.initialCameraDistance,
-      LABEL_CONFIG.minOpacity,
-    ],
     ['near distance', LABEL_CONFIG.nearDistance, LABEL_CONFIG.maxOpacity],
     ['far distance', LABEL_CONFIG.farDistance, LABEL_CONFIG.minOpacity],
     [
@@ -70,9 +76,6 @@ describe('Label Opacity Visibility', () => {
     // New minOpacity should be significantly higher than the original 0.1
     // to improve visibility of distant labels
     expect(LABEL_CONFIG.minOpacity).toBeGreaterThan(0.1);
-
-    // Should be at least 2x the original value for noticeable improvement
-    expect(LABEL_CONFIG.minOpacity).toBeGreaterThanOrEqual(0.2);
   });
 
   it('should maintain sufficient opacity gradient for depth perception', () => {

@@ -313,7 +313,8 @@ export class NavigationSystem {
       return {
         valid: false,
         reason: 'no_connection',
-        error: 'No wormhole connection to target system',
+        error:
+          'No wormhole connection to this system. Jump to a connected system first.',
         fuelCost: 0,
         distance: 0,
         jumpTime: 0,
@@ -354,7 +355,7 @@ export class NavigationSystem {
       return {
         valid: false,
         reason: 'insufficient_fuel',
-        error: 'Insufficient fuel for jump',
+        error: 'Insufficient fuel for this jump. Refuel at a station.',
         fuelCost,
         distance,
         jumpTime,

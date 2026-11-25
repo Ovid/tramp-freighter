@@ -426,6 +426,10 @@
   background-color: rgba(0, 255, 136, 0.1);
 }
 
+.settings-range-input {
+  width: 6rem;
+}
+
 .settings-label {
   color: var(--color-white);
   font-size: var(--font-size-large);

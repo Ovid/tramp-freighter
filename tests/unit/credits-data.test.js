@@ -37,6 +37,11 @@ describe('Credits data', () => {
     expect(closing).toBeDefined();
   });
 
+  it('filmed-on-location count matches the 84 systems', () => {
+    const location = CREDITS_SECTIONS.find((s) => s.type === 'location');
+    expect(location.lines).toContain('and 74 other star systems');
+  });
+
   it('navigation section distinguishes game stars from known stars', () => {
     const navSection = CREDITS_SECTIONS.find(
       (s) =>

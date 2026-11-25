@@ -12,6 +12,11 @@ describe('InstructionsModal', () => {
     expect(screen.queryByText("Captain's Briefing")).not.toBeInTheDocument();
   });
 
+  it('describes 117 real stars in 84 systems', () => {
+    render(<InstructionsModal isOpen={true} onClose={() => {}} />);
+    expect(screen.getByText(/117 real stars in 84 systems/)).toBeTruthy();
+  });
+
   it('should render all sections when isOpen is true', () => {
     render(<InstructionsModal isOpen={true} onClose={() => {}} />);
     expect(screen.getByText("Captain's Briefing")).toBeInTheDocument();

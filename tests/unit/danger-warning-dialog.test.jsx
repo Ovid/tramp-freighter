@@ -210,7 +210,7 @@ describe('DangerWarningDialog', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          'Alternative routes through safer systems may be available'
+          'For a safer route, open System Info and compare your wormhole connections'
         )
       ).toBeInTheDocument();
     });
@@ -237,6 +237,26 @@ describe('DangerWarningDialog', () => {
 
       const cancelButton = screen.getByText('Cancel Jump');
       fireEvent.click(cancelButton);
+
+      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+    });
+
+    it('hides decorative icons from screen readers', () => {
+      game.getState().ship.cargo = [{ good: 'grain', qty: 10, buyPrice: 10 }];
+      renderDangerWarningDialog();
+
+      const icons = document.querySelectorAll('.factor-icon, .rec-icon');
+      expect(icons.length).toBeGreaterThan(0);
+      icons.forEach((icon) =>
+        expect(icon.getAttribute('aria-hidden')).toBe('true')
+      );
+    });
+
+    it('should call onCancel when Escape is pressed', () => {
+      const mockOnCancel = vi.fn();
+      renderDangerWarningDialog({ onCancel: mockOnCancel });
+
+      fireEvent.keyDown(document, { key: 'Escape' });
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
     });

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
@@ -29,6 +29,16 @@ export function DangerWarningDialog({
 }) {
   const dialogRef = useRef(null);
   useFocusTrap(dialogRef);
+
+  // Other panels stand down on Escape while a .modal-overlay is open, so this
+  // dialog has to handle it itself.
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
 
   // Subscribe to relevant game events for probability calculations
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
@@ -148,7 +158,9 @@ export function DangerWarningDialog({
                 <div className="factors-list">
                   {cargo?.length > 0 && (
                     <div className="factor">
-                      <span className="factor-icon">📦</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        📦
+                      </span>
                       <span className="factor-text">
                         Cargo value affects pirate encounter chance
                       </span>
@@ -157,7 +169,9 @@ export function DangerWarningDialog({
                   {shipCondition?.engine != null &&
                     shipCondition.engine < 50 && (
                       <div className="factor warning">
-                        <span className="factor-icon">⚠️</span>
+                        <span className="factor-icon" aria-hidden="true">
+                          ⚠️
+                        </span>
                         <span className="factor-text">
                           Poor engine condition increases pirate risk
                         </span>
@@ -165,7 +179,9 @@ export function DangerWarningDialog({
                     )}
                   {upgrades?.includes('advanced_sensors') && (
                     <div className="factor positive">
-                      <span className="factor-icon">📡</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        📡
+                      </span>
                       <span className="factor-text">
                         Advanced sensors reduce pirate detection
                       </span>
@@ -173,7 +189,9 @@ export function DangerWarningDialog({
                   )}
                   {factions?.authorities > 0 && (
                     <div className="factor positive">
-                      <span className="factor-icon">🛡️</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        🛡️
+                      </span>
                       <span className="factor-text">
                         Good authority standing reduces inspection risk
                       </span>
@@ -181,7 +199,9 @@ export function DangerWarningDialog({
                   )}
                   {factions?.authorities < 0 && (
                     <div className="factor warning">
-                      <span className="factor-icon">🛡️</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        🛡️
+                      </span>
                       <span className="factor-text">
                         Poor authority standing increases inspection risk
                       </span>
@@ -189,7 +209,9 @@ export function DangerWarningDialog({
                   )}
                   {factions?.outlaws > 0 && (
                     <div className="factor positive">
-                      <span className="factor-icon">🏴‍☠️</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        🏴‍☠️
+                      </span>
                       <span className="factor-text">
                         Outlaw reputation may deter some pirates
                       </span>
@@ -197,7 +219,9 @@ export function DangerWarningDialog({
                   )}
                   {factions?.outlaws < 0 && (
                     <div className="factor warning">
-                      <span className="factor-icon">🏴‍☠️</span>
+                      <span className="factor-icon" aria-hidden="true">
+                        🏴‍☠️
+                      </span>
                       <span className="factor-text">
                         Poor outlaw standing increases pirate aggression
                       </span>
@@ -216,13 +240,17 @@ export function DangerWarningDialog({
                 {dangerZone === 'dangerous' && (
                   <>
                     <div className="recommendation critical">
-                      <span className="rec-icon">⚠️</span>
+                      <span className="rec-icon" aria-hidden="true">
+                        ⚠️
+                      </span>
                       <span className="rec-text">
                         Dangerous zone - high pirate activity expected
                       </span>
                     </div>
                     <div className="recommendation">
-                      <span className="rec-icon">🔧</span>
+                      <span className="rec-icon" aria-hidden="true">
+                        🔧
+                      </span>
                       <span className="rec-text">
                         Ensure ship systems are in good condition
                       </span>
@@ -231,22 +259,29 @@ export function DangerWarningDialog({
                 )}
                 {dangerZone === 'contested' && (
                   <div className="recommendation warning">
-                    <span className="rec-icon">⚠️</span>
+                    <span className="rec-icon" aria-hidden="true">
+                      ⚠️
+                    </span>
                     <span className="rec-text">
                       Contested zone - moderate risk of encounters
                     </span>
                   </div>
                 )}
                 <div className="recommendation">
-                  <span className="rec-icon">💰</span>
+                  <span className="rec-icon" aria-hidden="true">
+                    💰
+                  </span>
                   <span className="rec-text">
                     Consider cargo value vs. risk tolerance
                   </span>
                 </div>
                 <div className="recommendation">
-                  <span className="rec-icon">🛣️</span>
+                  <span className="rec-icon" aria-hidden="true">
+                    🛣️
+                  </span>
                   <span className="rec-text">
-                    Alternative routes through safer systems may be available
+                    For a safer route, open System Info and compare your
+                    wormhole connections
                   </span>
                 </div>
               </div>

@@ -45,6 +45,22 @@ describe('MobileCameraToolbar', () => {
     expect(defaultProps.onZoomIn).toHaveBeenCalled();
   });
 
+  it('shows a rotation slider in settings and reports changes', () => {
+    const onRotationSpeedChange = vi.fn();
+    render(
+      <MobileCameraToolbar
+        {...defaultProps}
+        rotationSpeed={3}
+        onRotationSpeedChange={onRotationSpeedChange}
+      />
+    );
+    fireEvent.click(screen.getByLabelText('Settings'));
+    fireEvent.change(screen.getByLabelText('Star Rotation'), {
+      target: { value: '0' },
+    });
+    expect(onRotationSpeedChange).toHaveBeenCalledWith(0);
+  });
+
   it('should show settings popover when pressed', () => {
     render(<MobileCameraToolbar {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /settings/i }));

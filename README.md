@@ -2,7 +2,7 @@
 
 **A full game, built entirely with AI — to find out where AI coding actually breaks.**
 
-Tramp Freighter Blues is a space trading survival game: 117 real star systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built first with [Kiro](https://kiro.dev/) and continued with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
+Tramp Freighter Blues is a space trading survival game: 117 real stars in 84 systems, NPC relationships, pirate combat, branching dialogue, a multi-stage quest line, and 2,300+ passing tests. It was built first with [Kiro](https://kiro.dev/) and continued with [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
 It's not a perfect product. Perfect was never the point. The point was to push AI-assisted development as far as it goes and document where it fails.
 
@@ -49,7 +49,7 @@ You're a broke freighter captain hauling cargo through wormhole networks, dodgin
 
 **What's in it:**
 
-- 117 real star systems within 20 light-years of Sol, rendered in an interactive 3D starmap
+- 117 real stars in 84 systems within 20 light-years of Sol, rendered in an interactive 3D starmap
 - Commodity trading with dynamic prices, economic events, and information brokers
 - Ship systems that degrade — fuel, hull, engines, life support — all need managing
 - NPCs at stations who remember you and build relationships over time

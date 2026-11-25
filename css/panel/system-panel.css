@@ -17,12 +17,14 @@
   font-size: var(--font-size-large);
   z-index: 150;
   overflow-y: auto;
+  /* Keep Shift+Tab focus from scrolling under the sticky header */
+  scroll-padding-top: 4rem;
 }
 
 .system-panel-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   margin-bottom: var(--section-padding);
   padding-bottom: 10px;
   border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
@@ -32,7 +34,7 @@
   background-color: var(--bg-panel);
 }
 
-.system-panel-header h3 {
+.system-panel-header h2 {
   color: var(--color-primary);
   font-size: var(--font-size-title);
   margin: 0;
@@ -49,6 +51,11 @@
   line-height: 1;
   transition: var(--transition-fast);
   flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .system-panel .close-btn:hover {
@@ -66,11 +73,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: var(--section-gap);
 }
 
 .system-property {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   padding: 5px 0;
   border-bottom: 1px solid rgba(0, 255, 136, 0.2);
 }
@@ -86,6 +95,15 @@
 
 .system-property .value {
   color: #ffffff;
+  text-align: right;
+}
+
+/* Right-aligned like the other property values */
+.system-stars ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
 }
 
 /* Divider */
@@ -123,6 +141,7 @@
   border: 1px solid #00ff88;
   border-radius: 5px;
   padding: 12px;
+  margin-bottom: 20px;
 }
 
 .event-indicator {
@@ -167,16 +186,25 @@
   padding: 10px 0;
 }
 
+.connections-heading {
+  color: #00ff88;
+  font-size: var(--font-size-large);
+  margin: 0;
+}
+
 .connections-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .connection-item {
   width: 100%;
   background: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.6);
   border-radius: 5px;
   padding: 10px;
   transition: all 0.2s;
@@ -257,4 +285,13 @@
   cursor: not-allowed;
   border-color: #666;
   color: #666;
+}
+
+/* Connection buttons hold spans (buttons only allow phrasing content) */
+.connection-name,
+.connection-details,
+.connection-item .system-event-info,
+.connection-item .event-description,
+.connection-item .event-time-remaining {
+  display: block;
 }

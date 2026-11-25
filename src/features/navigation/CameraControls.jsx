@@ -8,14 +8,17 @@ import { useMobile } from '../../context/MobileContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { useReducedMotion } from '../../hooks/useMediaQuery';
 import { MobileCameraToolbar } from './MobileCameraToolbar';
+import { RotationSpeedSlider } from './RotationSpeedSlider';
+import { resolveAutoRotationSpeed } from '../../game/engine/starmap-math';
+import { isCompanion } from '../../game/utils/star-systems';
 import { EVENT_NAMES } from '../../game/constants';
 
 export function CameraControls({
   cameraState,
   onZoomIn,
   onZoomOut,
-  onToggleRotation,
   onToggleBoundary,
 }) {
   const game = useGame();
@@ -32,7 +35,14 @@ export function CameraControls({
   const controlsRef = useRef(null);
 
   const { isMobile } = useMobile();
+  const reducedMotion = useReducedMotion();
   const jumpWarningsEnabled = preferences?.jumpWarningsEnabled ?? true;
+  const autoRotationSpeed = resolveAutoRotationSpeed(
+    preferences?.autoRotationSpeed,
+    reducedMotion
+  );
+  const setAutoRotationSpeed = (value) =>
+    game.setPreference('autoRotationSpeed', value);
 
   // Invalidate when location changes — visited set only grows on jump
   const visitedSet = useMemo(() => {
@@ -42,7 +52,9 @@ export function CameraControls({
 
   const sortedStars = useMemo(() => {
     if (!starData) return [];
-    return [...starData].sort((a, b) => a.name.localeCompare(b.name));
+    return starData
+      .filter((s) => !isCompanion(s))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [starData]);
 
   const collapseSettings = useCallback(() => setIsExpanded(false), []);
@@ -81,17 +93,17 @@ export function CameraControls({
           }}
           stars={sortedStars}
           visitedSet={visitedSet}
+          rotationSpeed={autoRotationSpeed}
+          onRotationSpeedChange={setAutoRotationSpeed}
           toggles={{
             showAntimatter: antimatter,
             showJumpWarnings: jumpWarningsEnabled,
-            showStarRotation: cameraState.autoRotationEnabled,
             showBoundary: cameraState.boundaryVisible,
           }}
           onToggle={(key) => {
             const handlers = {
               showAntimatter: toggleAntimatter,
               showJumpWarnings: toggleJumpWarnings,
-              showStarRotation: onToggleRotation,
               showBoundary: onToggleBoundary,
             };
             handlers[key]?.();
@@ -132,18 +144,16 @@ export function CameraControls({
           <div className="settings-header">Settings</div>
 
           <div className="settings-list">
-            {/* Toggle switches */}
             <label className="settings-toggle-row">
               <span className="settings-label">Star Rotation</span>
-              <input
-                type="checkbox"
-                className="settings-toggle-input"
-                checked={cameraState.autoRotationEnabled}
-                onChange={onToggleRotation}
-                aria-label="Star Rotation"
+              <RotationSpeedSlider
+                className="settings-range-input"
+                value={autoRotationSpeed}
+                onChange={setAutoRotationSpeed}
               />
-              <span className="settings-toggle-slider" />
             </label>
+
+            {/* Toggle switches */}
 
             <label className="settings-toggle-row">
               <span className="settings-label">Boundary</span>

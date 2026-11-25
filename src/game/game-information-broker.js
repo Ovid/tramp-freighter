@@ -6,6 +6,7 @@ import {
 import { TradingSystem } from './game-trading.js';
 import { EconomicEventsSystem } from './game-events.js';
 import { SeededRandom } from './utils/seeded-random.js';
+import { isWormholeConnected } from './utils/wormhole-graph.js';
 
 /**
  * InformationBroker - Handles market intelligence purchases and rumor generation
@@ -181,9 +182,13 @@ export class InformationBroker {
       return "There's an engineer at Barnard's Star — Tanaka. Works on drive tech that could push ships beyond the known lanes. Doesn't talk to just anyone, though.";
     }
 
-    // If there are active events, 50% chance to hint about one
-    if (activeEvents.length > 0 && rng.next() < 0.5) {
-      const marketDisruption = rng.pickRandom(activeEvents);
+    // If there are active events the player can reach, 50% chance to hint
+    // about one (old saves may hold events on systems with no lanes)
+    const hintEvents = activeEvents.filter((e) =>
+      isWormholeConnected(e.systemId)
+    );
+    if (hintEvents.length > 0 && rng.next() < 0.5) {
+      const marketDisruption = rng.pickRandom(hintEvents);
       const system = starData.find((s) => s.id === marketDisruption.systemId);
 
       if (system) {
@@ -210,6 +215,7 @@ export class InformationBroker {
     let bestPrice = Infinity;
 
     for (const system of starData) {
+      if (!isWormholeConnected(system.id)) continue;
       const price = TradingSystem.calculatePrice(
         rumorCommodity,
         system,

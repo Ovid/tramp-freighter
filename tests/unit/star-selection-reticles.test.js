@@ -8,10 +8,13 @@ import {
   getSelectedStar,
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
+  getCurrentSystemStar,
   updateSelectionRingAnimations,
   _resetState,
 } from '../../src/game/engine/interaction.js';
-import { VISUAL_CONFIG } from '../../src/game/constants.js';
+import { VISUAL_CONFIG, STARMAP_CONFIG } from '../../src/game/constants.js';
+
+const UNITS_PER_PX = 0.002;
 
 describe('Star Selection Reticles', () => {
   let scene, camera, stars;
@@ -57,20 +60,24 @@ describe('Star Selection Reticles', () => {
   });
 
   describe('createSelectionRing', () => {
-    it('should create a selection ring mesh', () => {
+    it('reticle is a fixed-size sprite in px', () => {
       const ring = createSelectionRing();
+      expect(ring).toBeInstanceOf(THREE.Sprite);
+      expect(ring.material.sizeAttenuation).toBe(false);
 
-      expect(ring).toBeInstanceOf(THREE.Mesh);
-      expect(ring.geometry).toBeInstanceOf(THREE.PlaneGeometry);
-      expect(ring.material).toBeInstanceOf(THREE.MeshBasicMaterial);
+      selectStar(stars[0], scene, camera);
+      const unitsPerPx = 0.002;
+      updateSelectionRingAnimations(0, true, unitsPerPx);
+      expect(stars[0].selectionRing.scale.x).toBeCloseTo(
+        STARMAP_CONFIG.RETICLE_SIZE_PX * unitsPerPx
+      );
     });
 
-    it('should create a ring with correct size', () => {
+    it('should create a selection ring sprite', () => {
       const ring = createSelectionRing();
-      const expectedSize = VISUAL_CONFIG.selectionRingSize * 3;
 
-      expect(ring.geometry.parameters.width).toBe(expectedSize);
-      expect(ring.geometry.parameters.height).toBe(expectedSize);
+      expect(ring).toBeInstanceOf(THREE.Sprite);
+      expect(ring.material).toBeInstanceOf(THREE.SpriteMaterial);
     });
 
     it('should create a ring with transparent material', () => {
@@ -98,7 +105,7 @@ describe('Star Selection Reticles', () => {
       expect(selectedStar).toBe(star);
       expect(getSelectedStar()).toBe(star);
       expect(star.selectionRing).not.toBeNull();
-      expect(star.selectionRing).toBeInstanceOf(THREE.Mesh);
+      expect(star.selectionRing).toBeInstanceOf(THREE.Sprite);
     });
 
     it('should change star color to selection color', () => {
@@ -274,7 +281,7 @@ describe('Star Selection Reticles', () => {
       );
 
       expect(indicator).not.toBeNull();
-      expect(indicator).toBeInstanceOf(THREE.Mesh);
+      expect(indicator).toBeInstanceOf(THREE.Sprite);
       expect(indicator.position.x).toBe(stars[0].position.x);
       expect(indicator.position.y).toBe(stars[0].position.y);
       expect(indicator.position.z).toBe(stars[0].position.z);
@@ -297,9 +304,11 @@ describe('Star Selection Reticles', () => {
         stars,
         currentSystemId
       );
+      selectStar(stars[1], scene, camera);
 
-      expect(indicator.scale.x).toBe(VISUAL_CONFIG.currentSystemBaseScale);
-      expect(indicator.scale.y).toBe(VISUAL_CONFIG.currentSystemBaseScale);
+      updateSelectionRingAnimations(0, true, UNITS_PER_PX);
+
+      expect(indicator.scale.x).toBeGreaterThan(stars[1].selectionRing.scale.x);
     });
 
     it('should use current system color', () => {
@@ -361,10 +370,10 @@ describe('Star Selection Reticles', () => {
       const time1 = 0;
       const time2 = Math.PI / 2;
 
-      updateSelectionRingAnimations(time1);
+      updateSelectionRingAnimations(time1, false, UNITS_PER_PX);
       const scale1 = star.selectionRing.scale.x;
 
-      updateSelectionRingAnimations(time2);
+      updateSelectionRingAnimations(time2, false, UNITS_PER_PX);
       const scale2 = star.selectionRing.scale.x;
 
       expect(scale1).not.toBe(scale2);
@@ -377,10 +386,10 @@ describe('Star Selection Reticles', () => {
       const time1 = 0;
       const time2 = Math.PI / 2;
 
-      updateSelectionRingAnimations(time1);
+      updateSelectionRingAnimations(time1, false, UNITS_PER_PX);
       const opacity1 = star.selectionRing.material.opacity;
 
-      updateSelectionRingAnimations(time2);
+      updateSelectionRingAnimations(time2, false, UNITS_PER_PX);
       const opacity2 = star.selectionRing.material.opacity;
 
       expect(opacity1).not.toBe(opacity2);
@@ -393,11 +402,11 @@ describe('Star Selection Reticles', () => {
       const time1 = 0;
       const time2 = 1;
 
-      updateSelectionRingAnimations(time1);
-      const rotation1 = star.selectionRing.rotation.z;
+      updateSelectionRingAnimations(time1, false, UNITS_PER_PX);
+      const rotation1 = star.selectionRing.material.rotation;
 
-      updateSelectionRingAnimations(time2);
-      const rotation2 = star.selectionRing.rotation.z;
+      updateSelectionRingAnimations(time2, false, UNITS_PER_PX);
+      const rotation2 = star.selectionRing.material.rotation;
 
       expect(rotation2).toBeGreaterThan(rotation1);
     });
@@ -410,11 +419,11 @@ describe('Star Selection Reticles', () => {
       const time1 = 0;
       const time2 = Math.PI / 2;
 
-      updateSelectionRingAnimations(time1);
+      updateSelectionRingAnimations(time1, false, UNITS_PER_PX);
       const scale1 = indicator.scale.x;
       const opacity1 = indicator.material.opacity;
 
-      updateSelectionRingAnimations(time2);
+      updateSelectionRingAnimations(time2, false, UNITS_PER_PX);
       const scale2 = indicator.scale.x;
       const opacity2 = indicator.material.opacity;
 
@@ -423,11 +432,15 @@ describe('Star Selection Reticles', () => {
     });
 
     it('should not throw if no star is selected', () => {
-      expect(() => updateSelectionRingAnimations(0)).not.toThrow();
+      expect(() =>
+        updateSelectionRingAnimations(0, false, UNITS_PER_PX)
+      ).not.toThrow();
     });
 
     it('should not throw if no current system indicator exists', () => {
-      expect(() => updateSelectionRingAnimations(0)).not.toThrow();
+      expect(() =>
+        updateSelectionRingAnimations(0, false, UNITS_PER_PX)
+      ).not.toThrow();
     });
   });
 
@@ -459,6 +472,13 @@ describe('Star Selection Reticles', () => {
       );
 
       expect(getCurrentSystemIndicator()).toBe(indicator);
+    });
+  });
+
+  describe('getCurrentSystemStar', () => {
+    it('returns the star the indicator marks, so its label can be pinned', () => {
+      updateCurrentSystemIndicator(scene, camera, stars, 2);
+      expect(getCurrentSystemStar()).toBe(stars[1]);
     });
   });
 });

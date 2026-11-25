@@ -23,6 +23,15 @@ describe('Preferences', () => {
     expect(state.preferences.jumpWarningsEnabled).toBe(true);
   });
 
+  it('autoRotationSpeed defaults to null (resolved at the star map)', () => {
+    expect(gsm.getPreference('autoRotationSpeed')).toBeNull();
+  });
+
+  it('autoRotationSpeed of 0 is kept, not replaced by the default', () => {
+    gsm.setPreference('autoRotationSpeed', 0);
+    expect(gsm.getPreference('autoRotationSpeed')).toBe(0);
+  });
+
   it('getPreference returns correct value', () => {
     expect(gsm.getPreference('jumpWarningsEnabled')).toBe(true);
   });

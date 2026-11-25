@@ -63,8 +63,8 @@ describe('SystemPanel Danger Warning Integration', () => {
       game.updateLocation(4); // Barnard's Star
       game.updateFuel(100);
 
-      // Act: Render SystemPanel viewing 70 Ophiuchi A (dangerous system)
-      renderSystemPanel(73); // 70 Ophiuchi A
+      // Act: Render SystemPanel viewing 70 Ophiuchi (dangerous system)
+      renderSystemPanel(73); // 70 Ophiuchi
 
       // Get the jump button and click it
       const jumpButton = screen.getByText('Jump to System');
@@ -79,8 +79,9 @@ describe('SystemPanel Danger Warning Integration', () => {
       const dangerDialog = screen
         .getByText('Jump Warning')
         .closest('#danger-warning-dialog');
+      // Exact match: the dialog shows the system name, not the star's
       expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent(
-        '70 Ophiuchi A'
+        /^70 Ophiuchi$/
       );
       expect(
         dangerDialog.querySelector('.classification-value.dangerous')
@@ -113,7 +114,7 @@ describe('SystemPanel Danger Warning Integration', () => {
         .getByText('Jump Warning')
         .closest('#danger-warning-dialog');
       expect(dangerDialog.querySelector('.destination-name')).toHaveTextContent(
-        'Sirius A'
+        /^Sirius$/
       );
       expect(
         dangerDialog.querySelector('.classification-value.contested')

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import { CameraControls } from '../../src/features/navigation/CameraControls';
 import * as fc from 'fast-check';
+import { VISUAL_CONFIG } from '../../src/game/constants';
 
 /**
  * Property tests for camera controls / settings panel functionality.
@@ -9,7 +10,7 @@ import * as fc from 'fast-check';
  * Tests verify:
  * - Settings panel is collapsible
  * - Zoom In/Out buttons work correctly
- * - Star Rotation toggle changes state
+ * - Star Rotation slider saves the chosen speed
  * - Boundary toggle changes visibility
  */
 
@@ -24,17 +25,15 @@ vi.mock('../../src/features/achievements/AchievementsModal', () => ({
 }));
 
 // Mock GameContext
-vi.mock('../../src/context/GameContext', () => {
-  const hook = () => ({
-    getPreference: vi.fn((key) => {
-      if (key === 'jumpWarningsEnabled') return true;
-      return true;
-    }),
-    setPreference: vi.fn(),
-    getVisitedSystems: vi.fn(() => [0]),
-  });
-  return { useGame: hook };
-});
+// One shared object so tests can assert on setPreference calls
+const mockGame = vi.hoisted(() => ({
+  getPreference: vi.fn(() => true),
+  setPreference: vi.fn(),
+  getVisitedSystems: vi.fn(() => [0]),
+}));
+vi.mock('../../src/context/GameContext', () => ({
+  useGame: () => mockGame,
+}));
 
 // Mock StarmapContext
 vi.mock('../../src/context/StarmapContext', () => ({
@@ -61,13 +60,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -86,13 +84,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -129,17 +126,16 @@ describe('Property: Settings Panel', () => {
     });
   });
 
-  it('should reflect Star Rotation toggle state from props', async () => {
+  it('Star Rotation slider shows the speed and saves changes', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
-    const { container, rerender } = render(
+    const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -151,43 +147,26 @@ describe('Property: Settings Panel', () => {
       expect(container.querySelector('.settings-panel')).toBeTruthy();
     });
 
-    // Find Star Rotation checkbox by aria-label
-    let rotationCheckbox = container.querySelector(
+    const rotationSlider = container.querySelector(
       'input[aria-label="Star Rotation"]'
     );
-    expect(rotationCheckbox).toBeTruthy();
-    expect(rotationCheckbox.checked).toBe(true);
+    expect(rotationSlider.type).toBe('range');
+    expect(rotationSlider.value).toBe('3');
 
-    // Click to toggle rotation
-    fireEvent.click(rotationCheckbox);
-    expect(mockHandlers.onToggleRotation).toHaveBeenCalledTimes(1);
-
-    // Re-render with rotation disabled
-    rerender(
-      <CameraControls
-        cameraState={{ autoRotationEnabled: false, boundaryVisible: true }}
-        {...mockHandlers}
-      />
-    );
-
-    // Checkbox should now be unchecked
-    rotationCheckbox = container.querySelector(
-      'input[aria-label="Star Rotation"]'
-    );
-    expect(rotationCheckbox.checked).toBe(false);
+    fireEvent.change(rotationSlider, { target: { value: '6' } });
+    expect(mockGame.setPreference).toHaveBeenCalledWith('autoRotationSpeed', 6);
   });
 
   it('should reflect Boundary toggle state from props', async () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container, rerender } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -213,7 +192,7 @@ describe('Property: Settings Panel', () => {
     // Re-render with boundary hidden
     rerender(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: false }}
+        cameraState={{ boundaryVisible: false }}
         {...mockHandlers}
       />
     );
@@ -223,39 +202,36 @@ describe('Property: Settings Panel', () => {
     expect(boundaryCheckbox.checked).toBe(false);
   });
 
-  it('Property: Star Rotation toggle calls handler on each click', () => {
+  it('Property: every Star Rotation slider value is saved as a number', () => {
+    const steps =
+      VISUAL_CONFIG.autoRotationMaxSpeed / VISUAL_CONFIG.autoRotationStep;
     fc.assert(
-      fc.property(fc.integer({ min: 1, max: 10 }), (clickCount) => {
-        const mockHandlers = {
-          onZoomIn: vi.fn(),
-          onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
-          onToggleBoundary: vi.fn(),
-        };
+      fc.property(fc.integer({ min: 0, max: steps }), (stepIndex) => {
+        const value = stepIndex * VISUAL_CONFIG.autoRotationStep;
+        // The slider is controlled and shows the default, so choosing the
+        // default fires no change event
+        fc.pre(value !== VISUAL_CONFIG.autoRotationDefaultSpeed);
+        mockGame.setPreference.mockClear();
 
-        const { container } = render(
+        const { container, unmount } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
-            {...mockHandlers}
+            cameraState={{ boundaryVisible: true }}
+            onZoomIn={vi.fn()}
+            onZoomOut={vi.fn()}
+            onToggleBoundary={vi.fn()}
           />
         );
-
-        const toggleButton = container.querySelector('.camera-controls-toggle');
-        fireEvent.click(toggleButton);
-
-        // Find Star Rotation checkbox
-        const rotationCheckbox = container.querySelector(
+        fireEvent.click(container.querySelector('.camera-controls-toggle'));
+        const slider = container.querySelector(
           'input[aria-label="Star Rotation"]'
         );
+        fireEvent.change(slider, { target: { value: String(value) } });
 
-        // Click the checkbox clickCount times
-        for (let i = 0; i < clickCount; i++) {
-          fireEvent.click(rotationCheckbox);
-        }
-
-        // Verify handler was called exactly clickCount times
-        expect(mockHandlers.onToggleRotation).toHaveBeenCalledTimes(clickCount);
-
+        expect(mockGame.setPreference).toHaveBeenLastCalledWith(
+          'autoRotationSpeed',
+          value
+        );
+        unmount();
         return true;
       }),
       { numRuns: 100 }
@@ -268,13 +244,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );
@@ -305,13 +280,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -336,13 +310,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -375,13 +348,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -405,13 +377,12 @@ describe('Property: Settings Panel', () => {
     const mockHandlers = {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
-      onToggleRotation: vi.fn(),
       onToggleBoundary: vi.fn(),
     };
 
     const { container } = render(
       <CameraControls
-        cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+        cameraState={{ boundaryVisible: true }}
         {...mockHandlers}
       />
     );
@@ -440,13 +411,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );
@@ -477,13 +447,12 @@ describe('Property: Settings Panel', () => {
         const mockHandlers = {
           onZoomIn: vi.fn(),
           onZoomOut: vi.fn(),
-          onToggleRotation: vi.fn(),
           onToggleBoundary: vi.fn(),
         };
 
         const { container } = render(
           <CameraControls
-            cameraState={{ autoRotationEnabled: true, boundaryVisible: true }}
+            cameraState={{ boundaryVisible: true }}
             {...mockHandlers}
           />
         );

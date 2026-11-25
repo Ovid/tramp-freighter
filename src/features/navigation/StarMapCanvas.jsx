@@ -19,19 +19,28 @@ import { JumpAnimationSystem } from '../../game/engine/game-animation';
 import {
   selectStar,
   deselectStar,
-  getSelectedStar,
   updateCurrentSystemIndicator,
   getCurrentSystemIndicator,
+  getCurrentSystemStar,
+  getSelectedStar,
   updateSelectionRingAnimations,
   _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
-import { updateLabelScale } from '../../game/engine/stars';
+import { updateLabels } from '../../game/engine/stars';
+import {
+  isDrag,
+  minPickRadiusFor,
+  pickStar,
+  pxToSpriteScale,
+  rotationAngle,
+  resolveAutoRotationSpeed,
+} from '../../game/engine/starmap-math';
 import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useStarData } from '../../hooks/useStarData';
+import { useReducedMotion } from '../../hooks/useMediaQuery';
 import { CameraControls } from './CameraControls';
-import { prefersReducedMotion } from '../../game/utils/reduced-motion';
 
 // Reusable Three.js objects for keyboard rotation (avoid per-keypress allocation)
 const _keyboardOffset = new THREE.Vector3();
@@ -54,15 +63,23 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const sceneRef = useRef(null);
   const game = useGame();
   const starData = useStarData();
-  const [autoRotationEnabled, setAutoRotationEnabled] = useState(
-    () => !prefersReducedMotion()
-  );
-  const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
   // Subscribe to fuel changes to update wormhole connection colors
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
+  // The animation loop is set up once, so it reads the latest preference via a ref
+  const autoRotationPrefRef = useRef(preferences?.autoRotationSpeed);
+  useEffect(() => {
+    autoRotationPrefRef.current = preferences?.autoRotationSpeed;
+  }, [preferences]);
+  // Same live OS setting the rotation slider shows, so the two never disagree
+  const reducedMotion = useReducedMotion();
+  const reducedMotionRef = useRef(reducedMotion);
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+  }, [reducedMotion]);
 
   // Starmap interaction methods for context
   const starmapMethods = useRef({
@@ -87,11 +104,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }),
     []
   );
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    autoRotationRef.current = autoRotationEnabled;
-  }, [autoRotationEnabled]);
 
   // Update wormhole connection colors when fuel or system changes
   useEffect(() => {
@@ -127,9 +139,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       animationFrameId,
       animationSystem;
 
-    // Check once at init time — user can still toggle auto-rotation manually
-    const reducedMotion = prefersReducedMotion();
-
     try {
       // Initialize Three.js scene once
       const sceneComponents = initScene();
@@ -140,62 +149,58 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       lights = sceneComponents.lights;
       const stars = sceneComponents.stars;
 
+      // The renderer fills the window (scene.js onWindowResize), so its height is
+      // window.innerHeight. unitsPerPx turns CSS px into sprite scale.
+      let unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
+      // Reused every frame for label decluttering
+      const viewport = { width: window.innerWidth, height: window.innerHeight };
+      const pinnedStars = [null, null];
+
       // Append renderer to container
       container.appendChild(renderer.domElement);
 
-      // Set up raycaster for star selection (only if stars exist)
+      // Set up star selection (only if stars exist)
       let handleCanvasClick = null;
+      let handlePointerDown = null;
       if (stars && stars.length > 0) {
-        const raycaster = new THREE.Raycaster();
-        const mouse = { x: 0, y: 0 };
-
-        // Build clickable objects array
-        const clickableObjects = [];
-        stars.forEach((star) => {
-          if (star.sprite) {
-            clickableObjects.push(star.sprite);
-          }
-          if (star.label) {
-            clickableObjects.push(star.label);
-          }
-        });
+        let pointerDownAt = null;
+        handlePointerDown = (event) => {
+          pointerDownAt = {
+            x: event.clientX,
+            y: event.clientY,
+            pointerType: event.pointerType,
+          };
+        };
 
         // Handle star clicks
         handleCanvasClick = (event) => {
-          // Convert to normalized device coordinates
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+          if (isDrag(pointerDownAt, { x: event.clientX, y: event.clientY })) {
+            return;
+          }
+          // Screen space, not a raycast: labels don't block clicks and
+          // distant stars keep a usable target size
+          const rect = renderer.domElement.getBoundingClientRect();
+          const clickedStar = pickStar({
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+            width: rect.width,
+            height: rect.height,
+            camera,
+            stars,
+            minRadiusPx: minPickRadiusFor(pointerDownAt?.pointerType),
+          });
 
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(
-            clickableObjects,
-            false
-          );
-
-          if (intersects.length > 0) {
-            const clickedObject = intersects[0].object;
-            const clickedStar = stars.find(
-              (star) =>
-                star.sprite === clickedObject || star.label === clickedObject
-            );
-
-            if (clickedStar) {
-              // Select star visually and notify parent via callback
-              selectStar(clickedStar, scene, camera);
-              if (props.onSystemSelected) {
-                props.onSystemSelected(clickedStar.data.id);
-              }
-            }
+          if (clickedStar) {
+            selectStar(clickedStar, scene, camera);
+            props.onSystemSelected?.(clickedStar.data.id);
           } else {
-            // Clicked empty space - deselect
+            // Clicked empty space - deselect and close the system panel
             deselectStar();
-            // Close system panel when clicking empty space
-            if (props.onSystemDeselected) {
-              props.onSystemDeselected();
-            }
+            props.onSystemDeselected?.();
           }
         };
 
+        renderer.domElement.addEventListener('pointerdown', handlePointerDown);
         renderer.domElement.addEventListener('click', handleCanvasClick);
       }
 
@@ -204,7 +209,8 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         scene,
         camera,
         controls,
-        starData
+        starData,
+        () => reducedMotionRef.current
       );
 
       // Register animation system with GameCoordinator for useAnimationLock hook
@@ -260,18 +266,24 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
 
+      let lastFrameTime = Date.now() / 1000;
+
       // Animation loop - runs outside React render cycle
       function animate() {
         animationFrameId = requestAnimationFrame(animate);
 
         // Get current time for animations
         const currentTime = Date.now() / 1000;
+        const dt = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+        const speed = resolveAutoRotationSpeed(
+          autoRotationPrefRef.current,
+          reducedMotionRef.current
+        );
 
-        // Update auto-rotation if enabled (use ref to avoid stale closure)
-        if (autoRotationRef.current && controls && controls.target) {
-          // Convert degrees per frame to radians
-          const rotationSpeed =
-            VISUAL_CONFIG.autoRotationSpeed * (Math.PI / 180);
+        if (speed > 0 && controls && controls.target) {
+          // Degrees per second times frame time, so speed is the same at any frame rate
+          const rotationSpeed = rotationAngle(speed, dt);
 
           // Get current camera position relative to target
           _tempOffset.copy(camera.position).sub(controls.target);
@@ -290,25 +302,22 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
           camera.position.copy(controls.target).add(_tempOffset);
         }
 
-        // Update label scale and opacity based on camera distance
-        updateLabelScale(stars, camera);
+        // Selected and current-system labels win declutter over unpinned ones
+        pinnedStars[0] = getSelectedStar();
+        pinnedStars[1] = getCurrentSystemStar();
+        updateLabels(stars, camera, unitsPerPx, viewport, pinnedStars);
 
         // Update selection ring animations (static in reduced-motion mode)
-        updateSelectionRingAnimations(currentTime, reducedMotion);
+        updateSelectionRingAnimations(
+          currentTime,
+          reducedMotionRef.current,
+          unitsPerPx
+        );
 
-        // Orient selection rings to face camera
-        const selectedStar = getSelectedStar();
-        if (selectedStar && selectedStar.selectionRing) {
-          selectedStar.selectionRing.lookAt(camera.position);
-        }
-
+        // Ensure current system indicator is always visible
         const currentIndicator = getCurrentSystemIndicator();
-        if (currentIndicator) {
-          currentIndicator.lookAt(camera.position);
-          // Ensure current system indicator is always visible
-          if (!currentIndicator.visible) {
-            currentIndicator.visible = true;
-          }
+        if (currentIndicator && !currentIndicator.visible) {
+          currentIndicator.visible = true;
         }
 
         // Update controls (damping)
@@ -326,6 +335,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Handle window resize
       const handleResize = () => {
         onWindowResize(camera, renderer);
+        unitsPerPx = pxToSpriteScale(1, camera.fov, window.innerHeight);
+        viewport.width = window.innerWidth;
+        viewport.height = window.innerHeight;
       };
       window.addEventListener('resize', handleResize);
 
@@ -339,9 +351,13 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         // Remove resize listener
         window.removeEventListener('resize', handleResize);
 
-        // Remove click listener
+        // Remove click listeners
         if (renderer && renderer.domElement && handleCanvasClick) {
           renderer.domElement.removeEventListener('click', handleCanvasClick);
+          renderer.domElement.removeEventListener(
+            'pointerdown',
+            handlePointerDown
+          );
         }
 
         // Clear animation system reference from GameCoordinator
@@ -410,10 +426,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }
   };
 
-  const handleToggleRotation = () => {
-    setAutoRotationEnabled((prev) => !prev);
-  };
-
   const handleToggleBoundary = () => {
     if (sceneRef.current) {
       const newVisibility = toggleBoundary(sceneRef.current.sectorBoundary);
@@ -479,10 +491,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         onKeyDown={handleKeyDown}
       />
       <CameraControls
-        cameraState={{ autoRotationEnabled, boundaryVisible }}
+        cameraState={{ boundaryVisible }}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
-        onToggleRotation={handleToggleRotation}
         onToggleBoundary={handleToggleBoundary}
       />
     </>

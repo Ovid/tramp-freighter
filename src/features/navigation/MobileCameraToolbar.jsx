@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { RotationSpeedSlider } from './RotationSpeedSlider';
 
 export function MobileCameraToolbar({
   onZoomIn,
@@ -9,6 +10,8 @@ export function MobileCameraToolbar({
   visitedSet,
   toggles = {},
   onToggle,
+  rotationSpeed,
+  onRotationSpeedChange,
   onShowInstructions,
   onShowAchievements,
 }) {
@@ -72,6 +75,15 @@ export function MobileCameraToolbar({
 
       {showSettings && (
         <div className="mobile-toolbar-popover">
+          {onRotationSpeedChange && (
+            <label className="mobile-toolbar-toggle">
+              Star Rotation
+              <RotationSpeedSlider
+                value={rotationSpeed}
+                onChange={onRotationSpeedChange}
+              />
+            </label>
+          )}
           {Object.entries(toggles).map(([key, value]) => {
             const label = key
               .replace(/^show/, '')

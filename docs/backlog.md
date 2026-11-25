@@ -86,3 +86,109 @@ A Cole favor passenger template in `src/game/state/managers/debt.js` has no
 `missions.active`. Fix before wiring favor missions up.
 
 Found during rethink on issue #57.
+
+## Contested-zone config points at the wrong star
+
+`DANGER_CONFIG` in `src/game/constants.js` (around line 1192) has
+`systems: [7, 10], // Sirius, Epsilon Eridani`. Id 10 is `L 726-8 B`, an
+unreachable companion star. Epsilon Eridani is id 13. As a result, Epsilon
+Eridani never gets the contested pirate and inspection rates.
+
+Possible fix: change `10` to `13`. Add a test that looks up each contested id
+in `STAR_DATA` and checks its name.
+
+Found during rethink on multi-star merging (GitHub #56).
+
+## Economic events: at most one new event per type per day
+
+In `EconomicEventsSystem.updateEvents` (`src/game/game-events.js`), the
+`break` after `activeEvents.push(newEvent)` exits the inner loop over
+systems, not just the current system. So each event type starts at most one
+new event per day, and systems earlier in `starData` (low ids) always get
+the first roll. The comment says "Only one event per system", and the
+config says "5% per day per eligible system", so this probably isn't what
+was intended. Systems late in the list rarely get events.
+
+Possible fix: loop over systems on the outside and event types on the
+inside, so the `break` means one event per system. Check the effect on
+event frequency before changing it, because more events will fire.
+
+Found during pushback on `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## `npm run all` fails on knip
+
+All tests pass, but the final `knip` step of `npm run all` exits 1. It
+reports an unused file, `src/game/state/capabilities.js`, and an unused
+export, `YUMI_TANAKA_POSTCREDITS_DIALOGUE` in
+`src/game/data/dialogue-trees.js`. Commit `0f5fe1a` gives the same result,
+so this predates the navigation sphere branch.
+
+Possible fixes: delete what is truly unused, or tell knip about it (for
+example, `capabilities.js` may be documentation-only by design; the GSM
+refactor notes describe a capabilities object).
+
+Found while executing `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## System panel shows 0.0 LY, 0% fuel, 0 days for systems with no direct wormhole
+
+When the selected system has no direct wormhole link to the current one,
+the SystemPanel jump section shows "Jump Distance: 0.0 LY", "Fuel Cost: 0%"
+and "Jump Time: 0 days" above the "No wormhole connection to target system"
+error. The same panel can say "Status: Reachable" (reachable through the
+network). The zeros read as real values. Seen with Procyon → Sirius and
+Procyon → 82 Eridani. `SystemPanel.jsx`'s jump section and
+`validateJump` in `src/game/game-navigation.js` are unchanged on the
+navigation sphere branch, so this predates it.
+
+Possible fix: hide the distance, fuel and time rows (or show "—") when
+the jump is invalid because there is no connection.
+
+Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## Missions in old saves still name "L 726-8 A" and similar
+
+Missions store their destination name when created. A save made before
+multi-star primaries were renamed keeps text such as "Cargo Run:
+Registered Freight to L 726-8 A" until the mission ends. Cosmetic only; no
+new mission uses the old name.
+
+Possible fix: none needed, or resolve the name from the destination id at
+display time.
+
+Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
+
+## Stacked Modals would all close on one Escape
+
+`src/components/Modal.jsx` listens for Escape on the document without
+stopping propagation, so if two Modals were open at once, one Escape would
+close both. No current flow stacks Modals, and `useFocusTrap` already notes
+the same one-at-a-time assumption.
+
+Possible fix: a shared stack so only the top Modal (and trap) handles keys.
+Do it when a flow first needs nested dialogs.
+
+Found during the SystemPanel accessibility audit
+(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
+
+## Trade sale feedback is not announced
+
+`src/features/trade/TradePanel.jsx` shows Cole's withholding breakdown after a
+sale in a `validation-message` div with no `role`, so screen readers don't
+announce it. The other panels use `role="alert"` for this pattern.
+
+Possible fix: `role="status"` on that div. Testing it needs the mocked
+`sellGood` to return `withheld > 0` together with a sellable stack.
+
+Found while fixing the SystemPanel accessibility audit.
+
+## Close buttons across panels are all named "Close"
+
+Most panels' `×` buttons use `aria-label="Close"` (Trade, Refuel, Repair,
+Upgrades, Missions, Finance, Info Broker, Ship Status, Cargo, Outcome,
+Mechanical Failure, Dev Admin, the jump warning). When two are on screen,
+screen reader and voice control users can't tell them apart. SystemPanel now
+uses `Close <system> panel`.
+
+Possible fix: name each after its panel, e.g. `Close trade panel`.
+
+Found while fixing the SystemPanel accessibility audit.
