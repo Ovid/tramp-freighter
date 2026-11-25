@@ -371,7 +371,10 @@ export function updateLabels(
     const distance = _tempLabelDistance
       .subVectors(camera.position, star.position)
       .length();
-    if (distance < LABEL_CONFIG.hideDistance) {
+    // NDC z > 1 means behind the camera (or past the far plane): not drawn,
+    // and project() would mirror it onto the screen to steal a visible slot
+    _labelNdc.copy(star.position).project(camera);
+    if (distance < LABEL_CONFIG.hideDistance || _labelNdc.z > 1) {
       star.label.visible = false;
       continue;
     }
@@ -385,7 +388,6 @@ export function updateLabels(
     star.label.scale.set(height * aspect, height, 1);
 
     // Screen box of the label: centred on the star, above it by sprite.center
-    _labelNdc.copy(star.position).project(camera);
     const sx = ((_labelNdc.x + 1) / 2) * viewport.width;
     const sy = ((1 - _labelNdc.y) / 2) * viewport.height;
     const halfWidthPx = (heightPx * aspect) / 2;

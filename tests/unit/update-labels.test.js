@@ -68,6 +68,15 @@ describe('updateLabels', () => {
     expect(near.label.visible).toBe(false);
   });
 
+  it('a star behind the camera does not hide a visible label', () => {
+    // Behind the camera, project() mirrors the star onto the screen
+    const behind = labelledStar(LABEL_CONFIG.nearDistance);
+    const ahead = labelledStar(-LABEL_CONFIG.farDistance);
+    updateLabels([behind, ahead], camera, unitsPerPx, viewport);
+    expect(ahead.label.visible).toBe(true);
+    expect(behind.label.visible).toBe(false);
+  });
+
   it('a pinned label shows at full brightness however far away', () => {
     const far = labelledStar(-LABEL_CONFIG.farDistance * 2);
     updateLabels([far], camera, unitsPerPx, viewport, [far]);
