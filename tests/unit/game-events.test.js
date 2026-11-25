@@ -449,16 +449,17 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('triggers a medical_emergency event on an eligible system', () => {
-      // Pre-computed: seed "event_medical_emergency_2_5" produces roll 0.004372 < 0.03
-      // medical_emergency targets 'any', so any system type works
-      const starData = [{ id: 2, type: 'G2V' }];
+      // Pre-computed: seed "event_medical_emergency_56_5" produces roll 0.011073 < 0.03
+      // medical_emergency targets 'any', so any system type works.
+      // Events only start on wormhole-connected systems, so the id must have lanes.
+      const starData = [{ id: 56, type: 'G2V' }];
       const state = makeGameState(5);
 
       const result = EconomicEventsSystem.updateEvents(state, starData);
 
       const triggered = result.find((e) => e.type === 'medical_emergency');
       expect(triggered).toBeDefined();
-      expect(triggered.systemId).toBe(2);
+      expect(triggered.systemId).toBe(56);
       expect(triggered.modifiers.medicine).toBe(2.0);
     });
 
@@ -565,11 +566,12 @@ describe('EconomicEventsSystem', () => {
     });
 
     it('triggers event on second system when first system already has event', () => {
-      // Day 2: systems 15 and 30 both would trigger mining_strike
-      // If system 15 already has an event, system 30 should get the mining_strike
+      // Day 2: systems 15 (roll 0.000604) and 94 (roll 0.049700) both would
+      // trigger mining_strike (chance 0.05). Both are wormhole-connected.
+      // If system 15 already has an event, system 94 should get the mining_strike
       const starData = [
         { id: 15, type: 'M3V' },
-        { id: 30, type: 'M4V' },
+        { id: 94, type: 'M4V' },
       ];
       const existingEvent = {
         id: 'existing_15',
@@ -583,7 +585,7 @@ describe('EconomicEventsSystem', () => {
 
       const miningStrikes = result.filter((e) => e.type === 'mining_strike');
       expect(miningStrikes).toHaveLength(1);
-      expect(miningStrikes[0].systemId).toBe(30);
+      expect(miningStrikes[0].systemId).toBe(94);
     });
   });
 
