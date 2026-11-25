@@ -316,7 +316,7 @@ describe('Narrative Events and System Panel Integration', () => {
       });
 
       // Click the close button on the SystemPanel
-      const closeButton = screen.getByLabelText('Close');
+      const closeButton = screen.getByLabelText(/^Close .* panel$/);
       fireEvent.click(closeButton);
 
       await waitFor(() => {

@@ -173,4 +173,21 @@ describe('Integration: SystemPanel accessibility', () => {
       document.querySelector('.system-stars ul').getAttribute('role')
     ).toBe('list');
   });
+
+  it('names the close button after the system', () => {
+    render(panel(4));
+    expect(
+      screen.getByRole('button', { name: "Close Barnard's Star panel" })
+    ).toBeTruthy();
+  });
+
+  it('closes on Escape when focus is inside the panel', () => {
+    const onClose = vi.fn();
+    render(panel(4, { onClose }));
+    fireEvent.keyDown(screen.getByRole('heading', { name: "Barnard's Star" }), {
+      key: 'Escape',
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose.mock.calls[0]).toEqual([]);
+  });
 });

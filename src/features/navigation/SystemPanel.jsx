@@ -183,7 +183,16 @@ export function SystemPanel({
           </button>
         </Modal>
       )}
-      <section className="system-panel" data-panel aria-labelledby={headingId}>
+      <section
+        className="system-panel"
+        data-panel
+        aria-labelledby={headingId}
+        onKeyDown={(e) => {
+          // Other panels and dialogs close on Escape; match them. Dialogs
+          // render beside this section, so their Escape never reaches here.
+          if (e.key === 'Escape') onClose();
+        }}
+      >
         <div className="system-panel-header">
           <h2 id={headingId} ref={headingRef} tabIndex={-1}>
             {viewingSystem.name}
@@ -191,7 +200,7 @@ export function SystemPanel({
           <button
             className="close-btn"
             onClick={() => onClose()}
-            aria-label="Close"
+            aria-label={`Close ${viewingSystem.name} panel`}
           >
             ×
           </button>
