@@ -43,7 +43,6 @@ import '../css/panel/mission-board.css';
 import '../css/panel/refuel.css';
 import '../css/panel/repair.css';
 import '../css/panel/ship-status.css';
-import '../css/panel/system-info.css';
 import '../css/panel/system-panel.css';
 import '../css/panel/trade.css';
 import '../css/panel/upgrades.css';

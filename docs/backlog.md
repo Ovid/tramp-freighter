@@ -209,19 +209,6 @@ Found during the SystemPanel accessibility audit
 Found during the SystemPanel accessibility audit
 (`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
 
-## Duplicate panel CSS rules depend on import order
-
-`css/panel/system-info.css` and `css/panel/jump-dialog.css` redefine
-`.system-property`, `.connection-item`, `.connections-list` and `.jump-btn`
-without a scope, using values that differ from `css/panel/system-panel.css`.
-The panel looks right only because `system-panel.css` is imported last in
-`src/main.jsx`.
-
-Possible fix: scope or delete the duplicates.
-
-Found during the SystemPanel accessibility audit
-(`paad/a11y-reviews/a11y-2026-11-25-15-35-10.md`).
-
 ## DangerWarningDialog "alternative routes" text is vague
 
 `src/features/danger/DangerWarningDialog.jsx` says "Alternative routes through
