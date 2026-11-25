@@ -375,7 +375,11 @@ export function updateLabels(
       star.label.visible = false;
       continue;
     }
-    star.label.material.opacity = calculateLabelOpacity(distance);
+    const pinned = pinnedStars.includes(star);
+    // The player is looking for a pinned label, so it never fades
+    star.label.material.opacity = pinned
+      ? LABEL_CONFIG.maxOpacity
+      : calculateLabelOpacity(distance);
     const canvas = star.label.material.map.image;
     const aspect = canvas.width / canvas.height;
     star.label.scale.set(height * aspect, height, 1);
@@ -394,7 +398,7 @@ export function updateLabels(
     box.y0 = bottom - heightPx + inset;
     box.y1 = bottom - inset;
     box.depth = distance;
-    box.pinned = pinnedStars.includes(star);
+    box.pinned = pinned;
     _labelBoxes.push(box);
   }
 

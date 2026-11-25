@@ -67,4 +67,10 @@ describe('updateLabels', () => {
     expect(far.label.visible).toBe(true);
     expect(near.label.visible).toBe(false);
   });
+
+  it('a pinned label shows at full brightness however far away', () => {
+    const far = labelledStar(-LABEL_CONFIG.farDistance * 2);
+    updateLabels([far], camera, unitsPerPx, viewport, [far]);
+    expect(far.label.material.opacity).toBe(LABEL_CONFIG.maxOpacity);
+  });
 });
