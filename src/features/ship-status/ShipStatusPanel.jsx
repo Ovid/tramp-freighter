@@ -60,7 +60,9 @@ export function ShipStatusPanel({ onClose }) {
     return (
       <div className="quirk-item" key={quirkId}>
         <div className="quirk-header">
-          <span className="quirk-icon">⚙</span>
+          <span className="quirk-icon" aria-hidden="true">
+            ⚙
+          </span>
           <span className="quirk-name">{quirk.name}</span>
         </div>
         <div className="quirk-description">{quirk.description}</div>
@@ -88,7 +90,9 @@ export function ShipStatusPanel({ onClose }) {
     return (
       <div className="quirk-item" key={upgradeId}>
         <div className="quirk-header">
-          <span className="quirk-icon">🔧</span>
+          <span className="quirk-icon" aria-hidden="true">
+            🔧
+          </span>
           <span className="quirk-name">{upgrade.name}</span>
         </div>
         <div className="quirk-description">{upgrade.description}</div>
