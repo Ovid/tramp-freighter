@@ -880,7 +880,6 @@ export const VISUAL_CONFIG = {
   // Camera controls
   dampingFactor: 0.05,
   zoomSpeed: 1.5,
-  autoRotationSpeed: 0.2, // Degrees per frame for smooth, noticeable orbit
   autoRotationDefaultSpeed: 3, // degrees per second
   autoRotationMaxSpeed: 12, // degrees per second (old 0.2°/frame at 60Hz)
   autoRotationStep: 0.5,

@@ -26,7 +26,11 @@ import {
   _resetState as resetInteractionState,
 } from '../../game/engine/interaction';
 import { updateLabelScale } from '../../game/engine/stars';
-import { isDrag } from '../../game/engine/starmap-math';
+import {
+  isDrag,
+  rotationAngle,
+  resolveAutoRotationSpeed,
+} from '../../game/engine/starmap-math';
 import { VISUAL_CONFIG, EVENT_NAMES } from '../../game/constants';
 import { useGame } from '../../context/GameContext';
 import { useGameEvent } from '../../hooks/useGameEvent';
@@ -55,15 +59,17 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
   const sceneRef = useRef(null);
   const game = useGame();
   const starData = useStarData();
-  const [autoRotationEnabled, setAutoRotationEnabled] = useState(
-    () => !prefersReducedMotion()
-  );
-  const autoRotationRef = useRef(autoRotationEnabled);
   const [boundaryVisible, setBoundaryVisible] = useState(true);
 
   // Subscribe to fuel changes to update wormhole connection colors
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const currentSystem = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  const preferences = useGameEvent(EVENT_NAMES.PREFERENCES_CHANGED);
+  // The animation loop is set up once, so it reads the latest preference via a ref
+  const autoRotationPrefRef = useRef(preferences?.autoRotationSpeed);
+  useEffect(() => {
+    autoRotationPrefRef.current = preferences?.autoRotationSpeed;
+  }, [preferences]);
 
   // Starmap interaction methods for context
   const starmapMethods = useRef({
@@ -88,11 +94,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }),
     []
   );
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    autoRotationRef.current = autoRotationEnabled;
-  }, [autoRotationEnabled]);
 
   // Update wormhole connection colors when fuel or system changes
   useEffect(() => {
@@ -128,7 +129,7 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       animationFrameId,
       animationSystem;
 
-    // Check once at init time — user can still toggle auto-rotation manually
+    // Check once at init time — the player can still choose a rotation speed
     const reducedMotion = prefersReducedMotion();
 
     try {
@@ -276,18 +277,24 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
       // Temp vector for auto-rotation (reused to avoid allocation)
       const _tempOffset = new THREE.Vector3();
 
+      let lastFrameTime = Date.now() / 1000;
+
       // Animation loop - runs outside React render cycle
       function animate() {
         animationFrameId = requestAnimationFrame(animate);
 
         // Get current time for animations
         const currentTime = Date.now() / 1000;
+        const dt = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+        const speed = resolveAutoRotationSpeed(
+          autoRotationPrefRef.current,
+          reducedMotion
+        );
 
-        // Update auto-rotation if enabled (use ref to avoid stale closure)
-        if (autoRotationRef.current && controls && controls.target) {
-          // Convert degrees per frame to radians
-          const rotationSpeed =
-            VISUAL_CONFIG.autoRotationSpeed * (Math.PI / 180);
+        if (speed > 0 && controls && controls.target) {
+          // Degrees per second times frame time, so speed is the same at any frame rate
+          const rotationSpeed = rotationAngle(speed, dt);
 
           // Get current camera position relative to target
           _tempOffset.copy(camera.position).sub(controls.target);
@@ -430,10 +437,6 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
     }
   };
 
-  const handleToggleRotation = () => {
-    setAutoRotationEnabled((prev) => !prev);
-  };
-
   const handleToggleBoundary = () => {
     if (sceneRef.current) {
       const newVisibility = toggleBoundary(sceneRef.current.sectorBoundary);
@@ -499,10 +502,9 @@ export const StarMapCanvas = forwardRef(function StarMapCanvas(props, ref) {
         onKeyDown={handleKeyDown}
       />
       <CameraControls
-        cameraState={{ autoRotationEnabled, boundaryVisible }}
+        cameraState={{ boundaryVisible }}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
-        onToggleRotation={handleToggleRotation}
         onToggleBoundary={handleToggleBoundary}
       />
     </>
