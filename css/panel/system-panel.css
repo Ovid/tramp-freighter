@@ -17,12 +17,14 @@
   font-size: var(--font-size-large);
   z-index: 150;
   overflow-y: auto;
+  /* Keep Shift+Tab focus from scrolling under the sticky header */
+  scroll-padding-top: 4rem;
 }
 
 .system-panel-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   margin-bottom: var(--section-padding);
   padding-bottom: 10px;
   border-bottom: var(--section-border-width) solid rgba(0, 255, 136, 0.3);
@@ -49,6 +51,11 @@
   line-height: 1;
   transition: var(--transition-fast);
   flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .system-panel .close-btn:hover {
@@ -195,7 +202,7 @@
 .connection-item {
   width: 100%;
   background: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  border: 1px solid rgba(0, 255, 136, 0.6);
   border-radius: 5px;
   padding: 10px;
   transition: all 0.2s;
