@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { VISUAL_CONFIG, LABEL_CONFIG, STARMAP_CONFIG } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 import { getStarVisuals } from '../utils/star-visuals.js';
+import { isCompanion, getSystemName } from '../utils/star-systems.js';
 
 // Shared texture and material caches to reduce GPU memory usage
 let sharedStarTexture = null;
@@ -103,7 +104,7 @@ function createLabel(text, fontSize = 18) {
 /**
  * Create star systems with sprites and labels.
  *
- * PERFORMANCE NOTE: This function creates 117 star sprites with shared textures
+ * PERFORMANCE NOTE: This function creates one sprite per system with shared textures
  * and materials. It should only be called once during scene initialization.
  *
  * Star colors and sizes are determined by spectral classification using
@@ -122,6 +123,9 @@ export function createStarSystems(scene, starData) {
   }
 
   starData.forEach((data) => {
+    // A multi-star system is one point on the map, drawn at its primary
+    if (isCompanion(data)) return;
+
     // Get astronomically accurate color and size for this star's spectral type
     const visuals = getStarVisuals(data.type);
 
@@ -132,7 +136,7 @@ export function createStarSystems(scene, starData) {
     // Base size is VISUAL_CONFIG.starSize (30), scaled by relative radius
     const spriteSize = VISUAL_CONFIG.starSize * visuals.radius;
 
-    // Reduces 117 materials down to ~7 (one per spectral class)
+    // One material per spectral class (~7), not one per sprite
     let spriteMaterial = starMaterials.get(color);
     if (!spriteMaterial) {
       spriteMaterial = new THREE.SpriteMaterial({
@@ -157,7 +161,7 @@ export function createStarSystems(scene, starData) {
     scene.add(sprite);
 
     // Create label for star system
-    const label = createLabel(data.name, LABEL_CONFIG.maxFontSize);
+    const label = createLabel(getSystemName(data), LABEL_CONFIG.maxFontSize);
 
     // At the star; the screen-space offset above it lives in sprite.center
     label.position.set(data.x, data.y, data.z);
