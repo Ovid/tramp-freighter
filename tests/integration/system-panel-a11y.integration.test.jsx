@@ -211,4 +211,17 @@ describe('Integration: SystemPanel accessibility', () => {
       )
     );
   });
+
+  it('shows the critical damage modal once, not on every target picked', () => {
+    game.getState().ship.hull = 5;
+    const currentId = game.getState().player.currentSystem;
+    const [first, second] =
+      game.navigationSystem.getConnectedSystems(currentId);
+    const { rerender } = render(panel(first));
+    fireEvent.click(screen.getByRole('button', { name: 'Understood' }));
+    rerender(panel(second));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // The inline error still explains why Jump is disabled
+    expect(screen.getByRole('alert').textContent).toMatch(/critically/);
+  });
 });

@@ -77,10 +77,18 @@ export function SystemPanel({
   const isCriticalDamageError =
     validation && !validation.valid && validation.reason === 'critical_damage';
 
-  // Auto-show critical damage modal when selecting a target system
+  // Auto-show critical damage modal on the first target selected. After that
+  // the inline error is enough; reopening it on every pick interrupts route
+  // planning.
+  const criticalDamageShownRef = useRef(false);
   useEffect(() => {
     const isTargetSystem = viewingSystemId !== currentSystemId;
-    if (isTargetSystem && isCriticalDamageError) {
+    if (
+      isTargetSystem &&
+      isCriticalDamageError &&
+      !criticalDamageShownRef.current
+    ) {
+      criticalDamageShownRef.current = true;
       setShowCriticalDamageModal(true);
     } else {
       setShowCriticalDamageModal(false);
