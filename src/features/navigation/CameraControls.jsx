@@ -89,6 +89,8 @@ export function CameraControls({
           }}
           stars={sortedStars}
           visitedSet={visitedSet}
+          rotationSpeed={autoRotationSpeed}
+          onRotationSpeedChange={setAutoRotationSpeed}
           toggles={{
             showAntimatter: antimatter,
             showJumpWarnings: jumpWarningsEnabled,
