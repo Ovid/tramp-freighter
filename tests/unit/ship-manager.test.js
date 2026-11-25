@@ -706,6 +706,21 @@ describe('ShipManager', () => {
       expect(result.reason).toBe('Not enough regular cargo space');
     });
 
+    it('moveToRegularCargo counts passenger space against the hold', () => {
+      const state = gsm.getState();
+      state.ship.upgrades = [];
+      state.ship.cargoCapacity = 5;
+      state.ship.cargo = [];
+      state.ship.hiddenCargo = [{ good: 'ore', qty: 5, buyPrice: 15 }];
+      state.missions.active = [
+        { type: 'passenger', requirements: { cargoSpace: 3 } },
+      ];
+
+      const result = gsm.shipManager.moveToRegularCargo(0, 3);
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Not enough regular cargo space');
+    });
+
     it('moveToRegularCargo fails for an invalid stack index', () => {
       gsm.state.ship.cargo = [];
       gsm.state.ship.hiddenCargo = [

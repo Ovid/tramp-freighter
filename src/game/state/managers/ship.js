@@ -646,11 +646,8 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Not enough quantity in hidden cargo' };
     }
 
-    // Check regular cargo capacity
-    const cargoUsed = ship.cargo.reduce((total, stack) => total + stack.qty, 0);
-    const cargoRemaining = ship.cargoCapacity - cargoUsed;
-
-    if (qty > cargoRemaining) {
+    // Passengers take hold space too
+    if (qty > this.capabilities.getCargoRemaining()) {
       return { success: false, reason: 'Not enough regular cargo space' };
     }
 

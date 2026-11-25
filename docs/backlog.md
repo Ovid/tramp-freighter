@@ -81,17 +81,3 @@ deliver what is left for the full reward. This may be on purpose (forgiving
 design). Confirm, then either check quantity or add a comment explaining why.
 
 Found during rethink on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
-
-## Moving cargo out of the hidden compartment ignores passenger space
-
-`moveToRegularCargo` in `src/game/state/managers/ship.js` checks free space as
-`ship.cargoCapacity - cargoUsed`, where `cargoUsed` sums cargo stacks only.
-`getCargoRemaining()` (`src/game/state/managers/state.js`) also subtracts
-passenger space. With a passenger aboard, moving hidden cargo into the main
-hold can fill it past capacity.
-
-Possible fix: use `getCargoRemaining()` for the capacity check.
-
-Found during pushback on `docs/plans/2026-11-24-npc-cargo-storage-picker-design.md`.
-
-Re-confirmed by `/agentic-review` on 2026-11-25, branch `ovid/hidden-compartment` at `499e8f7`.
