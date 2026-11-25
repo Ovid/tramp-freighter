@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { GameProvider } from '../../src/context/GameContext';
 import { StarmapProvider } from '../../src/context/StarmapContext';
@@ -7,6 +7,11 @@ import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
+
+const showError = vi.hoisted(() => vi.fn());
+vi.mock('../../src/context/NotificationContext', () => ({
+  useNotificationContext: () => ({ showError }),
+}));
 
 describe('Integration: SystemPanel accessibility', () => {
   let game;
@@ -189,5 +194,21 @@ describe('Integration: SystemPanel accessibility', () => {
     });
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onClose.mock.calls[0]).toEqual([]);
+  });
+
+  it('tells the player when a jump fails after the panel has closed', async () => {
+    game.setPreference('jumpWarningsEnabled', false);
+    const currentId = game.getState().player.currentSystem;
+    const targetId = game.navigationSystem.getConnectedSystems(currentId)[0];
+    render(panel(targetId));
+    // State changes behind the panel's back, so the game refuses the jump
+    game.getState().ship.fuel = 0;
+    showError.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: /jump to system/i }));
+    await waitFor(() =>
+      expect(showError).toHaveBeenCalledWith(
+        expect.stringContaining('Insufficient fuel')
+      )
+    );
   });
 });

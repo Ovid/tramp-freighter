@@ -4,6 +4,7 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import { useStarmap } from '../../context/StarmapContext';
+import { useNotificationContext } from '../../context/NotificationContext';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useJumpValidation } from '../../hooks/useJumpValidation';
 import { restoreFocus } from '../../hooks/useFocusTrap';
@@ -55,6 +56,7 @@ export function SystemPanel({
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const { executeJump } = useGameAction();
+  const notifications = useNotificationContext();
   const { selectStarById } = useStarmap();
   const dangerZone = useDangerZone(viewingSystemId);
   const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED) ?? 0;
@@ -134,10 +136,16 @@ export function SystemPanel({
       onJumpStart();
     }
 
+    // The panel is already closed, so a toast is the only place to say why.
     try {
-      await executeJump(viewingSystemId);
+      const result = await executeJump(viewingSystemId);
+      if (result && !result.success) {
+        notifications?.showError(`Jump failed: ${result.error}`);
+      }
     } catch (error) {
       console.error('Jump failed:', error);
+      // Location may already have changed: state updates before the animation
+      notifications?.showError('Something went wrong during the jump.');
     } finally {
       if (onJumpComplete) {
         onJumpComplete();
