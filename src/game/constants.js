@@ -831,6 +831,21 @@ export const PASSENGER_CONFIG = {
  */
 export const SAVE_KEY = 'trampFreighterSave';
 
+/** Plain-English kind of star by spectral-class prefix (SystemPanel). */
+export const STAR_KINDS = Object.freeze({
+  O: 'main-sequence star',
+  B: 'main-sequence star',
+  A: 'main-sequence star',
+  F: 'main-sequence star',
+  G: 'main-sequence star',
+  K: 'main-sequence star',
+  M: 'red dwarf',
+  D: 'white dwarf',
+  L: 'brown dwarf',
+  T: 'brown dwarf',
+  Y: 'brown dwarf',
+});
+
 /**
  * Visual configuration for starmap rendering
  *
