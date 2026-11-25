@@ -66,6 +66,18 @@ describe('Integration: SystemPanel accessibility', () => {
     );
   });
 
+  it('announces the jump error and links it to the disabled jump button', () => {
+    const currentId = game.getState().player.currentSystem;
+    const connected = game.navigationSystem.getConnectedSystems(currentId);
+    const unconnected = STAR_DATA.find(
+      (s) => s.id !== currentId && !connected.includes(s.id)
+    );
+    render(panel(unconnected.id));
+    const alert = screen.getByRole('alert');
+    const jumpBtn = screen.getByRole('button', { name: /jump to system/i });
+    expect(jumpBtn.getAttribute('aria-describedby')).toBe(alert.id);
+  });
+
   it('does not steal focus from the star map canvas', () => {
     const canvas = document.createElement('div');
     canvas.className = 'starmap-container';

@@ -258,6 +258,7 @@ function SystemDetails({ system, starData, dangerZone, isCurrentSystem }) {
 }
 
 function JumpSection({ validation, onJump }) {
+  const errorId = useId();
   return (
     <>
       <div className="system-divider"></div>
@@ -284,13 +285,16 @@ function JumpSection({ validation, onJump }) {
       )}
 
       {!validation.valid && (
-        <div className="validation-message error">{validation.error}</div>
+        <div id={errorId} className="validation-message error" role="alert">
+          {validation.error}
+        </div>
       )}
 
       <button
         className="jump-btn"
         onClick={onJump}
         disabled={!validation.valid}
+        aria-describedby={validation.valid ? undefined : errorId}
       >
         Jump to System
       </button>
