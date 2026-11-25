@@ -8,9 +8,10 @@ Status: Accepted
 The navigation sphere design
 (`docs/plans/2026-11-25-navigation-sphere-design.md`) stops rumors and
 economic events from naming stars the player cannot trade at. Its first
-version filtered out only companion stars (`isCompanion`). That misses 10
-primaries that have no wormholes (for example Ross 882, Wolf 1481 and Delta
-Pavonis). In total, 43 of the 117 stars appear in no `WORMHOLE_DATA` pair.
+version filtered out only companion stars (`isCompanion`). That misses 11
+other stars that have no wormholes (for example Ross 882, Wolf 1481, Delta
+Pavonis, and Proxima Centauri once it is its own system). In total, 44 of the
+117 stars appear in no `WORMHOLE_DATA` pair.
 
 Delta Pavonis is reached once, through the victory run
 (`markVictory` → `updateLocation(DELTA_PAVONIS_ID)`). The post-credits
@@ -26,7 +27,7 @@ only systems with at least one wormhole connection, using
 
 ## Alternatives rejected
 
-- **Filter companions only**: rumors can still send the player to 10
+- **Filter companions only**: rumors can still send the player to 11
   unreachable places. One of them is a "good prices at Delta Pavonis" rumor,
   which contradicts Tanaka's "No wormhole connection" line.
 - **Use the data's `r` flag**: 36 stars that are not companions have `r: 0`,

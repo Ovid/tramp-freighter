@@ -12,9 +12,10 @@ Covers GitHub issues #51 (drag selects a star), #54 (rotation speed), #55
   primary. Proxima has no "A" star to group with.
 - Unreachable stars leak into gameplay. Rumors can name them
   (`game-information-broker.js` `generateRumor`), and economic events can start
-  on them (`game-events.js`). This applies to the 33 companions and also to 10
-  primaries with no wormholes (for example Ross 882 and Wolf 1481). Delta
-  Pavonis is one of the 10. The player reaches it only through the victory run,
+  on them (`game-events.js`). This applies to the 33 companions and also to 11
+  other stars with no wormholes (for example Ross 882 and Wolf 1481). Delta
+  Pavonis is one of the 11, and so is Proxima Centauri once it is its own
+  system. The player reaches it only through the victory run,
   and the post-credits station has no market.
 - Players currently learn about companions only from an overlapping map label,
   plus the spectral class shown when they click it.
@@ -59,8 +60,8 @@ less.
 - `game-information-broker.js` rumors (both the best-price rumor and the
   event hint) and `game-events.js` events: skip every star that is not
   connected in the wormhole graph (`getConnectedSystems(id).length === 0` from
-  `wormhole-graph.js`). This covers all 43 wormhole-less stars, including
-  companions and Delta Pavonis. See `paad/adrs/0002-gameplay-targets-wormhole-connected-systems.md`.
+  `wormhole-graph.js`). This covers all 44 wormhole-less stars, including
+  companions, Proxima Centauri and Delta Pavonis. See `paad/adrs/0002-gameplay-targets-wormhole-connected-systems.md`.
 - Instructions and credits: change the wording to "117 real stars in 84
   systems", and update `credits-data.test.js`.
 - Credits "Filmed on location" (`credits-data.js`): "and 107 other star
@@ -69,7 +70,8 @@ less.
 
 **Old saves:** an economic event may already exist on a companion star. Such
 events expire and the lookups that read them already tolerate it, so no
-migration is needed. A test loads such a save to confirm this.
+migration is needed. Tests confirm such an event expires normally and the
+rumor hint skips it.
 
 ## 2. Labels, reticle and picking (#55, #51)
 
@@ -110,9 +112,14 @@ migration is needed. A test loads such a save to confirm this.
 - A click that hits nothing deselects, as it does today.
 
 **Drag versus click (#51)**
-- Record the position on `pointerdown`. If the pointer moves more than
-  `CLICK_DRAG_THRESHOLD_PX` (5) before the click, ignore the click entirely:
-  no selection and no deselection.
+- Record the position on `pointerdown`. If the click lands more than
+  `CLICK_DRAG_THRESHOLD_PX` (5) from that position, ignore the click entirely:
+  no selection and no deselection. A drag that ends back within 5px of where
+  it started counts as a click; that is rare enough to accept.
+- Touch uses larger values, because a fingertip drifts during a tap and is
+  less precise than a mouse: `CLICK_DRAG_THRESHOLD_TOUCH_PX` (10) and
+  `MIN_PICK_RADIUS_TOUCH_PX` (22). The `pointerType` comes from
+  `pointerdown`, because Safari's `click` event doesn't carry one.
 
 ## 3. Rotation speed (#54)
 

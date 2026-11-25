@@ -98,3 +98,19 @@ Possible fix: change `10` to `13`. Add a test that looks up each contested id
 in `STAR_DATA` and checks its name.
 
 Found during rethink on multi-star merging (GitHub #56).
+
+## Economic events: at most one new event per type per day
+
+In `EconomicEventsSystem.updateEvents` (`src/game/game-events.js`), the
+`break` after `activeEvents.push(newEvent)` exits the inner loop over
+systems, not just the current system. So each event type starts at most one
+new event per day, and systems earlier in `starData` (low ids) always get
+the first roll. The comment says "Only one event per system", and the
+config says "5% per day per eligible system", so this probably isn't what
+was intended. Systems late in the list rarely get events.
+
+Possible fix: loop over systems on the outside and event types on the
+inside, so the `break` means one event per system. Check the effect on
+event frequency before changing it, because more events will fire.
+
+Found during pushback on `docs/plans/2026-11-25-navigation-sphere-plan.md`.

@@ -70,7 +70,11 @@ first.
  */
 export const STARMAP_CONFIG = Object.freeze({
   CLICK_DRAG_THRESHOLD_PX: 5,
+  // A fingertip drifts further than a mouse during a tap, and browsers still
+  // fire click within their touch slop (~15px)
+  CLICK_DRAG_THRESHOLD_TOUCH_PX: 10,
   MIN_PICK_RADIUS_PX: 12,
+  MIN_PICK_RADIUS_TOUCH_PX: 22,
   LABEL_HEIGHT_PX: 28,
   RETICLE_SIZE_PX: 96,
   CURRENT_SYSTEM_SIZE_PX: 115,
@@ -103,8 +107,17 @@ describe('isDrag', () => {
   it('is false when there was no pointerdown', () => {
     expect(isDrag(null, { x: 100, y: 100 })).toBe(false);
   });
+
+  it('uses the larger touch threshold for a touch pointerdown', () => {
+    const TT = STARMAP_CONFIG.CLICK_DRAG_THRESHOLD_TOUCH_PX;
+    const down = { x: 0, y: 0, pointerType: 'touch' };
+    expect(isDrag(down, { x: TT, y: 0 })).toBe(false);
+    expect(isDrag(down, { x: TT + 1, y: 0 })).toBe(true);
+  });
 });
 ```
+
+Add the touch test as its own RED → GREEN after the first four pass.
 
 **Step 3:** `npm test -- tests/unit/starmap-math.test.js` → FAIL (module not found).
 
@@ -116,15 +129,27 @@ import { STARMAP_CONFIG } from '../constants.js';
 /**
  * OrbitControls still fires `click` after a drag. Comparing the click
  * position with the pointerdown position tells a drag from a click.
+ * `down.pointerType` comes from pointerdown; Safari's click has none.
  */
 export function isDrag(down, up) {
   if (!down) return false;
-  return (
-    Math.hypot(up.x - down.x, up.y - down.y) >
-    STARMAP_CONFIG.CLICK_DRAG_THRESHOLD_PX
-  );
+  const threshold =
+    down.pointerType === 'touch'
+      ? STARMAP_CONFIG.CLICK_DRAG_THRESHOLD_TOUCH_PX
+      : STARMAP_CONFIG.CLICK_DRAG_THRESHOLD_PX;
+  return Math.hypot(up.x - down.x, up.y - down.y) > threshold;
+}
+
+/** Fingertips need a bigger target than a mouse pointer. */
+export function minPickRadiusFor(pointerType) {
+  return pointerType === 'touch'
+    ? STARMAP_CONFIG.MIN_PICK_RADIUS_TOUCH_PX
+    : STARMAP_CONFIG.MIN_PICK_RADIUS_PX;
 }
 ```
+
+Add `minPickRadiusFor` with its own RED → GREEN test (`'touch'` gives the
+touch radius; `'mouse'`, `'pen'` and `undefined` give `MIN_PICK_RADIUS_PX`).
 
 **Step 5:** Run the test → PASS. Then run the full suite, lint and format.
 
@@ -147,10 +172,24 @@ git commit -m "feat(starmap): add drag threshold helper" -m "Co-Authored-By: Cla
 file, then add:
 
 ```jsx
+import * as THREE from 'three';
 import { STARMAP_CONFIG } from '../../src/game/constants.js';
 
 describe('StarMapCanvas drag versus click', () => {
-  afterEach(() => cleanup());
+  // The mock sprites have no `layers`, so the real raycaster throws inside
+  // the click listener. A throw also leaves both callbacks uncalled, which
+  // would let the drag test pass on unfixed code. Stubbing the hit test
+  // makes an unfixed click reach onSystemDeselected. Task 10 deletes this
+  // along with the raycaster.
+  beforeEach(() => {
+    vi.spyOn(THREE.Raycaster.prototype, 'intersectObjects').mockReturnValue(
+      []
+    );
+  });
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
   it('ignores a click that ends past the drag threshold', async () => {
     const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
@@ -183,15 +222,30 @@ describe('StarMapCanvas drag versus click', () => {
     expect(onSystemSelected).not.toHaveBeenCalled();
     expect(onSystemDeselected).not.toHaveBeenCalled();
   });
+
+  it('a click without a drag still reaches the handler', async () => {
+    // render exactly as above, then:
+    canvas.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: 100, clientY: 100 })
+    );
+    canvas.dispatchEvent(
+      new MouseEvent('click', { clientX: 100, clientY: 100 })
+    );
+    expect(onSystemDeselected).toHaveBeenCalledTimes(1);
+  });
 });
 ```
 
 jsdom has no `PointerEvent` constructor. A `MouseEvent` named `pointerdown`
-reaches a `pointerdown` listener with `clientX` and `clientY`, which is all
-we read.
+reaches a `pointerdown` listener with `clientX` and `clientY`. To send a
+touch `pointerType`, set it on the event first:
+`Object.defineProperty(e, 'pointerType', { value: 'touch' })`.
 
-**Step 2:** Run it → FAIL. The raycaster runs against the mock camera, so
-it either throws or calls `onSystemDeselected`.
+**Step 2:** Run it. The drag test FAILS on its assertion, because the
+stubbed raycaster finds nothing and the handler calls `onSystemDeselected`.
+The control test passes already; it guards against a handler that never
+runs. There must be no uncaught error in the output. If there is one, the
+stub is not in place.
 
 **Step 3: Implement.** In `StarMapCanvas.jsx`, inside
 `if (stars && stars.length > 0) {`:
@@ -199,7 +253,11 @@ it either throws or calls `onSystemDeselected`.
 ```js
 let pointerDownAt = null;
 handlePointerDown = (event) => {
-  pointerDownAt = { x: event.clientX, y: event.clientY };
+  pointerDownAt = {
+    x: event.clientX,
+    y: event.clientY,
+    pointerType: event.pointerType,
+  };
 };
 ```
 
@@ -231,8 +289,8 @@ removal. Import `isDrag` from `'../../game/engine/starmap-math'`.
 - Modify: `src/game/engine/starmap-math.js`
 - Test: `tests/unit/starmap-math.test.js`
 
-**Step 1:** In `VISUAL_CONFIG`, replace `autoRotationSpeed: 0.2` (search for
-it) with:
+**Step 1:** In `VISUAL_CONFIG`, add these beside `autoRotationSpeed: 0.2`
+(search for it):
 
 ```js
   autoRotationDefaultSpeed: 3, // degrees per second
@@ -240,9 +298,10 @@ it) with:
   autoRotationStep: 0.5,
 ```
 
-`StarMapCanvas.jsx:274` still reads `autoRotationSpeed`. Task 5 fixes that.
-Until then the map doesn't rotate, which is acceptable for one commit. If you
-prefer, do Tasks 3–5 before committing.
+**Do not remove `autoRotationSpeed` yet.** `StarMapCanvas.jsx:274` still reads
+it. Without it, `animate()` computes `NaN`, writes it into `camera.position`
+every frame, and the map goes blank. Unit tests don't catch this. Task 5
+removes it once `StarMapCanvas` stops reading it.
 
 **Step 2: Failing tests, added one at a time** (RED/GREEN each):
 
@@ -381,8 +440,12 @@ frame" comment.
 `cameraState={{ boundaryVisible }}` and remove the `onToggleRotation` prop.
 Task 6 removes them from `CameraControls`.
 
-**Step 4:** Run the full suite and lint. **Commit** Tasks 3 to 5 together if
-you held them: `fix(starmap): rotate in degrees per second from a preference` (#54).
+**Step 4:** Delete `autoRotationSpeed` from `VISUAL_CONFIG`. Then
+`grep -rn "autoRotationSpeed" src tests` should show only the preference key
+(`DEFAULT_PREFERENCES`, `preferences?.autoRotationSpeed`), not
+`VISUAL_CONFIG.autoRotationSpeed`.
+
+**Step 5:** Run the full suite and lint. **Commit**: `fix(starmap): rotate in degrees per second from a preference` (#54).
 
 ### Task 6: Rotation slider, desktop
 
@@ -772,7 +835,21 @@ it('a click without a drag picks relative to the canvas, and deselects on a miss
   );
   expect(onSystemDeselected).toHaveBeenCalledTimes(1);
 });
+
+it('a touch tap picks with the touch radius', async () => {
+  // render as above; dispatch pointerdown with pointerType 'touch'
+  // (see Task 2 for how), then a click at the same point
+  const { pickStar } = await import('../../src/game/engine/starmap-math');
+  expect(pickStar).toHaveBeenCalledWith(
+    expect.objectContaining({
+      minRadiusPx: STARMAP_CONFIG.MIN_PICK_RADIUS_TOUCH_PX,
+    })
+  );
+});
 ```
+
+Clear the `pickStar` mock between tests (`vi.mocked(pickStar).mockClear()`
+in `beforeEach`).
 
 **Step 2:** FAIL (the raycaster is still in place).
 
@@ -792,6 +869,7 @@ handleCanvasClick = (event) => {
     height: rect.height,
     camera,
     stars,
+    minRadiusPx: minPickRadiusFor(pointerDownAt?.pointerType),
   });
 
   if (clickedStar) {
@@ -805,7 +883,9 @@ handleCanvasClick = (event) => {
 ```
 
 Remove the `THREE.Raycaster` use. Keep `import * as THREE` if the file still
-uses `THREE.Vector3`.
+uses `THREE.Vector3`. Import `minPickRadiusFor` with `pickStar`. In the test
+file, delete Task 2's `Raycaster.prototype.intersectObjects` stub and its
+`THREE` import. The mocked `pickStar` now does that job.
 
 **Step 4:** Run the full suite. `tests/integration/app-starmap-provider-integration.test.jsx`
 mocks `Raycaster`. That mock is now unused and harmless; delete it only if lint
@@ -938,6 +1018,9 @@ there. Their mock stars have no labels, so nothing reads it.
 - Modify: `src/features/navigation/StarMapCanvas.jsx` (animation loop)
 - Modify: `src/game/constants.js` (`VISUAL_CONFIG`)
 - Test: `tests/unit/star-selection-reticles.test.js`
+- Modify: `tests/property/selection-ring-animations.property.test.js`
+- Check: `tests/unit/dual-reticles.test.js`,
+  `tests/integration/star-selection-integration.test.js`
 
 **Step 1: Failing test.** Add to `star-selection-reticles.test.js`:
 
@@ -1003,6 +1086,24 @@ const markerBase = STARMAP_CONFIG.CURRENT_SYSTEM_SIZE_PX * unitsPerPx;
   in place of `rotation.z`.
 - Every `updateSelectionRingAnimations(t, ...)` call needs a third argument,
   `0.002`.
+
+**Step 4b: Update `tests/property/selection-ring-animations.property.test.js`.**
+The whole file fails without these changes:
+- Every `updateSelectionRingAnimations(time)` call (14 of them) gets
+  `false, UNITS_PER_PX` with `const UNITS_PER_PX = 0.002;` at the top.
+- The scale-bounds assertions (lines ~50–51 and ~217–218) assert an absolute
+  `0.92`–`1.08`. Change them to `ringBase × (1 ± selectionRingScaleAmplitude)`,
+  where `ringBase = STARMAP_CONFIG.RETICLE_SIZE_PX * UNITS_PER_PX`. That keeps
+  the property that the pulse stays in bounds.
+- The rotation properties (lines ~136–180) read `selectionRing.rotation.z`.
+  Change them to `selectionRing.material.rotation`.
+
+**Step 4c: Check the other callers.** `tests/unit/dual-reticles.test.js` and
+`tests/integration/star-selection-integration.test.js` call
+`updateCurrentSystemIndicator`, which no longer disposes geometry, calls
+`lookAt`, or sets `currentSystemBaseScale`. They have no scale, rotation or
+`Mesh` assertions today, so they should pass. Run them and fix any assertion
+on the removed behaviour.
 
 **Step 5:** Run the full suite, lint and format. **Commit**: `fix(starmap): reticle and current-system marker are a fixed size on screen` (#55).
 
@@ -1409,9 +1510,11 @@ Match the render call to the file's existing tests.
      desktop and on a phone in landscape and portrait.
    - Clicking a distant star beside a near one selects the distant star.
    - Dragging does not change the selection.
+   - On a phone, tapping distant stars selects them reliably, and a
+     one-finger drag does not change the selection.
    - Rotation works at 0, 3 and 12°/s, and stays at 0 by default with reduced
      motion on.
    - Sirius is one point, and its panel lists A and B.
    - Find Star has 84 entries.
-   - Tune `STARMAP_CONFIG` px sizes and `LABEL_CONFIG.hideDistance` by eye if
+   - Tune `STARMAP_CONFIG` px sizes (including the touch values) and `LABEL_CONFIG.hideDistance` by eye if
      needed. They are first guesses.
