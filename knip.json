@@ -9,5 +9,6 @@
     "@game/*": ["./src/game/*"],
     "@assets/*": ["./src/assets/*"]
   },
+  "ignore": ["src/game/state/capabilities.js"],
   "ignoreDependencies": ["http-server"]
 }
