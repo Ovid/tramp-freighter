@@ -24,6 +24,9 @@ const VIEW_MODES = {
  * @param {Object} encounterEvent - Latest encounter event from useGameEvent
  * @returns {Object} Encounter state, handlers, and jump coordination
  */
+const ENCOUNTER_FAILED_MESSAGE =
+  'Something went wrong with this encounter, so it has been dismissed.';
+
 export function useEncounterOrchestration(
   game,
   notificationCtx,
@@ -69,6 +72,17 @@ export function useEncounterOrchestration(
     }
   };
 
+  // A failed resolution can't be retried safely, so drop the encounter and
+  // say so rather than leaving the player in orbit wondering what happened
+  const abandonEncounter = (logLabel, error) => {
+    console.error(logLabel, error);
+    setCurrentEncounter(null);
+    setEncounterOutcome(null);
+    setEncounterPhase('initial');
+    setViewMode(VIEW_MODES.ORBIT);
+    notificationCtx?.showError(ENCOUNTER_FAILED_MESSAGE);
+  };
+
   const handleEncounterChoice = (choice) => {
     if (!currentEncounter) return;
 
@@ -100,11 +114,7 @@ export function useEncounterOrchestration(
           setEncounterPhase('combat');
         }
       } catch (error) {
-        console.error('Flee resolution failed:', error);
-        setCurrentEncounter(null);
-        setEncounterOutcome(null);
-        setEncounterPhase('initial');
-        setViewMode(VIEW_MODES.ORBIT);
+        abandonEncounter('Flee resolution failed:', error);
       }
       return;
     }
@@ -177,12 +187,7 @@ export function useEncounterOrchestration(
       setEncounterOutcome(displayOutcome);
       setEncounterPhase('initial');
     } catch (error) {
-      console.error('Encounter resolution failed:', error);
-      // On error, return to orbit
-      setCurrentEncounter(null);
-      setEncounterOutcome(null);
-      setEncounterPhase('initial');
-      setViewMode(VIEW_MODES.ORBIT);
+      abandonEncounter('Encounter resolution failed:', error);
     }
   };
 

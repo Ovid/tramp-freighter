@@ -15,9 +15,12 @@ import { StrictMode } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
+import { NotificationProvider } from '../../src/context/NotificationContext.jsx';
+import { NotificationContainer } from '../../src/components/NotificationContainer.jsx';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
+import { ALL_DIALOGUE_TREES } from '../../src/game/data/dialogue-trees.js';
 
 describe('DialoguePanel Lifecycle', () => {
   let game;
@@ -398,6 +401,80 @@ describe('DialoguePanel Lifecycle', () => {
       fireEvent.click(screen.getByLabelText('Close'));
 
       expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    describe('the player is told', () => {
+      const renderWithToasts = () =>
+        render(
+          <GameProvider game={game}>
+            <NotificationProvider>
+              <NotificationContainer />
+              <DialoguePanel npcId="chen_barnards" onClose={mockOnClose} />
+            </NotificationProvider>
+          </GameProvider>
+        );
+
+      it('when the dialogue fails to start, and the panel closes', async () => {
+        vi.spyOn(game, 'startDialogue').mockRejectedValue(
+          new Error('start failure')
+        );
+
+        renderWithToasts();
+
+        expect(
+          await screen.findByText(
+            /Something went wrong with this conversation, so it has been closed\./
+          )
+        ).toBeInTheDocument();
+        expect(mockOnClose).toHaveBeenCalled();
+      });
+
+      it('when a choice fails, and the panel closes', async () => {
+        vi.spyOn(game, 'selectDialogueChoice').mockRejectedValue(
+          new Error('choice failure')
+        );
+        renderWithToasts();
+        await screen.findByText('Wei Chen');
+
+        fireEvent.click(screen.getByText('Nothing right now. Take care.'));
+
+        expect(
+          await screen.findByText(
+            /Something went wrong with this conversation, so it has been closed\./
+          )
+        ).toBeInTheDocument();
+        expect(mockOnClose).toHaveBeenCalled();
+      });
+
+      it("when a choice's action fails, and the conversation continues", async () => {
+        const node = ALL_DIALOGUE_TREES.chen_barnards.greeting;
+        const farewell = node.choices.find(
+          (c) => c.text === 'Nothing right now. Take care.'
+        );
+        const { action, next } = farewell;
+        farewell.action = () => {
+          throw new Error('action failure');
+        };
+        farewell.next = 'greeting';
+
+        try {
+          renderWithToasts();
+          await screen.findByText('Wei Chen');
+
+          fireEvent.click(screen.getByText('Nothing right now. Take care.'));
+
+          expect(
+            await screen.findByText(
+              /Something went wrong with that request\. It may not have gone through\./
+            )
+          ).toBeInTheDocument();
+          expect(mockOnClose).not.toHaveBeenCalled();
+          expect(screen.getByText('Wei Chen')).toBeInTheDocument();
+        } finally {
+          farewell.action = action;
+          farewell.next = next;
+        }
+      });
     });
   });
 });

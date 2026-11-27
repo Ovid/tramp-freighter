@@ -112,7 +112,7 @@ export class DialogueManager extends BaseManager {
    * @param {string} npcId - NPC identifier
    * @param {number} choiceIndex - Index of selected choice
    * @param {Object} [options] - e.g. { selections } for picker choices
-   * @returns {Promise<{success: boolean, message?: string}>}
+   * @returns {Promise<{success: boolean, message?: string, warning?: string}>}
    */
   async selectDialogueChoice(npcId, choiceIndex, options = {}) {
     this.validateState();
@@ -147,6 +147,10 @@ export class DialogueManager extends BaseManager {
 
     this.capabilities.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...dialogue });
 
-    return { success: true, message: result.message };
+    return {
+      success: true,
+      message: result.message,
+      ...(result.warning && { warning: result.warning }),
+    };
   }
 }

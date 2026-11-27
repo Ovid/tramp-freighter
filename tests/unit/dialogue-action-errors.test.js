@@ -69,4 +69,30 @@ describe('selectChoice action error handling', () => {
     // Restore
     node.choices[0].action = originalAction;
   });
+
+  it('reports a thrown action as a warning and continues the dialogue', async () => {
+    const npcId = 'chen_barnards';
+    await gsm.startDialogue(npcId, 'greeting');
+
+    const node = ALL_DIALOGUE_TREES[npcId]['greeting'];
+    const originalAction = node.choices[0].action;
+    const originalNext = node.choices[0].next;
+    node.choices[0].action = () => {
+      throw new Error('test action error');
+    };
+    node.choices[0].next = 'greeting';
+
+    try {
+      const result = await gsm.selectDialogueChoice(npcId, 0);
+
+      expect(result.success).toBe(true);
+      expect(result.warning).toBe(
+        'Something went wrong with that request. It may not have gone through.'
+      );
+      expect(gsm.getState().dialogue.isActive).toBe(true);
+    } finally {
+      node.choices[0].action = originalAction;
+      node.choices[0].next = originalNext;
+    }
+  });
 });

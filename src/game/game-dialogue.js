@@ -34,6 +34,8 @@ import { ALL_DIALOGUE_TREES } from './data/dialogue-trees.js';
 
 // Special dialogue node identifiers
 const TIP_NODE_ID = 'ask_tip';
+const DIALOGUE_ACTION_ERROR_MESSAGE =
+  'Something went wrong with that request. It may not have gone through.';
 
 // Picker choices take player input (selections) before they take effect
 const PICKER_OPERATIONS = {
@@ -360,6 +362,7 @@ export function selectChoice(
 
   // Execute action if present
   let actionFailed = false;
+  let warning;
   if (selectedChoice.action && typeof selectedChoice.action === 'function') {
     try {
       const actionResult = selectedChoice.action(context);
@@ -385,13 +388,8 @@ export function selectChoice(
         `Error executing dialogue action for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`,
         error
       );
-
-      // Provide user feedback for unexpected errors
-      // Note: In a full implementation, this would use the notification system
-      // For now, we'll let the dialogue continue but log the error
-      console.warn(
-        'An unexpected error occurred while processing your request. Please try again.'
-      );
+      // The conversation carries on, so the panel shows this to the player
+      warning = DIALOGUE_ACTION_ERROR_MESSAGE;
     }
   }
 
@@ -406,10 +404,12 @@ export function selectChoice(
     );
   }
 
-  const withMessage = (display) =>
-    message === undefined
-      ? { success: true, display }
-      : { success: true, message, display };
+  const withMessage = (display) => ({
+    success: true,
+    display,
+    ...(message !== undefined && { message }),
+    ...(warning !== undefined && { warning }),
+  });
 
   // Close dialogue if choice has no next node
   if (!selectedChoice.next) {

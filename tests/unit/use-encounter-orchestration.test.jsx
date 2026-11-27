@@ -538,6 +538,34 @@ describe('useEncounterOrchestration', () => {
       expect(setViewMode).toHaveBeenCalledWith('ORBIT');
     });
 
+    it('tells the player when an encounter cannot be resolved', () => {
+      mockGame.resolveEncounter.mockImplementation(() => {
+        throw new Error('Resolution failure');
+      });
+      mockGame.resolveCombatChoice.mockImplementation(() => {
+        throw new Error('Combat engine failure');
+      });
+
+      const { result } = renderOrchestrationHook();
+      act(() => {
+        result.current.handleEncounterTriggered(makeInspectionEncounter());
+      });
+      act(() => {
+        result.current.handleEncounterChoice('cooperate');
+      });
+      act(() => {
+        result.current.handleEncounterTriggered(makePirateEncounter());
+      });
+      act(() => {
+        result.current.handleEncounterChoice('flee');
+      });
+
+      expect(mockNotification.showError).toHaveBeenCalledTimes(2);
+      expect(mockNotification.showError).toHaveBeenCalledWith(
+        'Something went wrong with this encounter, so it has been dismissed.'
+      );
+    });
+
     it('does nothing when handleEncounterChoice called with no encounter', () => {
       const { result } = renderOrchestrationHook();
 

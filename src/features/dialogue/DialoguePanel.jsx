@@ -8,6 +8,8 @@ import { Portrait } from '../portraits/Portrait.jsx';
 
 // selectChoice returns no message when the call throws
 const PICKER_FALLBACK_ERROR = 'Something went wrong. Please try again.';
+const DIALOGUE_FAILED_MESSAGE =
+  'Something went wrong with this conversation, so it has been closed.';
 
 /**
  * DialoguePanel - React component for NPC dialogue interactions
@@ -36,6 +38,9 @@ export function DialoguePanel({ npcId, onClose }) {
   // re-renders on each toast); depending on it would restart the dialogue
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  // Same reason: a toast re-renders App, which must not restart the dialogue
+  const notificationRef = useRef(notificationCtx);
+  notificationRef.current = notificationCtx;
 
   // Set only once this panel's own start succeeds: a dialogue left active by
   // a save, then cleared by StrictMode's simulated unmount, would otherwise
@@ -52,17 +57,15 @@ export function DialoguePanel({ npcId, onClose }) {
       return;
     }
 
+    // useDialogue reports a failed start as false rather than throwing
     const initializeDialogue = async () => {
-      try {
-        // Start dialogue with greeting node using Bridge Pattern
-        if (await startDialogue(npcId, 'greeting')) {
-          wasActiveRef.current = true;
-        }
-      } catch (err) {
-        console.error('Failed to initialize dialogue:', err);
-        clearDialogue();
-        onCloseRef.current();
+      if (await startDialogue(npcId, 'greeting')) {
+        wasActiveRef.current = true;
+        return;
       }
+      notificationRef.current?.showError(DIALOGUE_FAILED_MESSAGE);
+      clearDialogue();
+      onCloseRef.current();
     };
 
     initializeDialogue();
@@ -83,22 +86,17 @@ export function DialoguePanel({ npcId, onClose }) {
       return;
     }
 
-    try {
-      // Process choice selection through Bridge Pattern
-      const result = await selectChoice(npcId, choice.index);
-
-      if (!result.success) {
-        // Error occurred, clear dialogue state and close panel
-        clearDialogue();
-        onClose();
-      }
-      // If successful, the dialogueChanged event will trigger re-render
-      // If dialogue ended, the dialogueState.isActive will become false
-    } catch (err) {
-      console.error('Failed to process dialogue choice:', err);
-      // Clear dialogue state and close panel on error
+    // useDialogue reports a thrown choice as { success: false }. On success the
+    // dialogueChanged event re-renders the panel, or closes it if it ended.
+    const result = await selectChoice(npcId, choice.index);
+    if (!result.success) {
+      notificationCtx?.showError(DIALOGUE_FAILED_MESSAGE);
       clearDialogue();
       onClose();
+      return;
+    }
+    if (result.warning) {
+      notificationCtx?.showError(result.warning);
     }
   };
 
