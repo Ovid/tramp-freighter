@@ -43,9 +43,6 @@ export class EventSystemManager {
    *   - dialogueChanged: (Object) - Current dialogue state
    *   - factionRepChanged: (Object) - Faction reputation object with authorities, outlaws, etc.
    *   - encounterTriggered: (Object) - Danger system encounter event with type and encounter data
-   *   - hullChanged: (number) - Ship hull condition percentage (0-100)
-   *   - engineChanged: (number) - Ship engine condition percentage (0-100)
-   *   - lifeSupportChanged: (number) - Ship life support condition percentage (0-100)
    *   - karmaChanged: (number) - Player karma value for reputation and encounter outcomes
    *   - intelligenceChanged: (Object) - Information broker intelligence database
    *   - currentSystemChanged: (number) - Current system ID (alias for locationChanged)

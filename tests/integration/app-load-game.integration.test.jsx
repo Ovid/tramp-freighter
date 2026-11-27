@@ -166,10 +166,8 @@ describe('App Load Game Integration', () => {
     yumiState.interactions = 5;
 
     // Spy on loadGame to simulate loading without localStorage round-trip.
-    // The state is already set up — loadGame just needs to be a no-op.
-    vi.spyOn(game, 'loadGame').mockImplementation(() => {
-      // State is already initialized with post-credits flags — nothing to do
-    });
+    // The state is already set up, so loadGame only reports success.
+    vi.spyOn(game, 'loadGame').mockImplementation(() => game.getState());
     vi.spyOn(game, 'markDirty');
 
     render(

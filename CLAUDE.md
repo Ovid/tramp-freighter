@@ -14,43 +14,25 @@ IMPORTANT: you must NEVER BE SYCOPHANTIC or a "yes man." You have to think about
 
 ## Commands
 
+Scripts are in `package.json`; `DEVELOPMENT.md` explains each. The non-obvious ones:
+
 ```bash
-npm run dev              # Vite dev server (port 5173, HMR)
-npm run build            # Production build to dist/
-npm test                 # Run all tests once (vitest --run)
-npm run test:watch       # Watch mode
-npm run test:coverage    # Coverage report (v8, HTML)
-npm run lint             # ESLint check
-npm run lint:fix         # ESLint autofix
-npm run format:check     # Prettier check
-npm run format:write     # Prettier format
-npm run clean            # Lint + format all files
-npm run all              # Clean + test
-
-# Run a single test file
-npm test -- tests/unit/game-trading.test.js
-
-# Run tests matching a pattern
-npm test -- --testNamePattern "Bridge Pattern"
+npm run all                                    # lint:fix + format + test + knip — run before committing
+npm test -- tests/unit/game-trading.test.js    # single file
+npm test -- --testNamePattern "Bridge Pattern" # by name
 ```
 
-**Important:** Args to `npm test` need a `--` separator to reach vitest. `npm test --run` silently drops the flag instead of failing — use `npm test` (the script already includes `--run`). See `DEVELOPMENT.md` for the full explanation.
+- `npm test` already runs `vitest --run`. Args need the `--` separator: `npm test --run` silently drops the flag instead of failing.
+- `npm run lint` fails on any warning (`--max-warnings 0`).
 
 ## Architecture
 
-**For architecture details, read `DEVELOPMENT.md`.** This file is the canonical reference for coding standards (constants, rounding, TDD, commits). The summary below is enough to orient — go to `DEVELOPMENT.md` for diagrams, full manager tables, the Bridge Pattern example, the save system, and mobile.
+**Read `DEVELOPMENT.md` for architecture**: view-mode diagram, Bridge Pattern example, manager table, save system, mobile. The rules below are the ones that break things when ignored.
 
-### Bridge Pattern (one-paragraph summary)
-
-`GameCoordinator` (`src/game/state/game-coordinator.js`) is the imperative singleton. React reaches it via `useGameEvent(eventName)` for reactive reads, specific getters like `game.getCurrentSystem()` for one-shot lookups, and feature-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.) for writes. **Never call `gsm.getState()` during render.** Never copy game state into React `useState`.
-
-### View Mode State Machine (one-paragraph summary)
-
-No router. `App.jsx` manages seven view modes: `TITLE`, `SHIP_NAMING`, `ORBIT`, `STATION`, `ENCOUNTER`, `PAVONIS_RUN`, `EPILOGUE`. Panels (trade, refuel, etc.) and narrative overlays are not view modes — they render on top of `STATION` (or any mode) via separate state. Encounters return to `ORBIT`, not forward to PAVONIS_RUN. See `DEVELOPMENT.md` for the full diagram and transition citations.
-
-### Manager Delegation (one-paragraph summary)
-
-`GameCoordinator` is a ~1640-line facade. Real logic lives in 24 domain managers under `src/game/state/managers/`, each extending `BaseManager` and receiving a capabilities object (see `src/game/state/capabilities.js`). Managers call `this.gameStateManager.markDirty()` after mutations — never `saveGame()` directly. `SaveLoadManager` debounces dirty marks with a 500ms trailing write to `localStorage`. Combat, inspection, distress, and mechanical-failure paths use `SeededRandom` with seeds shaped like `gameDay_systemId_encounterType`. **Never use `Math.random()` in gameplay paths.** See the full manager table in `DEVELOPMENT.md`.
+- **Bridge Pattern.** `GameCoordinator` (`src/game/state/game-coordinator.js`) is the imperative singleton. React reads via `useGameEvent(eventName)` or one-shot getters like `game.getCurrentSystem()`, and writes via action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.). **Never call `game.getState()` during render.** Never copy game state into React `useState`.
+- **Managers.** `GameCoordinator` is a thin facade over the domain managers in `src/game/state/managers/`. Most extend `BaseManager`; all receive a capabilities object (`src/game/state/capabilities.js`). After a mutation, call `this.capabilities.markDirty()` — never `saveGame()`. `SaveLoadManager` debounces the write to `localStorage`.
+- **Randomness.** **Never use `Math.random()` in gameplay paths.** Use `SeededRandom` (`src/game/utils/seeded-random.js`); encounter paths seed with `buildEncounterSeed(gameDay, systemId, encounterType)`.
+- **View modes.** No router. `App.jsx` switches between `TITLE`, `SHIP_NAMING`, `ORBIT`, `STATION`, `ENCOUNTER`, `PAVONIS_RUN`, `EPILOGUE`. Panels (trade, refuel, etc.) and narrative overlays are not view modes — they render on top via separate state. Encounters return to `ORBIT`.
 
 Path aliases: `@` → `src/`, `@components`, `@features`, `@hooks`, `@context`, `@game`, `@assets`.
 
@@ -79,7 +61,7 @@ Path aliases: `@` → `src/`, `@components`, `@features`, `@hooks`, `@context`, 
 - Never create objects in hot loops (animation frames, frequent events)
 
 ### Accessibility (a11y)
-Full a11y pass is planned. In the meantime, new and modified components should include basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls. Accessibility suggestions from code review are welcome and should be applied when low-effort.
+New and modified components need basic accessibility: `aria-label` on icon-only buttons, semantic HTML elements, and keyboard-navigable interactive controls. Apply low-effort accessibility suggestions from code review.
 
 ### Git Commits
 - Commit messages must be plain text strings passed directly to `git commit -m "plain text here"`. **NEVER** use shell interpolation (`$(...)`), heredocs (`<<EOF`, `<<'EOF'`), command substitution, or `$(cat ...)` wrappers in commit messages. This means **NO** `git commit -m "$(cat <<'EOF' ... EOF)"` — just a simple quoted string. Multi-line messages should use multiple `-m` flags: `git commit -m "subject" -m "body"`.

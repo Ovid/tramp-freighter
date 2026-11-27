@@ -1,11 +1,9 @@
 import { useState, useMemo } from 'react';
+import { useGame } from '../../context/GameContext.jsx';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { getPortraitUrl } from '../portraits/portrait-url.js';
 import { Portrait } from '../portraits/Portrait.jsx';
 import {
-  COMBAT_CONFIG,
-  KARMA_CONFIG,
-  NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
@@ -36,15 +34,14 @@ export function PirateEncounterPanel({
   escalated = false,
 }) {
   // Subscribe to relevant game events for ship status display
-  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
-  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const game = useGame();
+  const { hull, engine, lifeSupport } =
+    useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED) ?? {};
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
-  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
   const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
-  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Determine if ship has trade cargo for pirate tribute
   const hasTradeCargo = cargo?.some((item) => item.qty > 0) || false;
@@ -52,32 +49,19 @@ export function PirateEncounterPanel({
   // Local state for selected tactical option
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // Calculate success probabilities for each tactical option
-  const probabilities = useMemo(
-    () =>
-      calculateTacticalProbabilities(
-        encounter,
-        hull,
-        engine,
-        fuel,
-        lifeSupport,
-        upgrades,
-        quirks,
-        karma,
-        factions
-      ),
-    [
-      encounter,
-      hull,
-      engine,
-      fuel,
-      lifeSupport,
-      upgrades,
-      quirks,
-      karma,
-      factions,
-    ]
-  );
+  // The deps are the values the odds depend on, so they refresh whenever
+  // the ship or karma changes mid-encounter
+  const probabilities = useMemo(() => {
+    const combatOdds = game.getCombatOdds(encounter);
+    const negotiationOdds = game.getNegotiationOdds();
+    return {
+      evasive: combatOdds.evasive.finalChance,
+      returnFire: combatOdds.returnFire.finalChance,
+      counterProposal: negotiationOdds.counterProposal.finalChance,
+      medicineClaim: negotiationOdds.medicineClaim.finalChance,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, encounter, engine, upgrades, quirks, karma]);
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
@@ -376,84 +360,6 @@ export function PirateEncounterPanel({
       </div>
     </div>
   );
-}
-
-/**
- * Calculate success probabilities for all tactical options
- *
- * @param {Object} encounter - The pirate encounter
- * @param {number} hull - Current hull condition
- * @param {number} engine - Current engine condition
- * @param {number} fuel - Current fuel level
- * @param {number} lifeSupport - Current life support condition
- * @param {Array} upgrades - Active ship upgrades
- * @param {Array} quirks - Active ship quirks
- * @param {number} karma - Current karma value
- * @param {Object} factions - Current faction reputation
- * @returns {Object} Probability values for each option
- */
-function calculateTacticalProbabilities(
-  encounter,
-  hull,
-  engine,
-  fuel,
-  lifeSupport,
-  upgrades = [],
-  quirks = [],
-  karma = 0,
-  _factions = {}
-) {
-  // Calculate karma modifier
-  const karmaModifier = karma * KARMA_CONFIG.SUCCESS_RATE_SCALE;
-
-  // Calculate evasive maneuvers probability
-  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
-
-  // Apply engine condition modifier
-  if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
-    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
-  }
-
-  // Apply hot_thruster quirk bonus
-  if (quirks.includes('hot_thruster')) {
-    evasiveChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
-  }
-
-  // Apply efficient_drive upgrade bonus
-  if (upgrades.includes('efficient_drive')) {
-    evasiveChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
-  }
-
-  // Apply karma modifier
-  evasiveChance += karmaModifier;
-
-  // Clamp to [0, 1]
-  evasiveChance = Math.max(0, Math.min(1, evasiveChance));
-
-  // Calculate return fire probability
-  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
-
-  // Apply karma modifier
-  returnFireChance += karmaModifier;
-
-  // Clamp to [0, 1]
-  returnFireChance = Math.max(0, Math.min(1, returnFireChance));
-
-  // Calculate negotiation probabilities
-  let counterProposalChance = NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE;
-  counterProposalChance += karmaModifier;
-  counterProposalChance = Math.max(0, Math.min(1, counterProposalChance));
-
-  let medicineClaimChance = NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE;
-  medicineClaimChance += karmaModifier;
-  medicineClaimChance = Math.max(0, Math.min(1, medicineClaimChance));
-
-  return {
-    evasive: evasiveChance,
-    returnFire: returnFireChance,
-    counterProposal: counterProposalChance,
-    medicineClaim: medicineClaimChance,
-  };
 }
 
 /**

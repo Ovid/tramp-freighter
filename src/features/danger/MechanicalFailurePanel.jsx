@@ -23,9 +23,8 @@ import { getConditionClass } from '../../game/utils/string-utils.js';
  */
 export function MechanicalFailurePanel({ failure, onChoice, onClose }) {
   // Subscribe to relevant game events for repair context
-  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
-  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
-  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const { hull, engine, lifeSupport } =
+    useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED) ?? {};
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
 
   // Local state for selected repair option

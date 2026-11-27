@@ -2,7 +2,7 @@
 
 ## Overview
 
-Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real star systems within 20 light-years of Sol, connected by a wormhole network. The gameplay loop is: trade commodities between systems, manage ship resources (fuel, hull, life support), build NPC relationships, and survive encounters with pirates, customs inspectors, and distressed ships.
+Tramp Freighter Blues is a single-player space trading survival game built with React 18, Three.js, and Vite. Players navigate a 3D starmap of 117 real stars in 84 systems within 20 light-years of Sol, connected by a wormhole network. The gameplay loop is: trade commodities between systems, manage ship resources (fuel, hull, life support), build NPC relationships, and survive encounters with pirates, customs inspectors, and distressed ships.
 
 This document is the entry point for developers working on the codebase. Read it alongside `CLAUDE.md`, which contains the canonical coding standards (constants, rounding, commits, TDD).
 
@@ -20,7 +20,7 @@ When orienting yourself in the codebase, follow this trail:
 1. **`src/App.jsx`** — view mode state machine and top-level orchestration
 2. **`src/context/GameContext.jsx`** — how React reaches into game logic
 3. **`src/hooks/useGameEvent.js`** + **`src/hooks/useGameAction.js`** — Bridge Pattern read/write hooks. `useGameAction()` is composed from 7 domain-specific action hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, etc.), which you can import directly when you want a narrower API.
-4. **`src/game/state/game-coordinator.js`** — the singleton facade (~1640 lines, mostly delegation)
+4. **`src/game/state/game-coordinator.js`** — the singleton facade, mostly delegation
 5. **`src/game/state/capabilities.js`** — capability interfaces defining what each manager can read/write
 6. **One manager** in `src/game/state/managers/` (e.g. `refuel.js`) to see the pattern in practice
 7. **`src/game/constants.js`** — every tunable number in the game
@@ -170,9 +170,9 @@ function TradePanel({ onClose }) {
 
 ### GameCoordinator + Manager Delegation
 
-`GameCoordinator` (`src/game/state/game-coordinator.js`, ~1640 lines) is a facade. Almost all of its body is delegation methods — the real logic lives in domain managers under `src/game/state/managers/`. This is the result of the GSM refactor and is intentional; the facade is the project's public API surface.
+`GameCoordinator` (`src/game/state/game-coordinator.js`) is a facade. Almost all of its body is delegation methods — the real logic lives in domain managers under `src/game/state/managers/`. This is intentional; the facade is the project's public API surface.
 
-#### The 24 domain managers
+#### The domain managers
 
 | Manager | Responsibility | File |
 |---------|----------------|------|
@@ -198,14 +198,16 @@ function TradePanel({ onClose }) {
 | EventSystemManager | Event pub/sub (powers Bridge Pattern) | `event-system.js` |
 | EventsManager | Active world events | `events.js` |
 | EventEngineManager | Narrative event flags, cooldowns, triggers | `event-engine.js` |
+| EncounterTriggerManager | Decides when encounters and narrative events fire (jump, dock, time, debt cleared) | `encounter-trigger.js` |
+| OutcomeManager | Applies resolved encounter and narrative-choice costs and rewards | `outcome.js` |
 | InitializationManager | New-game and load-game initialization | `initialization.js` |
 | SaveLoadManager | Save / load with debounced writes | `save-load.js` |
 
-Each manager extends `BaseManager` (`src/game/state/managers/base-manager.js`) and receives a **capabilities** object (not the full GameCoordinator) — see `src/game/state/capabilities.js` for the per-manager getter/mutator interfaces. This is how cross-manager reads and writes stay explicit rather than turning into a god object. The `managers/` directory contains 25 files: the 24 domain managers above plus `base-manager.js`.
+Most managers extend `BaseManager` (`src/game/state/managers/base-manager.js`; `EventSystemManager` and `InitializationManager` do not), and every manager receives a **capabilities** object (not the full GameCoordinator) — see `src/game/state/capabilities.js` for the per-manager getter/mutator interfaces. This is how cross-manager reads and writes stay explicit rather than turning into a god object.
 
 #### Save pattern
 
-Managers call `this.gameStateManager.markDirty()` after mutations. They never call `saveGame()` directly. `SaveLoadManager` debounces all dirty marks with a 500ms trailing write (`UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS`), so a burst of mutations produces a single `localStorage` write.
+Managers call `this.capabilities.markDirty()` after mutations. They never call `saveGame()` directly. `SaveLoadManager` debounces all dirty marks with a 500ms trailing write (`UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS`), so a burst of mutations produces a single `localStorage` write.
 
 #### Encounter RNG
 
@@ -237,7 +239,7 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 
 **Error handling:**
 - Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.
-- Load failures attempt recovery. If NPC data is corrupted, `SaveLoadManager.attemptNPCRecovery()` resets NPC state and dialogue and retries. Other corruption returns `null`, which the initialization path treats as "no save."
+- Load failures attempt recovery. If NPC data is corrupted, `SaveLoadManager.attemptNPCRecovery()` resets NPC state and dialogue and retries. Any other rejected save (unreadable JSON, incompatible version, failed validation, or a throw during restore) makes `loadGame()` return `null` and record a player-facing reason, readable via `game.getLoadError()`. Boot then starts a fresh in-memory game, but the save in `localStorage` is left untouched: the title screen hides Continue, shows the reason, and warns that New Game will replace the save.
 
 **Wiping a save during development:**
 1. DevTools → Application → Local Storage → `http://localhost:5173` → delete the `trampFreighterSave` key. Or:
@@ -312,7 +314,7 @@ project-root/
 │   │   ├── useTradeActions.js / useShipActions.js / useNavigationActions.js
 │   │   ├── useMissionActions.js / useQuestActions.js / useNPCActions.js
 │   │   ├── useDangerZone.js / useEncounterProbabilities.js / useJumpValidation.js
-│   │   ├── useDialogue.js / useEventTriggers.js / useStarData.js
+│   │   ├── useDialogue.js / useStarData.js
 │   │   ├── useAnimationLock.js / useNotification.js
 │   │   └── useMobileLayout.js / useClickOutside.js / useDebtActions.js
 │   │
@@ -350,7 +352,7 @@ project-root/
 │       │   ├── capabilities.js      # Per-manager capability interfaces
 │       │   ├── save-load.js
 │       │   ├── state-validators.js
-│       │   └── managers/            # 24 domain managers (see table above)
+│       │   └── managers/            # domain managers (see table above)
 │       │
 │       ├── engine/                  # Three.js
 │       │   ├── scene.js
@@ -360,7 +362,7 @@ project-root/
 │       │   └── game-animation.js
 │       │
 │       ├── data/                    # Static game data
-│       │   ├── star-data.js         # 117 star systems
+│       │   ├── star-data.js         # 117 stars in 84 systems
 │       │   ├── wormhole-data.js
 │       │   ├── dialogue-trees.js / dialogue/
 │       │   ├── danger-events.js / narrative-events.js

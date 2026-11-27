@@ -62,6 +62,7 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipQuirks
  * @property {function(): Array} getShipUpgrades
+ * @property {function(): number} getShipEngine
  * @property {function(): number} getKarma
  *
  * @property {function(string): void} incrementDangerFlag
@@ -504,6 +505,55 @@
  *   Returns: full state (for evaluateCondition)
  *
  * @property {function(string, *): void} emit
+ */
+
+/**
+ * @typedef {Object} EncounterTriggerCapabilities
+ *
+ * @property {function(): Object} getState
+ *   Returns: full state (read-only; trigger rules never write it)
+ * @property {function(string, Object, function): Object|null} checkEvents
+ *   Delegates to EventEngineManager
+ * @property {function(string): Object|undefined} getEventById
+ *   Delegates to EventEngineManager
+ * @property {function(number, Object): number} calculatePirateEncounterChance
+ *   Delegates to DangerManager
+ * @property {function(number, Object): number} calculateInspectionChance
+ *   Delegates to DangerManager
+ * @property {function(): Object|null} checkMechanicalFailure
+ *   Delegates to MechanicalFailureManager (seeded roll)
+ * @property {function(): Object|null} checkDistressCall
+ *   Delegates to DistressManager (seeded roll)
+ *
+ * @property {function(string, *): void} emit
+ * @property {function(string, function): void} subscribe
+ * @property {Array} starData
+ * @property {boolean} isTestEnvironment
+ */
+
+/**
+ * @typedef {Object} OutcomeCapabilities
+ *
+ * Every mutator routes through the GameCoordinator facade, so an outcome
+ * uses the same entry points as every other caller.
+ *
+ * @property {function(): Object} getState
+ * @property {function(number): void} updateFuel
+ * @property {function(number, number, number): void} updateShipCondition
+ * @property {function(number): void} updateCredits
+ * @property {function(number): void} updateDebt
+ * @property {function(Array): void} updateCargo
+ * @property {function(): number} getCargoRemaining
+ * @property {function(): void} clearHiddenCargo
+ * @property {function(): void} removeRestrictedCargo
+ * @property {function(): void} failMissionsDueToCargoLoss
+ * @property {function(number): void} updateTime
+ * @property {function(string): Object} abandonMission
+ * @property {function(string, number, string): void} modifyFactionRep
+ * @property {function(number, string): void} modifyKarma
+ * @property {function(number): void} modifyAllPassengerSatisfaction
+ * @property {function(): void} markDirty
+ * @property {boolean} isTestEnvironment
  */
 
 // ========================================================================

@@ -1,6 +1,9 @@
 import {
   COMMODITY_TYPES,
   THREAT_LEVEL_CONFIG,
+  THREAT_ESCALATION,
+  THREAT_ESCALATION_DEFAULT,
+  NEGOTIATION_CONFIG,
   INSPECTION_SEVERITY_CONFIG,
 } from '../constants.js';
 import { EconomicEventsSystem } from '../game-events.js';
@@ -72,7 +75,7 @@ export function calculateUpdatedEvents(state, starData) {
 
 /**
  * Determine pirate threat level based on game state.
- * Pure function extracted from useEventTriggers.
+ * Pure function used by EncounterTriggerManager.
  *
  * @param {Object} gameState - Game state with ship.cargo, ship.hull, player.factions.outlaws
  * @returns {string} 'dangerous' | 'strong' | 'moderate' | 'weak'
@@ -96,8 +99,28 @@ export function determineThreatLevel(gameState) {
 }
 
 /**
+ * Returns a copy of a pirate encounter one threat tier stronger, carrying the
+ * failed-negotiation strength modifier. The original is not modified.
+ *
+ * @param {Object} encounter - Pirate encounter with optional threatLevel
+ * @returns {Object}
+ */
+export function escalateEncounter(encounter) {
+  const current = encounter.threatLevel || THREAT_ESCALATION_DEFAULT;
+  return {
+    ...encounter,
+    threatLevel:
+      THREAT_ESCALATION[current] ??
+      THREAT_ESCALATION[THREAT_ESCALATION_DEFAULT],
+    strengthModifier:
+      NEGOTIATION_CONFIG.OUTCOME_VALUES
+        .COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE,
+  };
+}
+
+/**
  * Determine inspection severity based on game state.
- * Pure function extracted from useEventTriggers.
+ * Pure function used by EncounterTriggerManager.
  *
  * @param {Object} gameState - Game state with ship.cargo, ship.hiddenCargo, player.factions.authorities
  * @returns {string} 'thorough' | 'routine'

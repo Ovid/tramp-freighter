@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { transformOutcomeForDisplay } from '../features/danger/transformOutcome';
-import { applyEncounterOutcome } from '../features/danger/applyEncounterOutcome';
-import { EVENT_NAMES, NEGOTIATION_CONFIG } from '../game/constants.js';
+import { escalateEncounter } from '../game/utils/calculators.js';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * View mode constants used by the encounter orchestration.
@@ -63,7 +63,7 @@ export function useEncounterOrchestration(
   };
 
   const handleApplyOutcome = (outcome) => {
-    const result = applyEncounterOutcome(game, outcome);
+    const result = game.applyEncounterOutcome(outcome);
     if (result.salvageMessages.length > 0 && notificationCtx) {
       result.salvageMessages.forEach((msg) => notificationCtx.showInfo(msg));
     }
@@ -122,80 +122,67 @@ export function useEncounterOrchestration(
       // Surrender resolves immediately (falls through)
     }
 
-    if (game.resolveEncounter) {
-      try {
-        // Route combat/negotiation sub-choices to their specific resolvers
-        let outcome;
-        if (encounterPhase === 'combat') {
-          // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
-          const combatChoice = choice === 'flee' ? 'evasive' : choice;
+    try {
+      // Route combat/negotiation sub-choices to their specific resolvers
+      let outcome;
+      if (encounterPhase === 'combat') {
+        // 'flee' from combat/negotiation sub-panels maps to evasive maneuvers
+        const combatChoice = choice === 'flee' ? 'evasive' : choice;
+        outcome = game.resolveCombatChoice(
+          currentEncounter.encounter,
+          combatChoice
+        );
+      } else if (encounterPhase === 'negotiation') {
+        if (choice === 'flee') {
+          // Breaking off negotiation to flee triggers evasive maneuvers
           outcome = game.resolveCombatChoice(
             currentEncounter.encounter,
-            combatChoice
+            'evasive'
           );
-        } else if (encounterPhase === 'negotiation') {
-          if (choice === 'flee') {
-            // Breaking off negotiation to flee triggers evasive maneuvers
-            outcome = game.resolveCombatChoice(
-              currentEncounter.encounter,
-              'evasive'
-            );
-          } else {
-            outcome = game.resolveNegotiation(
-              currentEncounter.encounter,
-              choice
-            );
-          }
         } else {
-          outcome = game.resolveEncounter(currentEncounter, choice);
+          outcome = game.resolveNegotiation(currentEncounter.encounter, choice);
         }
+      } else {
+        outcome = game.resolveEncounter(currentEncounter, choice);
+      }
 
-        // Failed negotiation escalates to combat — skip applying empty outcome
-        if (outcome.escalate) {
-          // Bump threat tier for display and apply strength modifier for combat
-          const THREAT_ESCALATION = {
-            weak: 'moderate',
-            moderate: 'strong',
-            strong: 'dangerous',
-            dangerous: 'dangerous',
-          };
-          const current = currentEncounter.encounter.threatLevel || 'moderate';
-          currentEncounter.encounter.threatLevel =
-            THREAT_ESCALATION[current] || 'strong';
-          currentEncounter.encounter.strengthModifier =
-            NEGOTIATION_CONFIG.OUTCOME_VALUES.COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
+      // Failed negotiation escalates to combat — skip applying empty outcome
+      if (outcome.escalate) {
+        setCurrentEncounter({
+          ...currentEncounter,
+          encounter: escalateEncounter(currentEncounter.encounter),
+        });
 
-          const displayOutcome = transformOutcomeForDisplay(
-            outcome,
-            currentEncounter.type,
-            choice
-          );
-          setEncounterOutcome(displayOutcome);
-          setEncounterPhase('escalated_combat');
-          return;
-        }
-
-        // Apply the resolution outcome to game state
-        handleApplyOutcome(outcome);
-
-        // Transform for OutcomePanel display
         const displayOutcome = transformOutcomeForDisplay(
           outcome,
           currentEncounter.type,
           choice
         );
-
-        // Show OutcomePanel (stay in ENCOUNTER mode)
         setEncounterOutcome(displayOutcome);
-        setEncounterPhase('initial');
-      } catch (error) {
-        console.error('Encounter resolution failed:', error);
-        // On error, return to orbit
-        setCurrentEncounter(null);
-        setEncounterOutcome(null);
-        setEncounterPhase('initial');
-        setViewMode(VIEW_MODES.ORBIT);
+        setEncounterPhase('escalated_combat');
+        return;
       }
+
+      // Apply the resolution outcome to game state
+      handleApplyOutcome(outcome);
+
+      // Transform for OutcomePanel display
+      const displayOutcome = transformOutcomeForDisplay(
+        outcome,
+        currentEncounter.type,
+        choice
+      );
+
+      // Show OutcomePanel (stay in ENCOUNTER mode)
+      setEncounterOutcome(displayOutcome);
+      setEncounterPhase('initial');
+    } catch (error) {
+      console.error('Encounter resolution failed:', error);
+      // On error, return to orbit
+      setCurrentEncounter(null);
+      setEncounterOutcome(null);
+      setEncounterPhase('initial');
+      setViewMode(VIEW_MODES.ORBIT);
     }
   };
 

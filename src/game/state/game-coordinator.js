@@ -29,6 +29,8 @@ import { MechanicalFailureManager } from './managers/mechanical-failure.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
+import { EncounterTriggerManager } from './managers/encounter-trigger.js';
+import { OutcomeManager } from './managers/outcome.js';
 import { DebtManager } from './managers/debt.js';
 import { AchievementsManager } from './managers/achievements.js';
 import { InformationBroker } from '../game-information-broker.js';
@@ -312,6 +314,7 @@ export class GameCoordinator {
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipQuirks: () => this.state.ship.quirks,
       getShipUpgrades: () => this.state.ship.upgrades,
+      getShipEngine: () => this.state.ship.engine,
       getKarma: () => this.state.player.karma,
       incrementDangerFlag: (flagName) =>
         this.dangerManager.incrementDangerFlag(flagName),
@@ -456,6 +459,47 @@ export class GameCoordinator {
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
     });
+    // Built after QuestManager so quest docking logic runs before dock events.
+    this.encounterTriggerManager = new EncounterTriggerManager({
+      getState: () => this.state,
+      checkEvents: (eventType, context, rng) =>
+        this.eventEngineManager.checkEvents(eventType, context, rng),
+      getEventById: (id) => this.eventEngineManager.getEventById(id),
+      calculatePirateEncounterChance: (systemId, gameState) =>
+        this.dangerManager.calculatePirateEncounterChance(systemId, gameState),
+      calculateInspectionChance: (systemId, gameState) =>
+        this.dangerManager.calculateInspectionChance(systemId, gameState),
+      checkMechanicalFailure: () =>
+        this.mechanicalFailureManager.checkMechanicalFailure(),
+      checkDistressCall: () => this.distressManager.checkDistressCall(),
+      emit: (...args) => this.emit(...args),
+      subscribe: this.subscribe.bind(this),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    // Routed through the facade, not the managers, so an outcome goes through
+    // the same entry points as every other caller.
+    this.outcomeManager = new OutcomeManager({
+      getState: () => this.state,
+      updateFuel: (...args) => this.updateFuel(...args),
+      updateShipCondition: (...args) => this.updateShipCondition(...args),
+      updateCredits: (...args) => this.updateCredits(...args),
+      updateDebt: (...args) => this.updateDebt(...args),
+      updateCargo: (...args) => this.updateCargo(...args),
+      getCargoRemaining: () => this.getCargoRemaining(),
+      clearHiddenCargo: (...args) => this.clearHiddenCargo(...args),
+      removeRestrictedCargo: (...args) => this.removeRestrictedCargo(...args),
+      failMissionsDueToCargoLoss: (...args) =>
+        this.failMissionsDueToCargoLoss(...args),
+      updateTime: (...args) => this.updateTime(...args),
+      abandonMission: (...args) => this.abandonMission(...args),
+      modifyFactionRep: (...args) => this.modifyFactionRep(...args),
+      modifyKarma: (...args) => this.modifyKarma(...args),
+      modifyAllPassengerSatisfaction: (...args) =>
+        this.modifyAllPassengerSatisfaction(...args),
+      markDirty: (...args) => this.markDirty(...args),
+      isTestEnvironment: this.isTestEnvironment,
+    });
     this.debtManager = new DebtManager({
       getOwnState: () => ({
         debt: this.state.player.debt,
@@ -586,10 +630,18 @@ export class GameCoordinator {
       return { success: false, reason: 'No state data provided' };
     }
 
-    if (!isVersionCompatible(rawState.meta?.version)) {
+    // No version at all means the data isn't a save, not an old one
+    if (!rawState.meta?.version) {
       return {
         success: false,
-        reason: `Incompatible save version: ${rawState.meta?.version}`,
+        reason: 'Save data is corrupted and could not be read',
+      };
+    }
+
+    if (!isVersionCompatible(rawState.meta.version)) {
+      return {
+        success: false,
+        reason: `Incompatible save version: ${rawState.meta.version}`,
       };
     }
 
@@ -1362,6 +1414,10 @@ export class GameCoordinator {
     return this.saveLoadManager.loadGame();
   }
 
+  getLoadError() {
+    return this.saveLoadManager.getLoadError();
+  }
+
   hasSavedGame() {
     return this.saveLoadManager.hasSavedGame();
   }
@@ -1439,6 +1495,14 @@ export class GameCoordinator {
 
   resolveCombatChoice(encounter, choice) {
     return this.combatManager.resolveCombatChoice(encounter, choice);
+  }
+
+  getCombatOdds(encounter) {
+    return this.combatManager.getCombatOdds(encounter);
+  }
+
+  getNegotiationOdds() {
+    return this.negotiationManager.getNegotiationOdds();
   }
 
   resolveNegotiation(encounter, choice) {
@@ -1591,6 +1655,22 @@ export class GameCoordinator {
     return this.eventEngineManager.registerEvents(events);
   }
 
+  applyEncounterOutcome(outcome) {
+    return this.outcomeManager.apply(outcome);
+  }
+
+  beginJump() {
+    this.encounterTriggerManager.beginJump();
+  }
+
+  endJump() {
+    this.encounterTriggerManager.endJump();
+  }
+
+  completeJump(systemId) {
+    this.encounterTriggerManager.completeJump(systemId);
+  }
+
   checkEvents(eventType, context, rng) {
     return this.eventEngineManager.checkEvents(eventType, context, rng);
   }
@@ -1651,6 +1731,8 @@ export class GameCoordinator {
     }
   }
 
+  // A teleport is not a jump, so it rolls no arrival encounters or
+  // narratives; the dev panel triggers each encounter type directly.
   devTeleport(systemId) {
     this.navigationManager.updateLocation(systemId);
   }

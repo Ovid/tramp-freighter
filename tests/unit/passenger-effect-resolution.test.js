@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 import { createTestGame } from '../test-utils.js';
 
 function makePassengerMission(id, satisfaction = 50) {
@@ -41,7 +40,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
         makePassengerMission('p2', 70),
       ];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: { passengerSatisfaction: 10 },
         rewards: {},
       });
@@ -54,7 +53,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
       const state = manager.getState();
       state.missions.active = [makePassengerMission('p1', 3)];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: { passengerSatisfaction: 10 },
         rewards: {},
       });
@@ -69,7 +68,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
         makePassengerMission('p1', 50),
       ];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: { passengerSatisfaction: 10 },
         rewards: {},
       });
@@ -87,7 +86,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
         makePassengerMission('p2', 30),
       ];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: {},
         rewards: { passengerSatisfaction: 15 },
       });
@@ -100,7 +99,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
       const state = manager.getState();
       state.missions.active = [makePassengerMission('p1', 95)];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: {},
         rewards: { passengerSatisfaction: 15 },
       });
@@ -115,7 +114,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
       const creditsBefore = state.player.credits;
       state.missions.active = [makePassengerMission('p1', 50)];
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: { credits: 20 },
         rewards: { passengerSatisfaction: 5 },
       });
@@ -135,7 +134,7 @@ describe('Passenger Satisfaction Effect Resolution', () => {
         emitted = data;
       });
 
-      applyEncounterOutcome(manager, {
+      manager.applyEncounterOutcome({
         costs: { passengerSatisfaction: 5 },
         rewards: {},
       });

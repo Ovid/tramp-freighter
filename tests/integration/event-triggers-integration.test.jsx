@@ -1,28 +1,15 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, act, cleanup } from '@testing-library/react';
-import { GameProvider } from '../../src/context/GameContext.jsx';
-import { useEventTriggers } from '../../src/hooks/useEventTriggers.js';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
+import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
-/**
- * Minimal component that mounts useEventTriggers for integration testing.
- */
-function EventTriggersHarness() {
-  useEventTriggers();
-  return <div data-testid="harness" />;
-}
+const SOL = 0;
+const NEIGHBOUR = WORMHOLE_DATA.find(([a, b]) => a === SOL || b === SOL).find(
+  (id) => id !== SOL
+);
 
-function renderWithGame(game) {
-  return render(
-    <GameProvider game={game}>
-      <EventTriggersHarness />
-    </GameProvider>
-  );
-}
-
-describe('useEventTriggers Integration', () => {
+describe('Encounter trigger integration', () => {
   let game;
   let emitSpy;
 
@@ -38,86 +25,47 @@ describe('useEventTriggers Integration', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game = new GameCoordinator(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      new NavigationSystem(STAR_DATA, WORMHOLE_DATA)
+    );
     game.initNewGame();
+    game.getState().ship.fuel = 100;
 
     // Spy on emit to track what events are dispatched
     emitSpy = vi.spyOn(game, 'emit');
   });
 
   afterEach(() => {
-    cleanup();
     vi.restoreAllMocks();
   });
 
-  it('should not trigger encounters on initial locationChanged during mount', () => {
-    renderWithGame(game);
+  it('should not trigger encounters when a new game starts', () => {
+    game.initNewGame();
 
-    // The hook subscribes to locationChanged. On mount, useGameEvent fires
-    // the initial value (current system). The hook should skip this.
     const encounterEmissions = emitSpy.mock.calls.filter(
       ([event]) => event === 'encounterTriggered'
     );
-    const narrativeEmissions = emitSpy.mock.calls.filter(
-      ([event]) => event === 'narrativeEventTriggered'
-    );
-
     expect(encounterEmissions).toHaveLength(0);
-    expect(narrativeEmissions).toHaveLength(0);
   });
 
-  it('should process jump events when locationChanged fires for a new system', () => {
-    renderWithGame(game);
-    emitSpy.mockClear();
+  it('should process jump events when a jump completes', async () => {
+    const result = await game.navigationSystem.executeJump(game, NEIGHBOUR);
 
-    // Simulate a jump to a different system
-    act(() => {
-      game.emit('locationChanged', 4); // Barnard's Star
-    });
-
-    // The hook should have called checkEvents for 'jump' type.
-    // Whether an encounter actually fires depends on RNG and event data,
-    // but the hook should process without errors.
-    // Verify no uncaught exceptions — the render is still alive
-    expect(document.querySelector('[data-testid="harness"]')).toBeTruthy();
-  });
-
-  it('should skip duplicate locationChanged for the same system', () => {
-    renderWithGame(game);
-
-    // First real jump
-    act(() => {
-      game.emit('locationChanged', 4);
-    });
-    emitSpy.mockClear();
-
-    // Duplicate emission for same system
-    act(() => {
-      game.emit('locationChanged', 4);
-    });
-
-    // No new encounter or narrative emissions from the duplicate
-    const encounterEmissions = emitSpy.mock.calls.filter(
-      ([event]) => event === 'encounterTriggered'
-    );
-    const narrativeEmissions = emitSpy.mock.calls.filter(
-      ([event]) => event === 'narrativeEventTriggered'
-    );
-
-    expect(encounterEmissions).toHaveLength(0);
-    expect(narrativeEmissions).toHaveLength(0);
+    // Whether an encounter fires depends on the seeded roll and event data;
+    // the jump must complete without the trigger checks throwing.
+    expect(result.success).toBe(true);
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('should trigger dock event checks when docked event fires', () => {
-    renderWithGame(game);
     emitSpy.mockClear();
 
     // Simulate docking at Sol (system 0)
-    act(() => {
-      game.emit('docked', { systemId: 0 });
-    });
+    game.emit('docked', { systemId: 0 });
 
-    // The hook should process dock triggers. dock_sol_first has chance 1.0
+    // dock triggers are checked on docking. dock_sol_first has chance 1.0
     // and first_dock condition, so if Sol isn't in dockedSystems yet it
     // should emit narrativeEventTriggered.
     const narrativeEmissions = emitSpy.mock.calls.filter(
@@ -129,13 +77,10 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should route narrative events to narrativeEventTriggered, not encounterTriggered', () => {
-    renderWithGame(game);
     emitSpy.mockClear();
 
     // dock_sol_first is a narrative event
-    act(() => {
-      game.emit('docked', { systemId: 0 });
-    });
+    game.emit('docked', { systemId: 0 });
 
     const encounterEmissions = emitSpy.mock.calls.filter(
       ([event]) => event === 'encounterTriggered'
@@ -150,9 +95,7 @@ describe('useEventTriggers Integration', () => {
     expect(narrativeEmissions.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('should route danger events to encounterTriggered', () => {
-    renderWithGame(game);
-
+  it('should route danger events to encounterTriggered', async () => {
     // Register a test danger event that always fires on jump
     game.eventEngineManager.registerEvent({
       id: 'test_danger_jump',
@@ -167,14 +110,7 @@ describe('useEventTriggers Integration', () => {
 
     emitSpy.mockClear();
 
-    act(() => {
-      game.emit('locationChanged', 1); // Initial skip
-    });
-    emitSpy.mockClear();
-
-    act(() => {
-      game.emit('locationChanged', 4); // Real jump
-    });
+    await game.navigationSystem.executeJump(game, NEIGHBOUR);
 
     const encounterEmissions = emitSpy.mock.calls.filter(
       ([event]) => event === 'encounterTriggered'
@@ -185,8 +121,6 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should not trigger an encounter when markVictory moves the player to Delta Pavonis', () => {
-    renderWithGame(game);
-
     game.eventEngineManager.registerEvent({
       id: 'test_danger_jump_victory',
       type: 'jump',
@@ -198,16 +132,11 @@ describe('useEventTriggers Integration', () => {
       encounter: { generator: 'pirate' },
     });
 
-    act(() => {
-      game.emit('locationChanged', 4); // Initial skip
-    });
     emitSpy.mockClear();
 
     // The Pavonis Run's "Arrive at Delta Pavonis" calls markVictory, which
     // relocates the player. The ending must not be hijacked by an encounter.
-    act(() => {
-      game.markVictory();
-    });
+    game.markVictory();
 
     const encounterEmissions = emitSpy.mock.calls.filter(
       ([event]) => event === 'encounterTriggered'
@@ -216,16 +145,11 @@ describe('useEventTriggers Integration', () => {
   });
 
   it('should ignore docked events with no systemId', () => {
-    renderWithGame(game);
     emitSpy.mockClear();
 
-    act(() => {
-      game.emit('docked', {});
-    });
+    game.emit('docked', {});
 
-    act(() => {
-      game.emit('docked', null);
-    });
+    game.emit('docked', null);
 
     // No emissions should occur for malformed dock events
     const narrativeEmissions = emitSpy.mock.calls.filter(

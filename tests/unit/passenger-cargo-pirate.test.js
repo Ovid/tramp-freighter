@@ -9,7 +9,6 @@ import {
   validateBuy,
   calculateMaxBuyQuantity,
 } from '../../src/features/trade/tradeUtils.js';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 import { generatePassengerMission } from '../../src/game/mission-generator.js';
 import { pluralizeUnit } from '../../src/game/utils/string-utils.js';
 import {
@@ -352,7 +351,7 @@ describe('applyEncounterOutcome - kidnap', () => {
       description: 'Passenger kidnapped.',
     };
 
-    applyEncounterOutcome(manager, outcome);
+    manager.applyEncounterOutcome(outcome);
 
     expect(abandonSpy).toHaveBeenCalledWith('kidnap-target');
     expect(factionSpy).toHaveBeenCalledWith(

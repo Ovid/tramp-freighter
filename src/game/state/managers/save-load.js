@@ -25,6 +25,17 @@ export class SaveLoadManager extends BaseManager {
     this.lastSaveTime = 0;
     this._dirtyTimer = null;
     this._isDirty = false;
+    // Why the last load was rejected, kept so the title screen can tell the
+    // player before anything is written over the unreadable save.
+    this._loadError = null;
+  }
+
+  /**
+   * @returns {string|null} Reason the last load rejected an existing save, or
+   *   null if it succeeded, found no save, or a save has since been written
+   */
+  getLoadError() {
+    return this._loadError;
   }
 
   /**
@@ -84,6 +95,7 @@ export class SaveLoadManager extends BaseManager {
       const saveData = JSON.stringify(stateToSave);
       localStorage.setItem(SAVE_KEY, saveData);
       this.lastSaveTime = now;
+      this._loadError = null;
     } catch (error) {
       this.error('Save failed — game progress may be lost', error);
       this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
@@ -110,6 +122,7 @@ export class SaveLoadManager extends BaseManager {
 
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
+      this._loadError = null;
     } else {
       // Only show error notification if save actually failed (not just debounced)
       const now = Date.now();
@@ -136,9 +149,13 @@ export class SaveLoadManager extends BaseManager {
    */
   loadGame() {
     try {
+      this._loadError = null;
       const loadedState = loadGameFromStorage();
 
       if (!loadedState) {
+        if (checkSavedGame()) {
+          this._loadError = 'Save data is corrupted and could not be read';
+        }
         return null;
       }
 
@@ -149,9 +166,15 @@ export class SaveLoadManager extends BaseManager {
       }
 
       this.log(result.reason);
+      this._loadError = result.reason;
       return null;
     } catch (error) {
-      return this.handleLoadError(error);
+      const recovered = this.handleLoadError(error);
+      // The player sees this text; the raw error was logged above.
+      if (!recovered) {
+        this._loadError = 'Save data could not be loaded';
+      }
+      return recovered;
     }
   }
 

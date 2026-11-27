@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
+import { useGame } from '../../context/GameContext.jsx';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import {
   COMBAT_CONFIG,
-  KARMA_CONFIG,
   SHIP_CONFIG,
   EVENT_NAMES,
 } from '../../game/constants.js';
@@ -33,46 +33,23 @@ export function CombatPanel({
   fleeContext,
 }) {
   // Subscribe to relevant game events for ship status and modifiers
-  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
-  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const game = useGame();
+  const { hull, engine, lifeSupport } =
+    useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED) ?? {};
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
-  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
-  const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
   const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
-  const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);
 
   // Local state for selected combat option
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // Calculate success probabilities and modifiers for each combat option
+  // The deps are the values the odds depend on, so the breakdown refreshes
+  // whenever the ship or karma changes mid-encounter
   const combatAnalysis = useMemo(
-    () =>
-      calculateCombatProbabilities(
-        combat,
-        hull,
-        engine,
-        fuel,
-        lifeSupport,
-        cargo,
-        upgrades,
-        quirks,
-        karma,
-        factions
-      ),
-    [
-      combat,
-      hull,
-      engine,
-      fuel,
-      lifeSupport,
-      cargo,
-      upgrades,
-      quirks,
-      karma,
-      factions,
-    ]
+    () => game.getCombatOdds(combat),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [game, combat, engine, upgrades, quirks, karma]
   );
 
   const handleOptionSelect = (option) => {
@@ -481,133 +458,6 @@ export function CombatPanel({
       </div>
     </div>
   );
-}
-
-/**
- * Calculate success probabilities and modifiers for all combat options
- *
- * @param {Object} combat - The combat encounter
- * @param {number} hull - Current hull condition
- * @param {number} engine - Current engine condition
- * @param {number} fuel - Current fuel level
- * @param {number} lifeSupport - Current life support condition
- * @param {Array} cargo - Current cargo
- * @param {Array} upgrades - Active ship upgrades
- * @param {Array} quirks - Active ship quirks
- * @param {number} karma - Current karma value
- * @param {Object} factions - Current faction reputation
- * @returns {Object} Analysis for each combat option
- */
-function calculateCombatProbabilities(
-  combat,
-  _hull = 100,
-  engine = 100,
-  _fuel = 100,
-  _lifeSupport = 100,
-  _cargo = [],
-  upgrades = [],
-  quirks = [],
-  karma = 0,
-  _factions = {}
-) {
-  // Calculate karma modifier
-  const karmaModifier = karma * KARMA_CONFIG.SUCCESS_RATE_SCALE;
-
-  // Evasive Maneuvers Analysis
-  const evasiveModifiers = [];
-  let evasiveChance = COMBAT_CONFIG.EVASIVE.BASE_CHANCE;
-
-  // Apply engine condition modifier
-  if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
-    evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE;
-    evasiveModifiers.push({
-      name: 'Poor Engine Condition',
-      value: COMBAT_CONFIG.ENGINE_PENALTY_VALUE,
-      type: 'penalty',
-    });
-  }
-
-  // Apply hot_thruster quirk bonus
-  if (quirks.includes('hot_thruster')) {
-    const hotThrusterBonus = COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
-    evasiveChance += hotThrusterBonus;
-    evasiveModifiers.push({
-      name: 'Hot Thruster Quirk',
-      value: hotThrusterBonus,
-      type: 'bonus',
-    });
-  }
-
-  // Apply efficient_drive upgrade bonus
-  if (upgrades.includes('efficient_drive')) {
-    const efficientDriveBonus =
-      COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
-    evasiveChance += efficientDriveBonus;
-    evasiveModifiers.push({
-      name: 'Efficient Drive Upgrade',
-      value: efficientDriveBonus,
-      type: 'bonus',
-    });
-  }
-
-  // Apply karma modifier
-  if (Math.abs(karmaModifier) > 0.001) {
-    evasiveChance += karmaModifier;
-    evasiveModifiers.push({
-      name: karma > 0 ? 'Good Karma' : 'Bad Karma',
-      value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty',
-    });
-  }
-
-  evasiveChance = Math.max(0, Math.min(1, evasiveChance));
-
-  // Return Fire Analysis
-  const returnFireModifiers = [];
-  let returnFireChance = COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE;
-
-  // Apply karma modifier
-  if (Math.abs(karmaModifier) > 0.001) {
-    returnFireChance += karmaModifier;
-    returnFireModifiers.push({
-      name: karma > 0 ? 'Good Karma' : 'Bad Karma',
-      value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty',
-    });
-  }
-
-  returnFireChance = Math.max(0, Math.min(1, returnFireChance));
-
-  // Distress Call Analysis
-  const distressCallModifiers = [];
-  let distressCallChance = COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE;
-
-  // Apply karma modifier
-  if (Math.abs(karmaModifier) > 0.001) {
-    distressCallChance += karmaModifier;
-    distressCallModifiers.push({
-      name: karma > 0 ? 'Good Karma' : 'Bad Karma',
-      value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty',
-    });
-  }
-
-  distressCallChance = Math.max(0, Math.min(1, distressCallChance));
-
-  return {
-    evasive: {
-      finalChance: evasiveChance,
-      modifiers: evasiveModifiers,
-    },
-    returnFire: {
-      finalChance: returnFireChance,
-      modifiers: returnFireModifiers,
-    },
-    distressCall: {
-      finalChance: distressCallChance,
-      modifiers: distressCallModifiers,
-    },
-  };
 }
 
 /**

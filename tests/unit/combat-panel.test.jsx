@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CombatPanel } from '../../src/features/danger/CombatPanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
+import { realOddsGetters } from '../mock-odds.js';
 
 // Mock the GameCoordinator
 const mockGameCoordinator = {
+  ...realOddsGetters(),
   getState: vi.fn(() => ({
     player: {
       currentSystem: 0,
@@ -32,13 +34,9 @@ const mockGameCoordinator = {
 vi.mock('../../src/hooks/useGameEvent.js', () => ({
   useGameEvent: vi.fn((eventName) => {
     switch (eventName) {
-      case 'hullChanged':
-        return 100;
-      case 'engineChanged':
-        return 100;
+      case 'shipConditionChanged':
+        return { hull: 100, engine: 100, lifeSupport: 100 };
       case 'fuelChanged':
-        return 100;
-      case 'lifeSupportChanged':
         return 100;
       case 'cargoChanged':
         return [];

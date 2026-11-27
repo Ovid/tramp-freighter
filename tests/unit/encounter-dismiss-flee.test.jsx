@@ -9,10 +9,8 @@ import { NegotiationPanel } from '../../src/features/danger/NegotiationPanel.jsx
 vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: (eventName) => {
     const defaults = {
-      hullChanged: 100,
-      engineChanged: 100,
+      shipConditionChanged: { hull: 100, engine: 100, lifeSupport: 100 },
       fuelChanged: 100,
-      lifeSupportChanged: 100,
       cargoChanged: [],
       hiddenCargoChanged: [],
       creditsChanged: 1000,
@@ -36,11 +34,16 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({}),
 }));
 
-vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGame: () => ({
-    getDangerZone: () => 'safe',
-  }),
-}));
+vi.mock('../../src/context/GameContext.jsx', async () => {
+  const { realOddsGetters } = await import('../mock-odds.js');
+  const odds = realOddsGetters();
+  return {
+    useGame: () => ({
+      getDangerZone: () => 'safe',
+      ...odds,
+    }),
+  };
+});
 
 describe('Encounter Panel Dismiss Triggers Flee', () => {
   let onChoice;

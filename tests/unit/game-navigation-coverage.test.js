@@ -117,6 +117,9 @@ describe('NavigationSystem coverage', () => {
         updateLocation: vi.fn(),
         updateShipCondition: vi.fn(),
         saveGame: vi.fn(),
+        beginJump: vi.fn(),
+        endJump: vi.fn(),
+        completeJump: vi.fn(),
         emit: vi.fn(),
       };
       const result = await nav.executeJump(gsm, 1);
@@ -151,6 +154,9 @@ describe('NavigationSystem coverage', () => {
         updateLocation: vi.fn(),
         updateShipCondition: vi.fn(),
         saveGame: vi.fn(),
+        beginJump: vi.fn(),
+        endJump: vi.fn(),
+        completeJump: vi.fn(),
         emit: vi.fn(),
       };
 
@@ -211,6 +217,9 @@ describe('NavigationSystem coverage', () => {
         updateLocation: vi.fn(),
         updateShipCondition: vi.fn(),
         saveGame: vi.fn(),
+        beginJump: vi.fn(),
+        endJump: vi.fn(),
+        completeJump: vi.fn(),
         emit: vi.fn(),
       };
 

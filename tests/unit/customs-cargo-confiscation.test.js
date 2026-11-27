@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createTestGame } from '../test-utils.js';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
@@ -86,7 +85,7 @@ describe('applyEncounterOutcome: restrictedGoodsConfiscated', () => {
       { good: 'food', qty: 10, buyPrice: 20 },
     ]);
 
-    applyEncounterOutcome(gsm, {
+    gsm.applyEncounterOutcome({
       costs: { restrictedGoodsConfiscated: true },
     });
 
@@ -108,7 +107,7 @@ describe('applyEncounterOutcome: restrictedGoodsConfiscated', () => {
     };
     gsm.acceptMission(mission);
 
-    applyEncounterOutcome(gsm, {
+    gsm.applyEncounterOutcome({
       costs: { restrictedGoodsConfiscated: true },
     });
 
@@ -120,7 +119,7 @@ describe('applyEncounterOutcome: restrictedGoodsConfiscated', () => {
   it('does not remove cargo when restrictedGoodsConfiscated is absent', () => {
     gsm.updateCargo([{ good: 'electronics', qty: 5, buyPrice: 100 }]);
 
-    applyEncounterOutcome(gsm, {
+    gsm.applyEncounterOutcome({
       costs: { credits: 100 },
     });
 

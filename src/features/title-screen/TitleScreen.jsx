@@ -22,15 +22,25 @@ import { GAME_VERSION } from '../../game/constants';
 export function TitleScreen({ onStartGame }) {
   const game = useGame();
   const [hasSave, setHasSave] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Check for saved game on mount
   useEffect(() => {
     setHasSave(game.hasSavedGame());
+    setLoadError(game.getLoadError());
   }, [game]);
 
+  // Reload here rather than trusting the boot-time load: the player may be
+  // back from the epilogue, or the save may have changed since boot. A
+  // rejected load keeps the player here, where the reason is shown.
   const handleContinue = () => {
-    onStartGame(false); // Load existing game
+    if (!game.loadGame()) {
+      setHasSave(game.hasSavedGame());
+      setLoadError(game.getLoadError());
+      return;
+    }
+    onStartGame(false);
   };
 
   const handleNewGame = () => {
@@ -58,8 +68,15 @@ export function TitleScreen({ onStartGame }) {
         <h1 className="menu-title">Tramp Freighter Blues</h1>
         <div className="menu-subtitle">Sol Sector Trading Simulation</div>
 
+        {loadError && (
+          <div className="menu-load-error" role="alert">
+            Your saved game could not be loaded: {loadError}. Starting a new
+            game will replace it.
+          </div>
+        )}
+
         <div className="menu-buttons">
-          {hasSave && (
+          {hasSave && !loadError && (
             <button className="menu-btn" onClick={handleContinue}>
               Continue Game
             </button>

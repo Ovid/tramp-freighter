@@ -19,6 +19,7 @@ function createMockGame() {
     resolveCombatChoice: vi.fn(),
     resolveNegotiation: vi.fn(),
     resolveEncounter: vi.fn(),
+    applyEncounterOutcome: vi.fn(() => ({ salvageMessages: [] })),
     getState: vi.fn(() => ({
       ship: {
         fuel: 100,
@@ -284,8 +285,12 @@ describe('useEncounterOrchestration', () => {
       expect(result.current.encounterPhase).toBe('escalated_combat');
       expect(result.current.encounterOutcome).not.toBeNull();
       // Threat level should be bumped
-      expect(encounter.encounter.threatLevel).toBe('strong');
-      expect(encounter.encounter.strengthModifier).toBe(0.1);
+      expect(result.current.currentEncounter.encounter.threatLevel).toBe(
+        'strong'
+      );
+      expect(result.current.currentEncounter.encounter.strengthModifier).toBe(
+        0.1
+      );
     });
   });
 

@@ -21,9 +21,7 @@ afterEach(() => {
 
 // Mock useGameEvent with configurable return values
 const defaultHookValues = {
-  hullChanged: 80,
-  engineChanged: 60,
-  lifeSupportChanged: 90,
+  shipConditionChanged: { hull: 80, engine: 60, lifeSupport: 90 },
   creditsChanged: 5000,
 };
 
@@ -359,11 +357,11 @@ describe('MechanicalFailurePanel', () => {
     // Hull at 80 >= EXCELLENT (75) -> 'good'
     // Engine at 60 >= FAIR (50) -> 'fair'
     // Life support at 90 >= EXCELLENT (75) -> 'good'
-    hookValues.hullChanged =
-      SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT;
-    hookValues.engineChanged = SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR;
-    hookValues.lifeSupportChanged =
-      SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR - 1;
+    hookValues.shipConditionChanged = {
+      hull: SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.EXCELLENT,
+      engine: SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.FAIR,
+      lifeSupport: SHIP_CONFIG.UI_CONDITION_DISPLAY_THRESHOLDS.POOR - 1,
+    };
 
     const { container } = render(
       <MechanicalFailurePanel

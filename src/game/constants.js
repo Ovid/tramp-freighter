@@ -1303,6 +1303,18 @@ export const THREAT_LEVEL_CONFIG = {
 };
 
 /**
+ * Threat tier a pirate encounter moves to when negotiation escalates to
+ * combat. An encounter with no tier is treated as THREAT_ESCALATION_DEFAULT.
+ */
+export const THREAT_ESCALATION = Object.freeze({
+  weak: 'moderate',
+  moderate: 'strong',
+  strong: 'dangerous',
+  dangerous: 'dangerous',
+});
+export const THREAT_ESCALATION_DEFAULT = 'moderate';
+
+/**
  * Thresholds for determineInspectionSeverity() — customs inspection classification.
  */
 export const INSPECTION_SEVERITY_CONFIG = {
@@ -1376,6 +1388,8 @@ export const COMBAT_CONFIG = {
   // Engine condition threshold for combat penalties (different from SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD which is for fuel/time)
   ENGINE_PENALTY_THRESHOLD: 50,
   ENGINE_PENALTY_VALUE: -0.1, // -10% evasive chance when engine below threshold
+  // Modifiers smaller than this are applied but not listed in the odds breakdown
+  MIN_DISPLAYED_MODIFIER: 0.001,
 
   // Quirk and upgrade modifier values
   QUIRK_UPGRADE_BONUSES: {
@@ -1903,7 +1917,7 @@ export const ACHIEVEMENTS_CONFIG = {
 /**
  * Event names for the Bridge Pattern event system.
  * Used by EventSystemManager, all managers with emit() calls,
- * and React hooks (useGameEvent, useEventTriggers).
+ * and React hooks (useGameEvent).
  *
  * Keys are UPPER_SNAKE_CASE, values are the camelCase strings
  * that flow through the event system.
@@ -1918,9 +1932,6 @@ export const EVENT_NAMES = Object.freeze({
   // Ship systems
   FUEL_CHANGED: 'fuelChanged',
   SHIP_CONDITION_CHANGED: 'shipConditionChanged',
-  HULL_CHANGED: 'hullChanged',
-  ENGINE_CHANGED: 'engineChanged',
-  LIFE_SUPPORT_CHANGED: 'lifeSupportChanged',
   SHIP_NAME_CHANGED: 'shipNameChanged',
   CONDITION_WARNING: 'conditionWarning',
 
@@ -2012,9 +2023,6 @@ export const EVENT_STATE_MAP = {
     engine: state.ship.engine,
     lifeSupport: state.ship.lifeSupport,
   }),
-  [EVENT_NAMES.HULL_CHANGED]: (state) => state.ship.hull,
-  [EVENT_NAMES.ENGINE_CHANGED]: (state) => state.ship.engine,
-  [EVENT_NAMES.LIFE_SUPPORT_CHANGED]: (state) => state.ship.lifeSupport,
   [EVENT_NAMES.SHIP_NAME_CHANGED]: (state) => state.ship.name,
 
   // Cargo & inventory

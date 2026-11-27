@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import {
+  COMBAT_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
 } from '../../constants.js';
@@ -16,6 +17,32 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  * Validates: Requirements 4.1-4.11, 8.7, 9.4, 9.10
  */
 export class NegotiationManager extends BaseManager {
+  /**
+   * Success chances the negotiation resolvers roll against, with the
+   * modifiers to list beside them.
+   * @returns {{counterProposal: {finalChance: number, modifiers: Array},
+   *   medicineClaim: {finalChance: number, modifiers: Array},
+   *   intelOffer: {finalChance: number, modifiers: Array}}}
+   */
+  getNegotiationOdds() {
+    const karma = this.capabilities.getKarma();
+    const modifiers = karmaModifiers(karma);
+    return {
+      counterProposal: {
+        finalChance: counterProposalChance(karma),
+        modifiers,
+      },
+      medicineClaim: {
+        finalChance: medicineClaimChance(karma),
+        modifiers: [...modifiers],
+      },
+      intelOffer: {
+        finalChance: intelOfferChance(karma),
+        modifiers: [...modifiers],
+      },
+    };
+  }
+
   /**
    * Resolve a negotiation choice and return the outcome
    *
@@ -84,12 +111,7 @@ export class NegotiationManager extends BaseManager {
   resolveCounterProposal(encounter, gameState, rng) {
     const { COUNTER_PROPOSAL } = NEGOTIATION_CONFIG;
 
-    let successChance = COUNTER_PROPOSAL.BASE_CHANCE;
-    successChance += calculateKarmaModifier(gameState.player.karma);
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success = rng < counterProposalChance(gameState.player.karma);
 
     if (success) {
       if (this.hasTradeCargoForPirates()) {
@@ -140,8 +162,6 @@ export class NegotiationManager extends BaseManager {
    * @returns {Object} Negotiation outcome
    */
   resolveMedicineClaim(encounter, gameState, rng) {
-    const { MEDICINE_CLAIM } = NEGOTIATION_CONFIG;
-
     const hasMedicine = gameState.ship.cargo.some(
       (item) => item.good === 'medicine'
     );
@@ -156,12 +176,7 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    let sympathyChance = MEDICINE_CLAIM.SYMPATHY_CHANCE;
-    sympathyChance += calculateKarmaModifier(gameState.player.karma);
-
-    sympathyChance = Math.max(0, Math.min(1, sympathyChance));
-
-    const success = rng < sympathyChance;
+    const success = rng < medicineClaimChance(gameState.player.karma);
 
     if (success) {
       return {
@@ -211,12 +226,7 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    let successChance = NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE;
-    successChance += calculateKarmaModifier(gameState.player.karma);
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success = rng < intelOfferChance(gameState.player.karma);
 
     if (success) {
       return {
@@ -379,4 +389,39 @@ export class NegotiationManager extends BaseManager {
       description: `You couldn't pay. Pirates damaged your ${targetSystem === 'lifeSupport' ? 'life support' : targetSystem} before leaving.`,
     };
   }
+}
+
+const clampChance = (chance) => Math.max(0, Math.min(1, chance));
+
+// Karma always applies; it is only listed once it moves the odds visibly,
+// matching the combat odds.
+function karmaModifiers(karma) {
+  const value = calculateKarmaModifier(karma);
+  if (Math.abs(value) <= COMBAT_CONFIG.MIN_DISPLAYED_MODIFIER) return [];
+  return [
+    karma > 0
+      ? { name: 'Good Karma', value, type: 'bonus' }
+      : { name: 'Bad Karma', value, type: 'penalty' },
+  ];
+}
+
+function counterProposalChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE +
+      calculateKarmaModifier(karma)
+  );
+}
+
+function intelOfferChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE +
+      calculateKarmaModifier(karma)
+  );
+}
+
+function medicineClaimChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE +
+      calculateKarmaModifier(karma)
+  );
 }
