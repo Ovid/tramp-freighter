@@ -239,7 +239,7 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 
 **Error handling:**
 - Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.
-- Load failures attempt recovery. If NPC data is corrupted, `SaveLoadManager.attemptNPCRecovery()` resets NPC state and dialogue and retries. Other corruption returns `null`, which the initialization path treats as "no save."
+- Load failures attempt recovery. If NPC data is corrupted, `SaveLoadManager.attemptNPCRecovery()` resets NPC state and dialogue and retries. Any other rejected save (unreadable JSON, incompatible version, failed validation, or a throw during restore) makes `loadGame()` return `null` and record a player-facing reason, readable via `game.getLoadError()`. Boot then starts a fresh in-memory game, but the save in `localStorage` is left untouched: the title screen hides Continue, shows the reason, and warns that New Game will replace the save.
 
 **Wiping a save during development:**
 1. DevTools → Application → Local Storage → `http://localhost:5173` → delete the `trampFreighterSave` key. Or:
