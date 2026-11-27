@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EndCredits } from '../../src/features/endgame/EndCredits.jsx';
+import { ALL_NPCS } from '../../src/game/data/npc-data.js';
 
 vi.mock('../../src/context/GameContext', () => ({
   useGame: () => ({
@@ -26,6 +27,18 @@ describe('EndCredits', () => {
   it('renders the game title', () => {
     render(<EndCredits onCreditsComplete={onCreditsComplete} />);
     expect(screen.getByText('TRAMP FREIGHTER BLUES')).toBeTruthy();
+  });
+
+  it('shows a portrait thumbnail for each cast member', () => {
+    const { container } = render(
+      <EndCredits onCreditsComplete={onCreditsComplete} />
+    );
+    const srcs = [
+      ...container.querySelectorAll('.credits-cast-row img.portrait-thumb'),
+    ].map((img) => img.getAttribute('src'));
+    expect(srcs).toEqual(
+      ALL_NPCS.map((npc) => `/portraits/npc/${npc.id}.webp`)
+    );
   });
 
   it('renders NPC cast members', () => {

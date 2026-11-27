@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useGame } from '../../context/GameContext';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 import { CREDITS_SECTIONS, buildCastList } from './credits-data.js';
 import { CREDITS_CONFIG } from '../../game/constants.js';
 import './endgame.css';
@@ -175,6 +177,10 @@ export function EndCredits({ onCreditsComplete }) {
           <div className="credits-section credits-cast">
             {cast.map((npc) => (
               <div key={npc.id} className="credits-cast-row">
+                <Portrait
+                  src={getPortraitUrl('npc', npc.id)}
+                  className="portrait-thumb"
+                />
                 <span className="credits-cast-name">{npc.name}</span>
                 <span className="credits-cast-dots" />
                 <span className="credits-cast-role">{npc.role}</span>
