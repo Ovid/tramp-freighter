@@ -128,11 +128,23 @@ describe('Combat odds', () => {
 
     const odds = game.getNegotiationOdds();
 
-    expect(odds.counterProposal).toBeCloseTo(
+    expect(odds.counterProposal.finalChance).toBeCloseTo(
       NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE + 0.1
     );
-    expect(odds.medicineClaim).toBeCloseTo(
+    expect(odds.medicineClaim.finalChance).toBeCloseTo(
       NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE + 0.1
     );
+    expect(odds.counterProposal.modifiers).toEqual([
+      { name: 'Good Karma', value: expect.closeTo(0.1), type: 'bonus' },
+    ]);
+  });
+
+  it('negotiation odds list no karma modifier too small to see', () => {
+    game.getState().player.karma = 1;
+
+    const odds = game.getNegotiationOdds();
+
+    expect(odds.counterProposal.modifiers).toEqual([]);
+    expect(odds.medicineClaim.modifiers).toEqual([]);
   });
 });

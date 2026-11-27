@@ -4,6 +4,7 @@ import { GameProvider } from '../../src/context/GameContext.jsx';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { CombatPanel } from '../../src/features/danger/CombatPanel.jsx';
 import { PirateEncounterPanel } from '../../src/features/danger/PirateEncounterPanel.jsx';
+import { NegotiationPanel } from '../../src/features/danger/NegotiationPanel.jsx';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 import {
@@ -90,6 +91,16 @@ function combatFinal(container, name) {
     .textContent;
 }
 
+function negotiationProb(container, name) {
+  return optionButton(container, name).querySelector('.prob-value').textContent;
+}
+
+function negotiationModifiers(container, name) {
+  return Array.from(
+    optionButton(container, name).querySelectorAll('.modifier-label')
+  ).map((el) => el.textContent);
+}
+
 function pirateProb(container, optionName, label) {
   const button = optionButton(container, optionName);
   const item = Array.from(button.querySelectorAll('.probability-item')).find(
@@ -169,6 +180,41 @@ describe('Combat odds display safety net', () => {
       );
       expect(pirateProb(container, 'Negotiate', 'Medicine Sympathy:')).toBe(
         expected.medicineClaim
+      );
+    });
+
+    it(`NegotiationPanel shows resolver-consistent odds with ${scenario.label}`, () => {
+      const game = makeGame(scenario);
+      const expected = expectedOdds(scenario);
+      const { container } = render(
+        <GameProvider game={game}>
+          <NegotiationPanel
+            encounter={{
+              id: 'pirate_test',
+              type: 'pirate',
+              systemId: 0,
+              threatLevel: 'moderate',
+            }}
+            onChoice={vi.fn()}
+            onClose={vi.fn()}
+          />
+        </GameProvider>
+      );
+
+      expect(negotiationProb(container, 'Counter-Proposal')).toBe(
+        expected.counterProposal
+      );
+      expect(negotiationProb(container, 'Medicine Claim')).toBe(
+        expected.medicineClaim
+      );
+      const karmaLabel =
+        scenario.karma > 0
+          ? ['Good Karma:']
+          : scenario.karma < 0
+            ? ['Bad Karma:']
+            : [];
+      expect(negotiationModifiers(container, 'Counter-Proposal')).toEqual(
+        karmaLabel
       );
     });
   }

@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
+import { useGame } from '../../context/GameContext.jsx';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { getPortraitUrl } from '../portraits/portrait-url.js';
 import { Portrait } from '../portraits/Portrait.jsx';
 import {
   NEGOTIATION_CONFIG,
-  KARMA_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
   EVENT_NAMES,
   BASE_PRICES,
@@ -37,11 +37,13 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
   // Local state for selected negotiation option
   const [selectedOption, setSelectedOption] = useState(null);
 
-  // Calculate success probabilities for negotiation options
+  const game = useGame();
+
+  // Karma is the only input the odds depend on, so they refresh when it changes
   const negotiationAnalysis = useMemo(
-    () =>
-      calculateNegotiationProbabilities(encounter, cargo, karma, intelligence),
-    [encounter, cargo, karma, intelligence]
+    () => game.getNegotiationOdds(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [game, karma]
   );
 
   // Check for conditional options availability
@@ -396,68 +398,6 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
       </div>
     </div>
   );
-}
-
-/**
- * Calculate success probabilities for negotiation options
- *
- * @param {Object} encounter - The pirate encounter
- * @param {Array} cargo - Current cargo
- * @param {number} karma - Current karma value
- * @param {Object} intelligence - Available intelligence data
- * @returns {Object} Analysis for each negotiation option
- */
-function calculateNegotiationProbabilities(
-  encounter,
-  _cargo = [],
-  karma = 0,
-  _intelligence = {}
-) {
-  // Calculate karma modifier
-  const karmaModifier = karma * (KARMA_CONFIG.SUCCESS_RATE_SCALE ?? 0.0005);
-
-  // Counter-proposal analysis
-  const counterProposalModifiers = [];
-  let counterProposalChance = NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE;
-
-  // Apply karma modifier
-  if (Math.abs(karmaModifier) > 0.001) {
-    counterProposalChance += karmaModifier;
-    counterProposalModifiers.push({
-      name: karma > 0 ? 'Good Karma' : 'Bad Karma',
-      value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty',
-    });
-  }
-
-  counterProposalChance = Math.max(0, Math.min(1, counterProposalChance));
-
-  // Medicine claim analysis
-  const medicineClaimModifiers = [];
-  let medicineClaimChance = NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE;
-
-  // Apply karma modifier
-  if (Math.abs(karmaModifier) > 0.001) {
-    medicineClaimChance += karmaModifier;
-    medicineClaimModifiers.push({
-      name: karma > 0 ? 'Good Karma' : 'Bad Karma',
-      value: karmaModifier,
-      type: karma > 0 ? 'bonus' : 'penalty',
-    });
-  }
-
-  medicineClaimChance = Math.max(0, Math.min(1, medicineClaimChance));
-
-  return {
-    counterProposal: {
-      finalChance: counterProposalChance,
-      modifiers: counterProposalModifiers,
-    },
-    medicineClaim: {
-      finalChance: medicineClaimChance,
-      modifiers: medicineClaimModifiers,
-    },
-  };
 }
 
 /**

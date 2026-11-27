@@ -168,7 +168,7 @@ How it is built:
   - `src/game/state/managers/combat.js:75-91` (`resolveEvasiveManeuvers`): "successChance -= encounter.strengthModifier || 0".
 - **Found by:** Error Handling & Observability
 - **Status:** Fixed
-- **Status reason:** CombatManager.getCombatOdds and NegotiationManager.getNegotiationOdds compute every chance once; the resolvers roll against the same helpers and both panels display them through the facade. The resolver now applies the worn-engine evasion penalty (developer's design call); the display now includes escalation strength and the sensitive_sensors bonus. Both panel-side calculations were deleted.
+- **Status reason:** CombatManager.getCombatOdds and NegotiationManager.getNegotiationOdds compute every chance once; the resolvers roll against the same helpers and both panels display them through the facade. The resolver now applies the worn-engine evasion penalty (developer's design call); the display now includes escalation strength and the sensitive_sensors bonus. Both panel-side calculations were deleted, and NegotiationPanel's own karma calculation was replaced by getNegotiationOdds, which now returns each chance with its displayed modifiers.
 - **Status date:** 2026-11-27 11:57 UTC
 - **Status commit:** eea25c5
 

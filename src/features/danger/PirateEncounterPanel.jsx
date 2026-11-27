@@ -54,10 +54,12 @@ export function PirateEncounterPanel({
   // the ship or karma changes mid-encounter
   const probabilities = useMemo(() => {
     const combatOdds = game.getCombatOdds(encounter);
+    const negotiationOdds = game.getNegotiationOdds();
     return {
       evasive: combatOdds.evasive.finalChance,
       returnFire: combatOdds.returnFire.finalChance,
-      ...game.getNegotiationOdds(),
+      counterProposal: negotiationOdds.counterProposal.finalChance,
+      medicineClaim: negotiationOdds.medicineClaim.finalChance,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game, encounter, engine, upgrades, quirks, karma]);

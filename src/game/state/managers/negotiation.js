@@ -1,5 +1,6 @@
 import { BaseManager } from './base-manager.js';
 import {
+  COMBAT_CONFIG,
   NEGOTIATION_CONFIG,
   PIRATE_CREDIT_DEMAND_CONFIG,
 } from '../../constants.js';
@@ -17,14 +18,23 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  */
 export class NegotiationManager extends BaseManager {
   /**
-   * Success chances the negotiation resolvers roll against, for display.
-   * @returns {{counterProposal: number, medicineClaim: number}}
+   * Success chances the negotiation resolvers roll against, with the
+   * modifiers to list beside them.
+   * @returns {{counterProposal: {finalChance: number, modifiers: Array},
+   *   medicineClaim: {finalChance: number, modifiers: Array}}}
    */
   getNegotiationOdds() {
     const karma = this.capabilities.getKarma();
+    const modifiers = karmaModifiers(karma);
     return {
-      counterProposal: counterProposalChance(karma),
-      medicineClaim: medicineClaimChance(karma),
+      counterProposal: {
+        finalChance: counterProposalChance(karma),
+        modifiers,
+      },
+      medicineClaim: {
+        finalChance: medicineClaimChance(karma),
+        modifiers: [...modifiers],
+      },
     };
   }
 
@@ -382,6 +392,18 @@ export class NegotiationManager extends BaseManager {
 }
 
 const clampChance = (chance) => Math.max(0, Math.min(1, chance));
+
+// Karma always applies; it is only listed once it moves the odds visibly,
+// matching the combat odds.
+function karmaModifiers(karma) {
+  const value = calculateKarmaModifier(karma);
+  if (Math.abs(value) <= COMBAT_CONFIG.MIN_DISPLAYED_MODIFIER) return [];
+  return [
+    karma > 0
+      ? { name: 'Good Karma', value, type: 'bonus' }
+      : { name: 'Bad Karma', value, type: 'penalty' },
+  ];
+}
 
 function counterProposalChance(karma) {
   return clampChance(
