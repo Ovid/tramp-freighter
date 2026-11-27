@@ -233,7 +233,7 @@
 .credits-cast-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   padding: 3px 0;
   font-size: var(--font-size-large);
 }
@@ -248,8 +248,10 @@
   margin: 0 8px;
   border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
   min-width: 20px;
+  /* Rows are centred for the portrait thumbnail; nudge the leader down
+     from mid-line to the text baseline */
   position: relative;
-  top: -4px;
+  top: 5px;
 }
 
 .credits-cast-role {

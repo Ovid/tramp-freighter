@@ -191,3 +191,16 @@ Possible fix: reset `dialogue` to its inactive defaults on every load, the
 same way the recovery path does.
 
 Found while debugging NPC dialogue not opening under StrictMode on `ovid/images`.
+
+## Dialogue panel sits flush left between 500px and 600px wide
+
+At viewport widths from 500px to 600px, the dialogue panel is pinned to the
+left edge at its 500px `max-width` (from the `@media (max-width: 900px)` rule
+in `css/panel/dialogue.css`), so the station menu shows in the gap on the
+right. Real phones are narrower than 500px and get a full-width panel, so
+this mostly affects narrow desktop windows and small tablets.
+
+Possible fix: drop the `max-width` inside the 600px mobile rule so the panel
+fills the width there.
+
+Found during UAT of the `ovid/images` branch (NPC portraits).
