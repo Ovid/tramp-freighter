@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, act, cleanup } from '@testing-library/react';
-import { GameProvider } from '../../src/context/GameContext.jsx';
-import { useEventTriggers } from '../../src/hooks/useEventTriggers.js';
+import { act, cleanup } from '@testing-library/react';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -15,16 +13,10 @@ import {
  * Pins the observable behaviour of the encounter/event trigger pipeline
  * from the game's side: a real jump, dock or passage of time produces the
  * same encounterTriggered / narrativeEventTriggered emissions, whichever
- * layer ends up owning the trigger rules. The trigger hook is mounted the
- * way App mounts it, before the game is started.
+ * layer ends up owning the trigger rules.
  *
  * Feature: event-engine, danger encounters
  */
-
-function Harness() {
-  useEventTriggers();
-  return null;
-}
 
 const SOL = 0;
 const NEIGHBOUR = WORMHOLE_DATA.find(([a, b]) => a === SOL || b === SOL).find(
@@ -36,11 +28,6 @@ function startGame() {
     STAR_DATA,
     WORMHOLE_DATA,
     new NavigationSystem(STAR_DATA, WORMHOLE_DATA)
-  );
-  render(
-    <GameProvider game={game}>
-      <Harness />
-    </GameProvider>
   );
   act(() => {
     game.initNewGame();

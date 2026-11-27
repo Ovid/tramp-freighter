@@ -1303,6 +1303,18 @@ export const THREAT_LEVEL_CONFIG = {
 };
 
 /**
+ * Threat tier a pirate encounter moves to when negotiation escalates to
+ * combat. An encounter with no tier is treated as THREAT_ESCALATION_DEFAULT.
+ */
+export const THREAT_ESCALATION = Object.freeze({
+  weak: 'moderate',
+  moderate: 'strong',
+  strong: 'dangerous',
+  dangerous: 'dangerous',
+});
+export const THREAT_ESCALATION_DEFAULT = 'moderate';
+
+/**
  * Thresholds for determineInspectionSeverity() — customs inspection classification.
  */
 export const INSPECTION_SEVERITY_CONFIG = {
@@ -1905,7 +1917,7 @@ export const ACHIEVEMENTS_CONFIG = {
 /**
  * Event names for the Bridge Pattern event system.
  * Used by EventSystemManager, all managers with emit() calls,
- * and React hooks (useGameEvent, useEventTriggers).
+ * and React hooks (useGameEvent).
  *
  * Keys are UPPER_SNAKE_CASE, values are the camelCase strings
  * that flow through the event system.

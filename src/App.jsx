@@ -18,7 +18,6 @@ import { OutcomePanel } from './features/danger/OutcomePanel';
 import { useGame } from './context/GameContext';
 import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
-import { useEventTriggers } from './hooks/useEventTriggers';
 import { useEncounterOrchestration } from './hooks/useEncounterOrchestration';
 import { EVENT_NAMES } from './game/constants.js';
 import { getPageTitle } from './game/utils/page-title.js';
@@ -76,7 +75,6 @@ export default function App({ devMode = false }) {
   );
   const shipName = useGameEvent(EVENT_NAMES.SHIP_NAME_CHANGED);
   const saveFailedEvent = useGameEvent(EVENT_NAMES.SAVE_FAILED);
-  useEventTriggers();
 
   const {
     currentEncounter,

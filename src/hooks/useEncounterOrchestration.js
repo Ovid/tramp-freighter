@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { transformOutcomeForDisplay } from '../features/danger/transformOutcome';
 import { applyEncounterOutcome } from '../features/danger/applyEncounterOutcome';
-import { EVENT_NAMES, NEGOTIATION_CONFIG } from '../game/constants.js';
+import { escalateEncounter } from '../game/utils/calculators.js';
+import { EVENT_NAMES } from '../game/constants.js';
 
 /**
  * View mode constants used by the encounter orchestration.
@@ -152,18 +153,10 @@ export function useEncounterOrchestration(
 
         // Failed negotiation escalates to combat — skip applying empty outcome
         if (outcome.escalate) {
-          // Bump threat tier for display and apply strength modifier for combat
-          const THREAT_ESCALATION = {
-            weak: 'moderate',
-            moderate: 'strong',
-            strong: 'dangerous',
-            dangerous: 'dangerous',
-          };
-          const current = currentEncounter.encounter.threatLevel || 'moderate';
-          currentEncounter.encounter.threatLevel =
-            THREAT_ESCALATION[current] || 'strong';
-          currentEncounter.encounter.strengthModifier =
-            NEGOTIATION_CONFIG.OUTCOME_VALUES.COUNTER_PROPOSAL_FAILURE_STRENGTH_INCREASE;
+          setCurrentEncounter({
+            ...currentEncounter,
+            encounter: escalateEncounter(currentEncounter.encounter),
+          });
 
           const displayOutcome = transformOutcomeForDisplay(
             outcome,

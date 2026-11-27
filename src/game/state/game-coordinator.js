@@ -29,6 +29,7 @@ import { MechanicalFailureManager } from './managers/mechanical-failure.js';
 import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
+import { EncounterTriggerManager } from './managers/encounter-trigger.js';
 import { DebtManager } from './managers/debt.js';
 import { AchievementsManager } from './managers/achievements.js';
 import { InformationBroker } from '../game-information-broker.js';
@@ -453,6 +454,24 @@ export class GameCoordinator {
       },
       markDirty: this.markDirty.bind(this),
       emit: this.emit.bind(this),
+      subscribe: this.subscribe.bind(this),
+      starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    // Built after QuestManager so quest docking logic runs before dock events.
+    this.encounterTriggerManager = new EncounterTriggerManager({
+      getState: () => this.state,
+      checkEvents: (eventType, context, rng) =>
+        this.eventEngineManager.checkEvents(eventType, context, rng),
+      getEventById: (id) => this.eventEngineManager.getEventById(id),
+      calculatePirateEncounterChance: (systemId, gameState) =>
+        this.dangerManager.calculatePirateEncounterChance(systemId, gameState),
+      calculateInspectionChance: (systemId, gameState) =>
+        this.dangerManager.calculateInspectionChance(systemId, gameState),
+      checkMechanicalFailure: () =>
+        this.mechanicalFailureManager.checkMechanicalFailure(),
+      checkDistressCall: () => this.distressManager.checkDistressCall(),
+      emit: (...args) => this.emit(...args),
       subscribe: this.subscribe.bind(this),
       starData: this.starData,
       isTestEnvironment: this.isTestEnvironment,
@@ -1602,6 +1621,18 @@ export class GameCoordinator {
 
   registerEvents(events) {
     return this.eventEngineManager.registerEvents(events);
+  }
+
+  beginJump() {
+    this.encounterTriggerManager.beginJump();
+  }
+
+  endJump() {
+    this.encounterTriggerManager.endJump();
+  }
+
+  completeJump(systemId) {
+    this.encounterTriggerManager.completeJump(systemId);
   }
 
   checkEvents(eventType, context, rng) {

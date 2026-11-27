@@ -92,20 +92,7 @@ describe('Debt-Cleared Narrative Event', () => {
       const narrativeSpy = vi.fn();
       gsm.subscribe(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, narrativeSpy);
 
-      // Register the debt-cleared listener the way useEventTriggers does
-      const debtFreeEvent = gsm.getEventById('cond_debt_free');
-      expect(debtFreeEvent).toBeDefined();
-
-      // Simulate what the useEventTriggers DEBT_CLEARED listener does:
-      // look up the event and emit it as a narrative event
-      const handleDebtCleared = () => {
-        const event = gsm.getEventById('cond_debt_free');
-        if (event) {
-          gsm.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, { ...event });
-        }
-      };
-
-      gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
+      expect(gsm.getEventById('cond_debt_free')).toBeDefined();
 
       // Now trigger debt clearance via payment
       gsm.state.player.debt = 100;
@@ -122,18 +109,6 @@ describe('Debt-Cleared Narrative Event', () => {
     it('does not re-trigger if event has already been fired (once: true)', () => {
       const narrativeSpy = vi.fn();
       gsm.subscribe(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, narrativeSpy);
-
-      const handleDebtCleared = () => {
-        const event = gsm.getEventById('cond_debt_free');
-        if (event) {
-          // Check once-only guard: skip if already fired
-          const fired = gsm.state.world.narrativeEvents.fired;
-          if (event.once && fired.includes(event.id)) return;
-          gsm.emit(EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED, { ...event });
-        }
-      };
-
-      gsm.subscribe(EVENT_NAMES.DEBT_CLEARED, handleDebtCleared);
 
       // Mark the event as already fired
       gsm.markEventFired('cond_debt_free');

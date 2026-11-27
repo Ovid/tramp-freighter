@@ -32,6 +32,9 @@ describe('executeJump passes shipCondition to validateJump', () => {
       updateLocation: vi.fn(),
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      beginJump: vi.fn(),
+      endJump: vi.fn(),
+      completeJump: vi.fn(),
       markDirty: vi.fn(),
     };
 
@@ -70,6 +73,9 @@ describe('executeJump passes shipCondition to validateJump', () => {
       updateLocation: vi.fn(),
       updateShipCondition: vi.fn(),
       saveGame: vi.fn(),
+      beginJump: vi.fn(),
+      endJump: vi.fn(),
+      completeJump: vi.fn(),
       markDirty: vi.fn(),
     };
 

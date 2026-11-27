@@ -300,3 +300,33 @@ Found during the 2026-11-27 rethink of the F-1 fix options (see also F-8).
 the player is still in ORBIT within the toast duration.
 
 Found during the 2026-11-27 rethink of the F-1 fix options.
+
+## Dev admin panel hand-builds encounter payloads
+
+`DevAdminPanel.jsx` (~331-405) calls the danger chance calculators and emits
+`ENCOUNTER_TRIGGERED` with its own payloads (`threatLevel: 'moderate'`
+hard-coded), duplicating the generator shapes in `useEventTriggers.js`. They
+will drift from the real encounter shapes. Possible fix: have the panel ask the
+same generator the trigger pipeline uses.
+
+Found during rethink on the F-2 architecture fix (2026-11-27 report).
+
+## New Game after the credits runs a jump encounter check at Sol
+
+`useEventTriggers` leaves `lastSystemRef` at Delta Pavonis after victory
+(it is set before the victory early-return). Return to Title and New Game then
+emit `LOCATION_CHANGED` for Sol, which the hook treats as a real jump and rolls
+pirate/inspection/mechanical/distress checks on day 0. Resolved by F-2 option 1
+if chosen (jump checks become an explicit call from `executeJump`).
+
+Found during rethink on the F-2 architecture fix (2026-11-27 report).
+
+## Coordinator facade methods left with only test callers
+
+After the F-2 fix moved trigger rules into `EncounterTriggerManager`,
+`GameCoordinator.checkMechanicalFailure` and `GameCoordinator.checkEvents` have
+no callers in `src/` (tests only). knip does not see unused class methods.
+Possible fix: point those tests at the managers and delete the two facade
+methods (see F-18 in the 2026-11-27 architecture report).
+
+Found during the F-2 architecture fix (2026-11-27 report).

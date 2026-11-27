@@ -198,6 +198,7 @@ function TradePanel({ onClose }) {
 | EventSystemManager | Event pub/sub (powers Bridge Pattern) | `event-system.js` |
 | EventsManager | Active world events | `events.js` |
 | EventEngineManager | Narrative event flags, cooldowns, triggers | `event-engine.js` |
+| EncounterTriggerManager | Decides when encounters and narrative events fire (jump, dock, time, debt cleared) | `encounter-trigger.js` |
 | InitializationManager | New-game and load-game initialization | `initialization.js` |
 | SaveLoadManager | Save / load with debounced writes | `save-load.js` |
 
@@ -312,7 +313,7 @@ project-root/
 │   │   ├── useTradeActions.js / useShipActions.js / useNavigationActions.js
 │   │   ├── useMissionActions.js / useQuestActions.js / useNPCActions.js
 │   │   ├── useDangerZone.js / useEncounterProbabilities.js / useJumpValidation.js
-│   │   ├── useDialogue.js / useEventTriggers.js / useStarData.js
+│   │   ├── useDialogue.js / useStarData.js
 │   │   ├── useAnimationLock.js / useNotification.js
 │   │   └── useMobileLayout.js / useClickOutside.js / useDebtActions.js
 │   │

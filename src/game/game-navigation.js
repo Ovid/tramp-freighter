@@ -452,27 +452,37 @@ export class NavigationSystem {
 
     // Execute jump: update fuel, time, and location BEFORE animation
     // This ensures progress is saved even if animation is interrupted
-    gameStateManager.updateFuel(currentFuel - validation.fuelCost);
-    gameStateManager.updateTime(state.player.daysElapsed + validation.jumpTime);
-    gameStateManager.updateLocation(targetSystemId);
+    gameStateManager.beginJump();
+    try {
+      gameStateManager.updateFuel(currentFuel - validation.fuelCost);
+      gameStateManager.updateTime(
+        state.player.daysElapsed + validation.jumpTime
+      );
+      gameStateManager.updateLocation(targetSystemId);
 
-    // Apply ship condition degradation from jump with quirk modifiers and upgrade effects
-    const degradedShip = NavigationSystem.applyJumpDegradation(
-      state.ship,
-      validation.jumpTime,
-      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
-      quirks,
-      capabilities.hullDegradation,
-      capabilities.lifeSupportDrain
-    );
-    gameStateManager.updateShipCondition(
-      degradedShip.hull,
-      degradedShip.engine,
-      degradedShip.lifeSupport
-    );
+      // Apply ship condition degradation from jump with quirk modifiers and upgrade effects
+      const degradedShip = NavigationSystem.applyJumpDegradation(
+        state.ship,
+        validation.jumpTime,
+        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
+        quirks,
+        capabilities.hullDegradation,
+        capabilities.lifeSupportDrain
+      );
+      gameStateManager.updateShipCondition(
+        degradedShip.hull,
+        degradedShip.engine,
+        degradedShip.lifeSupport
+      );
 
-    // Auto-save after jump (before animation)
-    gameStateManager.saveGame();
+      // Auto-save after jump (before animation)
+      gameStateManager.saveGame();
+    } finally {
+      gameStateManager.endJump();
+    }
+    // Encounters are emitted before the animation; the UI buffers them until
+    // the animation nears its end.
+    gameStateManager.completeJump(targetSystemId);
 
     // Hide UI panels before animation if UI manager is provided
     let stationWasVisible = false;
