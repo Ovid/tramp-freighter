@@ -232,10 +232,9 @@ How it is built:
   - `src/features/refuel/refuelUtils.js:19-21`: "return amount * pricePerPercent;".
   - `src/features/finance/FinancePanel.jsx:65-71, 149-170` re-derive the early-repayment fee that `src/game/state/managers/debt.js:214-240` computes.
 - **Found by:** Structure & Boundaries, Error Handling & Observability
-- **Status:** Partially fixed
-- **Status reason:** Repair pricing now lives only in RepairManager: getRepairAllCost (one round-up over the discounted total), a single-charge repairAll, and canAffordStandardRepair, which both the Emergency Patch offer and applyEmergencyPatch use. The panel shows manager prices through useShipActions, the facade's getRepairCost passes the discount through, and the duplicate cost and validation helpers in repairUtils.js are deleted. This fixes a real defect the report missed: with an NPC discount, Repair All could charge more than it showed and reject a player who could afford the discounted total. The cited refuel evidence was wrong (costs are always integers), so refuel was left alone. Remaining: FinancePanel still re-derives the early-repayment fee; it matches debt.js today.
-- **Status date:** 2026-11-27 17:05 UTC
-- **Status commit:** fceb628
+- **Status:** Fixed
+- **Status reason:** Repair pricing (fceb628): RepairManager now owns all repair pricing (getRepairAllCost, single-charge repairAll, canAffordStandardRepair), the panel shows manager prices, and the duplicate helpers in repairUtils.js are deleted. This fixed a real defect: with an NPC discount, Repair All could charge more than it showed. The refuel evidence was wrong (costs are always integers). Finance (this commit): DebtManager.quotePayment computes what makePayment will pay and charge, including reduce-to-fit, and makePayment uses it. getPaymentFee and a single isEarlyRepayment replace the duplicated fee and window rules. FinancePanel labels its tier buttons with game.getDebtPaymentFee and Pay All with game.quoteDebtPayment, so it no longer computes fees. A 200-run property test confirmed Pay All matches the panel's old formula exactly. A float edge both copies shared (33/1.1) is logged in docs/backlog.md.
+- **Status date:** 2026-11-27 16:39 UTC
 
 ### [F-7] Jump execution lives in NavigationSystem, outside the manager layer
 - **Category:** 13 Inconsistent boundaries (also 3 Tight coupling, 26)

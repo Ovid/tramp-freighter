@@ -330,3 +330,36 @@ without asserting. Repair discounts are now covered by
 fixed or the hollow cases removed.
 
 Found during the F-6 architecture fix (2026-11-27 report).
+
+## Early-repayment reduce-to-fit underpays by 1 credit on float boundaries
+
+`DebtManager.quotePayment` reduces a payment that can't cover its fee with
+`Math.floor(credits / (1 + EARLY_REPAYMENT_FEE_RATE))`. Floating point makes
+`33 / 1.1` come out as `29.999…`, so with 33 credits the player is offered ₡29
+(+₡3 fee) when ₡30 (+₡3) is affordable. The label still matches the charge; the
+player just pays slightly less than they could. An integer search for the
+largest `a` with `a + ceil(a * rate) <= credits` would fix it. The property
+test `debt-payment-quote.property.test.js` pins the old formula and would need
+its oracle updated alongside.
+
+Found during the F-6 architecture fix (2026-11-27 report).
+
+## The coordinator's updateCredits does not mark state dirty
+
+`StateManager.updateCredits` (`src/game/state/managers/state.js`) sets credits
+and emits CREDITS_CHANGED but never calls `markDirty`; every current caller
+marks dirty itself. A new caller that relies on `game.updateCredits` alone
+would lose the change on reload unless something else marks dirty first.
+
+Found while writing the F-11 safety net (2026-11-27 report).
+
+## Tests still reset lastSaveTime "to avoid debouncing"
+
+The 1 s save throttle is gone, so `lastSaveTime` is now only a record of the
+last write. `npc-extensibility.test.js`, `manager-coverage-gaps.test.js` and
+`danger-state-persistence.property.test.js` still set it to 0 with comments
+about debouncing. The resets are harmless but misleading; remove them, and
+consider dropping the `lastSaveTime` accessor from GameCoordinator if nothing
+else reads it.
+
+Found during the F-11 architecture fix (2026-11-27 report).

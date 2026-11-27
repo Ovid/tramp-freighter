@@ -56,6 +56,8 @@ function createMockGame() {
     getDebtInfo: vi.fn(),
     borrowFromCole: vi.fn(),
     makeDebtPayment: vi.fn(),
+    quoteDebtPayment: vi.fn(),
+    getDebtPaymentFee: vi.fn(),
     dock: vi.fn(),
     undock: vi.fn(),
     updateCredits: vi.fn(),
@@ -420,7 +422,9 @@ describe('Domain Action Hooks', () => {
     const EXPECTED_METHODS = [
       'borrowFromCole',
       'getDebtInfo',
+      'getDebtPaymentFee',
       'makeDebtPayment',
+      'quoteDebtPayment',
     ];
 
     it('returns exactly the expected methods', () => {
@@ -474,6 +478,7 @@ describe('Domain Action Hooks', () => {
         'getCompletableMissions',
         'getCurrentSystemPrices',
         'getDebtInfo',
+        'getDebtPaymentFee',
         'getEpilogueData',
         'getEpilogueStats',
         'getFreeRepair',
@@ -490,6 +495,7 @@ describe('Domain Action Hooks', () => {
         'moveToRegularCargo',
         'purchaseIntelligence',
         'purchaseUpgrade',
+        'quoteDebtPayment',
         'recordVisitedPrices',
         'refreshMissionBoard',
         'refuel',

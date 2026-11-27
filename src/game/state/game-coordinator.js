@@ -1176,6 +1176,14 @@ export class GameCoordinator {
     return this.debtManager.makePayment(amount);
   }
 
+  quoteDebtPayment(amount) {
+    return this.debtManager.quotePayment(amount);
+  }
+
+  getDebtPaymentFee(amount) {
+    return this.debtManager.getPaymentFee(amount);
+  }
+
   calculateTradeWithholding(totalRevenue) {
     return this.debtManager.calculateWithholding(totalRevenue);
   }

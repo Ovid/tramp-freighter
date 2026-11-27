@@ -191,8 +191,35 @@ export class DebtManager extends BaseManager {
     return { success: true, amount };
   }
 
-  makePayment(amount) {
-    const finance = this.getFinance();
+  isEarlyRepayment() {
+    const { lastBorrowDay } = this.getFinance();
+    return (
+      lastBorrowDay !== null &&
+      this.capabilities.getDaysElapsed() - lastBorrowDay <
+        COLE_DEBT_CONFIG.EARLY_REPAYMENT_WINDOW_DAYS
+    );
+  }
+
+  /**
+   * Early-repayment fee for paying `amount` now (0 outside the window).
+   * @param {number} amount - Payment amount
+   * @returns {number} Fee in credits, rounded up
+   */
+  getPaymentFee(amount) {
+    return this.isEarlyRepayment()
+      ? Math.ceil(amount * COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE)
+      : 0;
+  }
+
+  /**
+   * What makePayment(amount) would pay and charge right now, without paying.
+   * When a fee applies and credits fall short, the payment is reduced to fit.
+   *
+   * @param {number} amount - Requested payment
+   * @returns {{success: true, amount: number, fee: number} |
+   *   {success: false, reason: string}}
+   */
+  quotePayment(amount) {
     const debt = this.getDebt();
 
     if (debt === 0) {
@@ -206,41 +233,37 @@ export class DebtManager extends BaseManager {
     }
 
     const credits = this.capabilities.getCredits();
-    const daysElapsed = this.capabilities.getDaysElapsed();
-
-    // Calculate early repayment fee
-    let fee = 0;
-    if (
-      finance.lastBorrowDay !== null &&
-      daysElapsed - finance.lastBorrowDay <
-        COLE_DEBT_CONFIG.EARLY_REPAYMENT_WINDOW_DAYS
-    ) {
-      fee = Math.ceil(
-        actualPayment * COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
-      );
-    }
-
-    const totalCost = actualPayment + fee;
+    let fee = this.getPaymentFee(actualPayment);
 
     // If can't afford payment + fee, reduce payment to fit
-    if (credits < totalCost) {
+    if (credits < actualPayment + fee) {
       if (fee > 0) {
-        actualPayment = Math.floor(
-          credits / (1 + COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE)
+        actualPayment = Math.min(
+          Math.floor(credits / (1 + COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE)),
+          debt
         );
-        actualPayment = Math.min(actualPayment, debt);
         if (actualPayment <= 0) {
           return { success: false, reason: 'Insufficient credits' };
         }
-        fee = Math.ceil(
-          actualPayment * COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
-        );
+        fee = this.getPaymentFee(actualPayment);
       } else {
-        if (credits < actualPayment) {
-          return { success: false, reason: 'Insufficient credits' };
-        }
+        return { success: false, reason: 'Insufficient credits' };
       }
     }
+
+    return { success: true, amount: actualPayment, fee };
+  }
+
+  makePayment(amount) {
+    const quote = this.quotePayment(amount);
+    if (!quote.success) {
+      return quote;
+    }
+
+    const finance = this.getFinance();
+    const debt = this.getDebt();
+    const credits = this.capabilities.getCredits();
+    const { amount: actualPayment, fee } = quote;
 
     this.capabilities.updateDebt(debt - actualPayment);
     this.capabilities.updateCredits(credits - actualPayment - fee);
@@ -370,12 +393,6 @@ export class DebtManager extends BaseManager {
     const finance = this.getFinance();
     const debt = this.getDebt();
     const credits = this.capabilities.getCredits();
-    const daysElapsed = this.capabilities.getDaysElapsed();
-
-    const isEarlyRepayment =
-      finance.lastBorrowDay !== null &&
-      daysElapsed - finance.lastBorrowDay <
-        COLE_DEBT_CONFIG.EARLY_REPAYMENT_WINDOW_DAYS;
 
     return {
       debt,
@@ -392,7 +409,7 @@ export class DebtManager extends BaseManager {
       heat: finance.heat,
       heatTier: this.getHeatTier(),
       paidSinceCheckpoint: finance.totalRepaid > finance.lastCheckpointRepaid,
-      earlyRepaymentFeeRate: isEarlyRepayment
+      earlyRepaymentFeeRate: this.isEarlyRepayment()
         ? COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
         : 0,
     };
