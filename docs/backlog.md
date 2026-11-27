@@ -204,3 +204,14 @@ Possible fix: drop the `max-width` inside the 600px mobile rule so the panel
 fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
+
+## Gameplay RNG parameters default to `Math.random`
+
+`generateMissionBoard` and its helpers (`mission-generator.js`),
+`EventEngineManager.checkEvents` (`event-engine.js`) and `assignShipQuirks`
+(`ship.js` and the `game-coordinator.js` facade) take an `rng` argument that
+defaults to `Math.random`. Every current caller passes a seeded RNG, but a new
+caller that omits it silently loses determinism, against the project rule. Make
+the argument required, or throw when it is missing.
+
+Found during the 2026-11-27 CLAUDE.md pushback review.
