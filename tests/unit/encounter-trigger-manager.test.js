@@ -52,7 +52,7 @@ function event(id, type, overrides = {}) {
 }
 
 async function jump(game, target) {
-  const result = await game.navigationSystem.executeJump(game, target);
+  const result = await game.executeJump(target);
   expect(result.success).toBe(true);
 }
 

@@ -1,4 +1,5 @@
 import { BaseManager } from './base-manager.js';
+import { NavigationSystem } from '../../game-navigation.js';
 import { calculateSystemPrices } from '../../utils/calculators.js';
 import { EVENT_NAMES, INTELLIGENCE_CONFIG } from '../../constants.js';
 
@@ -17,6 +18,67 @@ export class NavigationManager extends BaseManager {
   }
 
   /**
+   * Validate and commit a jump: fuel, time, location and ship wear.
+   *
+   * State is committed before any animation so progress survives an
+   * interrupted animation. Encounters are rolled here too; the UI buffers
+   * them until the animation nears its end.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {{success: boolean, error: string|null}}
+   */
+  executeJump(targetSystemId) {
+    const ship = this.capabilities.getShip();
+    const { currentSystem } = this.capabilities.getOwnState();
+    const quirks = ship.quirks || [];
+    const shipCapabilities = this.capabilities.calculateShipCapabilities();
+    const applyQuirkModifiers = this.capabilities.applyQuirkModifiers;
+
+    const validation = this.capabilities.validateJump(
+      currentSystem,
+      targetSystemId,
+      ship.fuel,
+      ship.engine,
+      applyQuirkModifiers,
+      quirks,
+      shipCapabilities.fuelConsumption,
+      { hull: ship.hull, engine: ship.engine, lifeSupport: ship.lifeSupport }
+    );
+
+    if (!validation.valid) {
+      return { success: false, error: validation.error };
+    }
+
+    this.capabilities.beginJump();
+    try {
+      this.capabilities.updateFuel(ship.fuel - validation.fuelCost);
+      this.capabilities.updateTime(
+        this.capabilities.getDaysElapsed() + validation.jumpTime
+      );
+      this.updateLocation(targetSystemId);
+
+      const degraded = NavigationSystem.applyJumpDegradation(
+        ship,
+        validation.jumpTime,
+        applyQuirkModifiers,
+        quirks,
+        shipCapabilities.hullDegradation,
+        shipCapabilities.lifeSupportDrain
+      );
+      this.capabilities.updateShipCondition(
+        degraded.hull,
+        degraded.engine,
+        degraded.lifeSupport
+      );
+    } finally {
+      this.capabilities.endJump();
+    }
+    this.capabilities.completeJump(targetSystemId);
+
+    return { success: true, error: null };
+  }
+
+  /**
    * Update player location to a new system
    *
    * Tracks exploration progress and snapshots prices at arrival to prevent
@@ -26,6 +88,13 @@ export class NavigationManager extends BaseManager {
    * @throws {Error} If system ID is not found in star data
    */
   updateLocation(newSystemId) {
+    const system = this.capabilities.starData.find((s) => s.id === newSystemId);
+    if (!system) {
+      throw new Error(
+        `Invalid system ID: ${newSystemId} not found in star data`
+      );
+    }
+
     this.capabilities.setCurrentSystem(newSystemId);
 
     // Track exploration progress for future features (price discovery, missions)
@@ -47,12 +116,6 @@ export class NavigationManager extends BaseManager {
 
     // Snapshot prices at arrival to prevent intra-system arbitrage
     // Prices are locked until player leaves the system
-    const system = this.capabilities.starData.find((s) => s.id === newSystemId);
-    if (!system) {
-      throw new Error(
-        `Invalid system ID: ${newSystemId} not found in star data`
-      );
-    }
 
     const currentDay = this.capabilities.getDaysElapsed();
     const activeEvents = this.capabilities.getActiveEvents();

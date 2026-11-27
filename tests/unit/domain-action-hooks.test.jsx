@@ -20,10 +20,7 @@ function createMockGame() {
     getCurrentSystemPrices: vi.fn(),
     recordVisitedPrices: vi.fn(),
     calculateTradeWithholding: vi.fn(),
-    navigationSystem: {
-      executeJump: vi.fn().mockResolvedValue({ success: true }),
-    },
-    animationSystem: {},
+    executeJump: vi.fn().mockResolvedValue({ success: true }),
     refuel: vi.fn(),
     repairShipSystem: vi.fn(),
     applyEmergencyPatch: vi.fn(),
@@ -134,14 +131,10 @@ describe('Domain Action Hooks', () => {
       expect(Object.keys(result.current).sort()).toEqual(EXPECTED_METHODS);
     });
 
-    it('delegates executeJump to game.navigationSystem.executeJump', async () => {
+    it('delegates executeJump to game.executeJump', async () => {
       const { result } = renderHook(() => useNavigationActions(), { wrapper });
       await result.current.executeJump(42);
-      expect(mockGame.navigationSystem.executeJump).toHaveBeenCalledWith(
-        mockGame,
-        42,
-        mockGame.animationSystem
-      );
+      expect(mockGame.executeJump).toHaveBeenCalledWith(42);
     });
   });
 

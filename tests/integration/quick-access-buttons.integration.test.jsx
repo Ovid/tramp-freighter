@@ -282,7 +282,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       });
 
       // Jump to another system
-      await navigationSystem.executeJump(game, 1);
+      await game.executeJump(1);
 
       // System Info button should still be enabled
       await waitFor(() => {
@@ -681,7 +681,7 @@ describe('Quick Access Buttons Integration (React)', () => {
       expect(systemInfoBtn).not.toBeDisabled();
 
       // Even during/after jump, System Info should remain enabled
-      await navigationSystem.executeJump(game, 1);
+      await game.executeJump(1);
 
       await waitFor(() => {
         const systemInfoBtn = screen.getByText('System Info');

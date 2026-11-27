@@ -203,6 +203,17 @@ export class GameCoordinator {
           source
         ),
       checkAchievements: () => this.achievementsManager.checkAchievements(),
+      getShip: () => this.state.ship,
+      calculateShipCapabilities: () => this.calculateShipCapabilities(),
+      applyQuirkModifiers: (...args) => this.applyQuirkModifiers(...args),
+      // Read at call time: some callers attach navigationSystem after construction
+      validateJump: (...args) => this.navigationSystem.validateJump(...args),
+      updateFuel: (value) => this.updateFuel(value),
+      updateTime: (days) => this.updateTime(days),
+      updateShipCondition: (...args) => this.updateShipCondition(...args),
+      beginJump: () => this.beginJump(),
+      endJump: () => this.endJump(),
+      completeJump: (systemId) => this.completeJump(systemId),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,
@@ -869,6 +880,28 @@ export class GameCoordinator {
 
   updateLocation(newSystemId) {
     return this.navigationManager.updateLocation(newSystemId);
+  }
+
+  /**
+   * Jump to a connected system, then play the jump animation if one is
+   * attached. State is committed before the animation starts.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {Promise<{success: boolean, error: string|null}>}
+   */
+  async executeJump(targetSystemId) {
+    const fromSystemId = this.state.player.currentSystem;
+    const result = this.navigationManager.executeJump(targetSystemId);
+    if (!result.success || !this.animationSystem) {
+      return result;
+    }
+
+    await this.animationSystem.playJumpAnimation(
+      fromSystemId,
+      targetSystemId,
+      () => this.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END)
+    );
+    return result;
   }
 
   setCredits(amount) {

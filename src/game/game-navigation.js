@@ -2,7 +2,6 @@ import {
   NAVIGATION_CONFIG,
   SHIP_CONFIG,
   REPAIR_CONFIG,
-  EVENT_NAMES,
   calculateBaseJumpTime,
 } from './constants.js';
 import { getConnectedSystems as getCachedConnectedSystems } from './utils/wormhole-graph.js';
@@ -15,7 +14,6 @@ import { WORMHOLE_DATA } from './data/wormhole-data.js';
  * - Calculate distances between star systems
  * - Calculate jump time and fuel costs
  * - Validate wormhole connections
- * - Execute jump operations
  */
 export class NavigationSystem {
   constructor(starData, wormholeData) {
@@ -399,142 +397,5 @@ export class NavigationSystem {
       distance,
       jumpTime,
     };
-  }
-
-  /**
-   * Execute a jump (updates game state and triggers animation)
-   *
-   * @param {Object} gameStateManager - GameCoordinator instance
-   * @param {number} targetSystemId - Target system ID
-   * @param {Object} animationSystem - Optional JumpAnimationSystem instance
-   * @param {Object} uiManager - Optional UIManager instance for hiding/showing panels during animation
-   * @returns {Promise<Object>} { success: boolean, error: string|null }
-   */
-  async executeJump(
-    gameStateManager,
-    targetSystemId,
-    animationSystem = null,
-    uiManager = null
-  ) {
-    const state = gameStateManager.getState();
-
-    if (!state) {
-      return { success: false, error: 'No game state' };
-    }
-
-    const currentSystemId = state.player.currentSystem;
-    const currentFuel = state.ship.fuel;
-    const engineCondition = state.ship.engine;
-    const quirks = state.ship.quirks || [];
-
-    // Calculate ship capabilities (includes upgrade effects)
-    const capabilities = gameStateManager.calculateShipCapabilities();
-
-    // Validate jump with engine condition, quirk modifiers, upgrade effects, and ship condition
-    const validation = this.validateJump(
-      currentSystemId,
-      targetSystemId,
-      currentFuel,
-      engineCondition,
-      gameStateManager.applyQuirkModifiers.bind(gameStateManager),
-      quirks,
-      capabilities.fuelConsumption,
-      {
-        hull: state.ship.hull,
-        engine: state.ship.engine,
-        lifeSupport: state.ship.lifeSupport,
-      }
-    );
-
-    if (!validation.valid) {
-      return { success: false, error: validation.error };
-    }
-
-    // Execute jump: update fuel, time, and location BEFORE animation
-    // This ensures progress is saved even if animation is interrupted
-    gameStateManager.beginJump();
-    try {
-      gameStateManager.updateFuel(currentFuel - validation.fuelCost);
-      gameStateManager.updateTime(
-        state.player.daysElapsed + validation.jumpTime
-      );
-      gameStateManager.updateLocation(targetSystemId);
-
-      // Apply ship condition degradation from jump with quirk modifiers and upgrade effects
-      const degradedShip = NavigationSystem.applyJumpDegradation(
-        state.ship,
-        validation.jumpTime,
-        gameStateManager.applyQuirkModifiers.bind(gameStateManager),
-        quirks,
-        capabilities.hullDegradation,
-        capabilities.lifeSupportDrain
-      );
-      gameStateManager.updateShipCondition(
-        degradedShip.hull,
-        degradedShip.engine,
-        degradedShip.lifeSupport
-      );
-
-      // Auto-save after jump (before animation)
-      gameStateManager.saveGame();
-    } finally {
-      gameStateManager.endJump();
-    }
-    // Encounters are emitted before the animation; the UI buffers them until
-    // the animation nears its end.
-    gameStateManager.completeJump(targetSystemId);
-
-    // Hide UI panels before animation if UI manager is provided
-    let stationWasVisible = false;
-    let tradeWasVisible = false;
-    let refuelWasVisible = false;
-    let infoBrokerWasVisible = false;
-
-    if (uiManager && animationSystem) {
-      // Store panel visibility state
-      if (uiManager.isStationVisible && uiManager.isStationVisible()) {
-        stationWasVisible = true;
-        uiManager.hideStationInterface();
-      }
-
-      if (uiManager.isTradeVisible && uiManager.isTradeVisible()) {
-        tradeWasVisible = true;
-        uiManager.hideTradePanel();
-      }
-
-      if (uiManager.isRefuelVisible && uiManager.isRefuelVisible()) {
-        refuelWasVisible = true;
-        uiManager.hideRefuelPanel();
-      }
-
-      if (uiManager.isInfoBrokerVisible && uiManager.isInfoBrokerVisible()) {
-        infoBrokerWasVisible = true;
-        uiManager.hideInfoBrokerPanel();
-      }
-    }
-
-    // Play animation if animation system is provided
-    if (animationSystem) {
-      const onTravelNearEnd = () => {
-        gameStateManager.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
-      };
-      try {
-        await animationSystem.playJumpAnimation(
-          currentSystemId,
-          targetSystemId,
-          onTravelNearEnd
-        );
-      } finally {
-        // Restore UI panels after animation completes (or fails)
-        if (uiManager) {
-          if (stationWasVisible) uiManager.showStationInterface();
-          if (tradeWasVisible) uiManager.showTradePanel();
-          if (refuelWasVisible) uiManager.showRefuelPanel();
-          if (infoBrokerWasVisible) uiManager.showInfoBrokerPanel();
-        }
-      }
-    }
-
-    return { success: true, error: null };
   }
 }

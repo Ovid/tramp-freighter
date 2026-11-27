@@ -277,7 +277,7 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
 
     // Execute jump directly through GameCoordinator (no animation)
-    const result = await navigationSystem.executeJump(game, 1);
+    const result = await game.executeJump(1);
 
     expect(result.success).toBe(true);
     expect(game.state.player.currentSystem).toBe(1);
@@ -325,7 +325,7 @@ describe('Panel Animation Hide Integration (React)', () => {
     });
 
     // Try to jump to invalid system (no wormhole connection)
-    const result = await navigationSystem.executeJump(game, 50);
+    const result = await game.executeJump(50);
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('No wormhole connection');

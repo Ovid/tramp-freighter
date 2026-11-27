@@ -109,7 +109,7 @@ describe('Navigation UX Integration (React)', () => {
 
     // Step 7: Execute jump
     const initialDays = game.getPlayer().daysElapsed;
-    const result = await navSystem.executeJump(game, targetSystemId);
+    const result = await game.executeJump(targetSystemId);
 
     expect(result.success).toBe(true);
     expect(result.error).toBeNull();
@@ -169,7 +169,7 @@ describe('Navigation UX Integration (React)', () => {
       expect(validation.error).toContain('Insufficient fuel');
 
       // Attempt jump should fail
-      const result = await navSystem.executeJump(game, unreachableSystem);
+      const result = await game.executeJump(unreachableSystem);
       expect(result.success).toBe(false);
 
       // Location should not change
@@ -408,7 +408,7 @@ describe('Navigation UX Integration (React)', () => {
     const initialFuel = game.getShip().fuel;
 
     // Execute jump
-    const result = await navSystem.executeJump(game, targetSystemId);
+    const result = await game.executeJump(targetSystemId);
 
     expect(result.success).toBe(true);
 
@@ -431,7 +431,7 @@ describe('Navigation UX Integration (React)', () => {
     const initialDays = game.getPlayer().daysElapsed;
 
     // Execute jump
-    const result = await navSystem.executeJump(game, targetSystemId);
+    const result = await game.executeJump(targetSystemId);
 
     expect(result.success).toBe(true);
 

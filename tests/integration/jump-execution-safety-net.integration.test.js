@@ -63,7 +63,7 @@ describe('Jump execution safety net', () => {
     const before = structuredClone(game.getState());
     const validation = validationFor(dest);
 
-    const result = await navigationSystem.executeJump(game, dest);
+    const result = await game.executeJump(dest);
 
     const after = game.getState();
     expect(result).toEqual({ success: true, error: null });
@@ -81,7 +81,7 @@ describe('Jump execution safety net', () => {
   it('a completed jump is persisted once pending saves are flushed', async () => {
     const dest = target();
 
-    await navigationSystem.executeJump(game, dest);
+    await game.executeJump(dest);
     game.flushSave();
 
     const saved = JSON.parse(storage[SAVE_KEY]);
@@ -91,7 +91,7 @@ describe('Jump execution safety net', () => {
   it('a jump to an unconnected system fails and changes nothing', async () => {
     const before = structuredClone(game.getState());
 
-    const result = await navigationSystem.executeJump(game, UNCONNECTED);
+    const result = await game.executeJump(UNCONNECTED);
 
     expect(result.success).toBe(false);
     expect(typeof result.error).toBe('string');
@@ -105,7 +105,7 @@ describe('Jump execution safety net', () => {
   it('a jump with too little fuel fails and changes nothing', async () => {
     game.updateFuel(0);
 
-    const result = await navigationSystem.executeJump(game, target());
+    const result = await game.executeJump(target());
 
     expect(result.success).toBe(false);
     expect(game.getState().player.currentSystem).toBe(SOL);
@@ -121,7 +121,8 @@ describe('Jump execution safety net', () => {
       }),
     };
 
-    await navigationSystem.executeJump(game, dest, animationSystem);
+    game.setAnimationSystem(animationSystem);
+    await game.executeJump(dest);
 
     expect(seen).toEqual([{ from: SOL, to: dest, at: dest }]);
   });
@@ -134,12 +135,12 @@ describe('Jump execution safety net', () => {
       }),
     };
 
-    await expect(
-      navigationSystem.executeJump(game, dest, animationSystem)
-    ).rejects.toThrow('animation failure');
+    game.setAnimationSystem(animationSystem);
+    await expect(game.executeJump(dest)).rejects.toThrow('animation failure');
     expect(game.getState().player.currentSystem).toBe(dest);
 
-    const back = await navigationSystem.executeJump(game, SOL);
+    game.setAnimationSystem(null);
+    const back = await game.executeJump(SOL);
     expect(back.success).toBe(true);
     expect(game.getState().player.currentSystem).toBe(SOL);
   });
@@ -164,7 +165,7 @@ describe('Jump execution safety net', () => {
     const fuelBefore = s.ship.fuel;
     const dayBefore = s.player.daysElapsed;
 
-    await navigationSystem.executeJump(game, dest);
+    await game.executeJump(dest);
 
     expect(game.getState().ship.fuel).toBeCloseTo(fuelBefore - panelFuel);
     expect(game.getState().player.daysElapsed).toBe(dayBefore + panelDays);
