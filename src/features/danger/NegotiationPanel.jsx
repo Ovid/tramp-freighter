@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 import {
   NEGOTIATION_CONFIG,
   KARMA_CONFIG,
@@ -89,14 +91,17 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
         {/* Negotiation Context Section */}
         <div className="negotiation-section context-section">
           <h3>Situation</h3>
-          <div className="context-info">
-            <div className="pirate-demand">
-              <span className="demand-label">Pirate Demand:</span>
-              <span className="demand-value">{demandPercent}% of cargo</span>
-            </div>
-            <div className="situation-description">{pirateDescription}</div>
-            <div className="negotiation-prompt">
-              "Perhaps we can come to a more... reasonable arrangement?"
+          <div className="portrait-row">
+            <Portrait src={getPortraitUrl('pirate', encounter.threatLevel)} />
+            <div className="context-info">
+              <div className="pirate-demand">
+                <span className="demand-label">Pirate Demand:</span>
+                <span className="demand-value">{demandPercent}% of cargo</span>
+              </div>
+              <div className="situation-description">{pirateDescription}</div>
+              <div className="negotiation-prompt">
+                "Perhaps we can come to a more... reasonable arrangement?"
+              </div>
             </div>
           </div>
         </div>

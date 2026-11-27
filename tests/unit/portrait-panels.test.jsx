@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { PirateEncounterPanel } from '../../src/features/danger/PirateEncounterPanel.jsx';
+import { NegotiationPanel } from '../../src/features/danger/NegotiationPanel.jsx';
 
 vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: (eventName) => {
@@ -52,5 +53,16 @@ describe('encounter panel portraits', () => {
       />
     );
     expect(portraitSrc(container)).toBe('/portraits/pirate/strong.webp');
+  });
+
+  it('NegotiationPanel shows the portrait for its threat level', () => {
+    const { container } = render(
+      <NegotiationPanel
+        encounter={{ threatLevel: 'dangerous' }}
+        onChoice={noop}
+        onClose={noop}
+      />
+    );
+    expect(portraitSrc(container)).toBe('/portraits/pirate/dangerous.webp');
   });
 });
