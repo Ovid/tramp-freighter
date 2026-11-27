@@ -51,7 +51,7 @@ describe('Encounter trigger integration', () => {
   });
 
   it('should process jump events when a jump completes', async () => {
-    const result = await game.navigationSystem.executeJump(game, NEIGHBOUR);
+    const result = await game.executeJump(NEIGHBOUR);
 
     // Whether an encounter fires depends on the seeded roll and event data;
     // the jump must complete without the trigger checks throwing.
@@ -110,7 +110,7 @@ describe('Encounter trigger integration', () => {
 
     emitSpy.mockClear();
 
-    await game.navigationSystem.executeJump(game, NEIGHBOUR);
+    await game.executeJump(NEIGHBOUR);
 
     const encounterEmissions = emitSpy.mock.calls.filter(
       ([event]) => event === 'encounterTriggered'

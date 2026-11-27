@@ -2,6 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { useGame } from '../../context/GameContext.jsx';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { useFocusTrap } from '../../hooks/useFocusTrap.js';
+import { Portrait } from '../portraits/Portrait.jsx';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { ALL_NPCS } from '../../game/data/npc-data.js';
 import '../../../css/panel/narrative-event.css';
 
 /**
@@ -71,6 +74,8 @@ export function NarrativeEventPanel({ event, onClose }) {
   );
 
   const { content } = currentEvent;
+  // Events name their speaker by display name, so match it to an NPC for art.
+  const speakerNpc = ALL_NPCS.find((npc) => npc.name === content.speaker);
 
   // Backdrop blocks the starmap and station: the player must choose before
   // undocking or jumping. Deliberately not click-to-dismiss.
@@ -88,10 +93,15 @@ export function NarrativeEventPanel({ event, onClose }) {
         {content.speaker && (
           <div className="event-speaker">{content.speaker}</div>
         )}
-        <div className="event-text">
-          {content.text.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
-          ))}
+        <div className="portrait-row">
+          {speakerNpc && (
+            <Portrait src={getPortraitUrl('npc', speakerNpc.id)} />
+          )}
+          <div className="event-text">
+            {content.text.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
         </div>
         <div className="event-choices">
           {content.choices.map((choice, i) => (

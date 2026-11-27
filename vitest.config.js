@@ -1,9 +1,10 @@
 import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { aliases } from './shared-config.js';
+import { aliases, define } from './shared-config.js';
 
 export default defineConfig({
   plugins: [react()],
+  define,
   resolve: {
     alias: aliases,
   },

@@ -1,4 +1,5 @@
 import { BaseManager } from './base-manager.js';
+import { NavigationSystem } from '../../game-navigation.js';
 import { calculateSystemPrices } from '../../utils/calculators.js';
 import { EVENT_NAMES, INTELLIGENCE_CONFIG } from '../../constants.js';
 
@@ -17,6 +18,81 @@ export class NavigationManager extends BaseManager {
   }
 
   /**
+   * Validate a jump from the current system against live ship state. The
+   * jump itself validates through this, so a preview shows exactly what
+   * the jump will charge.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {{valid: boolean, reason: string|null, error: string|null,
+   *   fuelCost: number, distance: number, jumpTime: number}}
+   */
+  previewJump(targetSystemId) {
+    const ship = this.capabilities.getShip();
+    const { currentSystem } = this.capabilities.getOwnState();
+    return this.capabilities.validateJump(
+      currentSystem,
+      targetSystemId,
+      ship.fuel,
+      ship.engine,
+      this.capabilities.applyQuirkModifiers,
+      ship.quirks || [],
+      this.capabilities.calculateShipCapabilities().fuelConsumption,
+      { hull: ship.hull, engine: ship.engine, lifeSupport: ship.lifeSupport }
+    );
+  }
+
+  /**
+   * Validate and commit a jump: fuel, time, location and ship wear.
+   *
+   * State is committed before any animation so progress survives an
+   * interrupted animation. Encounters are rolled here too; the UI buffers
+   * them until the animation nears its end.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {{success: boolean, error: string|null}}
+   */
+  executeJump(targetSystemId) {
+    const ship = this.capabilities.getShip();
+    const quirks = ship.quirks || [];
+    const shipCapabilities = this.capabilities.calculateShipCapabilities();
+    const applyQuirkModifiers = this.capabilities.applyQuirkModifiers;
+
+    const validation = this.previewJump(targetSystemId);
+
+    if (!validation.valid) {
+      return { success: false, error: validation.error };
+    }
+
+    this.capabilities.beginJump();
+    try {
+      this.capabilities.updateFuel(ship.fuel - validation.fuelCost);
+      this.capabilities.updateTime(
+        this.capabilities.getDaysElapsed() + validation.jumpTime
+      );
+      this.updateLocation(targetSystemId);
+
+      const degraded = NavigationSystem.applyJumpDegradation(
+        ship,
+        validation.jumpTime,
+        applyQuirkModifiers,
+        quirks,
+        shipCapabilities.hullDegradation,
+        shipCapabilities.lifeSupportDrain
+      );
+      this.capabilities.updateShipCondition(
+        degraded.hull,
+        degraded.engine,
+        degraded.lifeSupport
+      );
+    } finally {
+      this.capabilities.endJump();
+    }
+    this.capabilities.completeJump(targetSystemId);
+
+    return { success: true, error: null };
+  }
+
+  /**
    * Update player location to a new system
    *
    * Tracks exploration progress and snapshots prices at arrival to prevent
@@ -26,6 +102,13 @@ export class NavigationManager extends BaseManager {
    * @throws {Error} If system ID is not found in star data
    */
   updateLocation(newSystemId) {
+    const system = this.capabilities.starData.find((s) => s.id === newSystemId);
+    if (!system) {
+      throw new Error(
+        `Invalid system ID: ${newSystemId} not found in star data`
+      );
+    }
+
     this.capabilities.setCurrentSystem(newSystemId);
 
     // Track exploration progress for future features (price discovery, missions)
@@ -47,12 +130,6 @@ export class NavigationManager extends BaseManager {
 
     // Snapshot prices at arrival to prevent intra-system arbitrage
     // Prices are locked until player leaves the system
-    const system = this.capabilities.starData.find((s) => s.id === newSystemId);
-    if (!system) {
-      throw new Error(
-        `Invalid system ID: ${newSystemId} not found in star data`
-      );
-    }
 
     const currentDay = this.capabilities.getDaysElapsed();
     const activeEvents = this.capabilities.getActiveEvents();

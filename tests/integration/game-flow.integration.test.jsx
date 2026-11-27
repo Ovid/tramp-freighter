@@ -56,7 +56,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       expect(initialState.ship.cargo.length).toBe(1); // Initial grain
 
       // Step 2: Execute a jump to Alpha Centauri (system 1)
-      const jumpResult = await navigationSystem.executeJump(game, 1);
+      const jumpResult = await game.executeJump(1);
 
       expect(jumpResult.success).toBe(true);
       expect(game.state.player.currentSystem).toBe(1);
@@ -161,7 +161,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       const initialCredits = game.state.player.credits;
 
       // Jump to a system with better grain prices
-      await navigationSystem.executeJump(game, 1);
+      await game.executeJump(1);
 
       // Sell initial grain
       const currentSystem = STAR_DATA.find((s) => s.id === 1);
@@ -193,7 +193,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.initNewGame();
 
       // Attempt to jump to a non-connected system
-      const jumpResult = await navigationSystem.executeJump(game, 50);
+      const jumpResult = await game.executeJump(50);
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('No wormhole connection');
@@ -211,7 +211,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.updateFuel(5);
 
       // Attempt to jump (requires more than 5% fuel)
-      const jumpResult = await navigationSystem.executeJump(game, 1);
+      const jumpResult = await game.executeJump(1);
 
       expect(jumpResult.success).toBe(false);
       expect(jumpResult.error).toContain('Insufficient fuel');
@@ -392,7 +392,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
       // Execute jump
-      const jumpResult = await navigationSystem.executeJump(game, 1);
+      const jumpResult = await game.executeJump(1);
 
       // If jump failed, the test should fail with a clear message
       if (!jumpResult.success) {
@@ -531,7 +531,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.buyGood('ore', 20, solOrePrice);
 
       // Step 3: Jump to Alpha Centauri
-      await navigationSystem.executeJump(game, 1);
+      await game.executeJump(1);
 
       // Step 4: Sell ore at Alpha Centauri
       const alphaSystem = STAR_DATA.find((s) => s.id === 1);
@@ -558,7 +558,7 @@ describe('Complete Game Flow Integration Tests (React)', () => {
       game.buyGood('grain', 20, alphaGrainPrice);
 
       // Step 6: Jump back to Sol
-      await navigationSystem.executeJump(game, 0);
+      await game.executeJump(0);
 
       // Step 7: Sell grain at Sol
       game.sellGood(0, 20, solGrainPrice);

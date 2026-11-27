@@ -48,7 +48,7 @@ function emissionsOf(spy, name) {
 async function jump(game, target) {
   let result;
   await act(async () => {
-    result = await game.navigationSystem.executeJump(game, target);
+    result = await game.executeJump(target);
   });
   expect(result.success).toBe(true);
 }

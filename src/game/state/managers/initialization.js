@@ -2,7 +2,7 @@ import {
   COMMODITY_TYPES,
   SHIP_CONFIG,
   SOL_SYSTEM_ID,
-  GAME_VERSION,
+  SAVE_FORMAT_VERSION,
   NEW_GAME_DEFAULTS,
   KARMA_CONFIG,
   FACTION_CONFIG,
@@ -256,7 +256,7 @@ export class InitializationManager {
    */
   initializeMetaState() {
     return {
-      version: GAME_VERSION,
+      version: SAVE_FORMAT_VERSION,
       timestamp: Date.now(),
     };
   }

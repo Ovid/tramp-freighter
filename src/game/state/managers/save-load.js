@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { UI_CONFIG, SAVE_KEY, EVENT_NAMES } from '../../constants.js';
+import { UI_CONFIG, EVENT_NAMES } from '../../constants.js';
 import {
   saveGame as saveGameToStorage,
   loadGame as loadGameFromStorage,
@@ -11,17 +11,16 @@ import {
  * SaveLoadManager - Handles game state persistence and loading
  *
  * Responsibilities:
- * - Save game state to localStorage with debouncing
+ * - Save game state to localStorage, debounced through markDirty()
  * - Load game state from localStorage with validation
  * - Handle save/load errors gracefully
  * - Support version migration
- * - Manage save debouncing to prevent performance issues
  */
 export class SaveLoadManager extends BaseManager {
   constructor(capabilities) {
     super(capabilities);
 
-    // Track last save time for debouncing
+    // Time of the last successful write, for diagnostics
     this.lastSaveTime = 0;
     this._dirtyTimer = null;
     this._isDirty = false;
@@ -73,70 +72,45 @@ export class SaveLoadManager extends BaseManager {
   }
 
   /**
-   * Save immediately, bypassing the passive debounce in saveGameToStorage.
-   * Only called from markDirty/flushSave which already handle debouncing.
+   * Write now and report the result. Shared by the debounced path and
+   * saveGame so there is one write routine.
    * @private
+   * @returns {boolean} True if the write succeeded
    */
   _forceSave() {
     const fullState = this.capabilities.getFullState();
     if (!fullState) {
-      return;
+      return false;
     }
 
-    try {
-      const now = Date.now();
-      const stateToSave = {
-        ...fullState,
-        meta: {
-          ...fullState.meta,
-          timestamp: now,
-        },
-      };
-      const saveData = JSON.stringify(stateToSave);
-      localStorage.setItem(SAVE_KEY, saveData);
-      this.lastSaveTime = now;
-      this._loadError = null;
-    } catch (error) {
-      this.error('Save failed — game progress may be lost', error);
-      this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
-        message: 'Save failed — game progress may be lost',
-      });
-    }
-  }
-
-  /**
-   * Save game state to localStorage with debouncing
-   *
-   * Implements save debouncing to prevent excessive saves (max 1 save per second).
-   * This protects against rapid state changes causing performance issues.
-   *
-   * Handles save failures gracefully by logging errors and notifying the user.
-   *
-   * @returns {boolean} True if save succeeded or was debounced, false if failed
-   */
-  saveGame() {
-    const result = saveGameToStorage(
-      this.capabilities.getFullState(),
-      this.lastSaveTime
-    );
-
+    const result = saveGameToStorage(fullState);
     if (result.success) {
       this.lastSaveTime = result.newLastSaveTime;
       this._loadError = null;
-    } else {
-      // Only show error notification if save actually failed (not just debounced)
-      const now = Date.now();
-      const timeSinceLastSave = now - this.lastSaveTime;
-
-      if (timeSinceLastSave >= UI_CONFIG.SAVE_DEBOUNCE_MS) {
-        this.error('Save failed — game progress may be lost');
-        this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
-          message: 'Save failed — game progress may be lost',
-        });
-      }
+      return true;
     }
 
-    return result.success;
+    this.error('Save failed — game progress may be lost', result.error);
+    this.capabilities.emit(EVENT_NAMES.SAVE_FAILED, {
+      message: 'Save failed — game progress may be lost',
+    });
+    return false;
+  }
+
+  /**
+   * Write the current state now, replacing any pending debounced write.
+   * Managers should call markDirty() instead; this is for callers that
+   * need the write to have happened before they continue.
+   *
+   * @returns {boolean} True if the write succeeded, false if it failed
+   */
+  saveGame() {
+    if (this._dirtyTimer) {
+      clearTimeout(this._dirtyTimer);
+      this._dirtyTimer = null;
+    }
+    this._isDirty = false;
+    return this._forceSave();
   }
 
   /**

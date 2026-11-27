@@ -31,6 +31,11 @@ vi.mock('../../src/hooks/useGameEvent', () => ({
 vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({
     repair: vi.fn(() => ({ success: true })),
+    repairAll: vi.fn(() => ({ success: true, reason: null })),
+    getRepairCost: vi.fn(() => 0),
+    getRepairAllCost: vi.fn(() => 0),
+    // The mocked player has no credits, so no standard repair is affordable
+    canAffordStandardRepair: vi.fn(() => false),
     canGetFreeRepair: vi.fn(() => ({ available: false })),
     getFreeRepair: vi.fn(),
     applyEmergencyPatch: mockApplyEmergencyPatch,
@@ -61,6 +66,7 @@ describe('Emergency Patch UI', () => {
       );
     expect(patchButtons.length).toBeGreaterThan(0);
     fireEvent.click(patchButtons[0]);
-    expect(mockApplyEmergencyPatch).toHaveBeenCalledWith('hull');
+    // No NPC discount is mocked, so the panel passes 0
+    expect(mockApplyEmergencyPatch).toHaveBeenCalledWith('hull', 0);
   });
 });

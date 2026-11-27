@@ -26,7 +26,13 @@ export function FinancePanel({ onClose }) {
   const finance = useGameEvent(EVENT_NAMES.FINANCE_CHANGED);
   const currentDay = useGameEvent(EVENT_NAMES.TIME_CHANGED);
 
-  const { getDebtInfo, borrowFromCole, makeDebtPayment } = useGameAction();
+  const {
+    getDebtInfo,
+    borrowFromCole,
+    makeDebtPayment,
+    quoteDebtPayment,
+    getDebtPaymentFee,
+  } = useGameAction();
 
   const [message, setMessage] = useState(null);
 
@@ -62,13 +68,9 @@ export function FinancePanel({ onClose }) {
     }
   };
 
-  const payAllAmount =
-    debtInfo.earlyRepaymentFeeRate > 0
-      ? Math.min(
-          Math.floor(credits / (1 + debtInfo.earlyRepaymentFeeRate)),
-          debtInfo.debt
-        )
-      : Math.min(credits, debtInfo.debt);
+  const payAllQuote = quoteDebtPayment(Math.min(credits, debtInfo.debt));
+  const payAllAmount = payAllQuote.success ? payAllQuote.amount : 0;
+  const payAllFee = payAllQuote.success ? payAllQuote.fee : 0;
   const payAll = () => handlePayment(payAllAmount);
 
   const lienPercent = Math.round(debtInfo.lienRate * 100);
@@ -147,10 +149,7 @@ export function FinancePanel({ onClose }) {
             <div className="finance-buttons">
               {COLE_DEBT_CONFIG.PAYMENT_TIERS.map((amount) => {
                 const payAmount = Math.min(amount, debtInfo.debt);
-                const fee =
-                  debtInfo.earlyRepaymentFeeRate > 0
-                    ? Math.ceil(payAmount * debtInfo.earlyRepaymentFeeRate)
-                    : 0;
+                const fee = getDebtPaymentFee(payAmount);
                 return (
                   <button
                     key={amount}
@@ -163,22 +162,14 @@ export function FinancePanel({ onClose }) {
                   </button>
                 );
               })}
-              {(() => {
-                const payAllFee =
-                  debtInfo.earlyRepaymentFeeRate > 0
-                    ? Math.ceil(payAllAmount * debtInfo.earlyRepaymentFeeRate)
-                    : 0;
-                return (
-                  <button
-                    className="station-btn"
-                    disabled={payAllAmount <= 0 || debtInfo.debt === 0}
-                    onClick={payAll}
-                  >
-                    Pay All (₡{payAllAmount.toLocaleString()}
-                    {payAllFee > 0 ? ` +₡${payAllFee} fee` : ''})
-                  </button>
-                );
-              })()}
+              <button
+                className="station-btn"
+                disabled={payAllAmount <= 0 || debtInfo.debt === 0}
+                onClick={payAll}
+              >
+                Pay All (₡{payAllAmount.toLocaleString()}
+                {payAllFee > 0 ? ` +₡${payAllFee} fee` : ''})
+              </button>
             </div>
           </div>
         )}

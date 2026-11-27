@@ -67,11 +67,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify state changes occurred before animation
@@ -95,11 +91,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify location is updated
@@ -117,11 +109,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify fuel decreased
@@ -140,11 +128,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify time advanced
@@ -171,11 +155,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify all HUD elements were updated
@@ -203,11 +183,7 @@ describe('HUD Animation State Integration', () => {
 
     // Execute jump
     await act(async () => {
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // HUD should still be visible after jump

@@ -14,6 +14,8 @@ export function useDebtActions() {
       getDebtInfo: () => game.getDebtInfo(),
       borrowFromCole: (amount) => game.borrowFromCole(amount),
       makeDebtPayment: (amount) => game.makeDebtPayment(amount),
+      quoteDebtPayment: (amount) => game.quoteDebtPayment(amount),
+      getDebtPaymentFee: (amount) => game.getDebtPaymentFee(amount),
     }),
     [game]
   );

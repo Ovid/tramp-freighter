@@ -219,6 +219,9 @@ How it is built:
     - That gives `src/game/game-information-broker.js:112` the live state, and it runs "gameState.player.credits -= cost".
     - `info-broker.js:44` then emits CREDITS_CHANGED by hand.
 - **Found by:** Coupling & Dependencies, Integration & Data, Structure & Boundaries
+- **Status:** Skipped
+- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): every cited bypass re-does the emit and markDirty, and updateCredits adds no validation, so no observable defect was found; impact is structural only (effectively Low). The implied fix (copy or freeze getState) is mis-aimed, because writes leak through live getOwnState/getShipCargo/getStats capability getters. A future fix should route writes through setters instead.
+- **Status date:** 2026-11-27 16:20 UTC
 
 ### [F-6] Repair, refuel and finance rules are duplicated between UI code and managers
 - **Category:** 9 Shotgun surgery (also 25)
@@ -229,6 +232,10 @@ How it is built:
   - `src/features/refuel/refuelUtils.js:19-21`: "return amount * pricePerPercent;".
   - `src/features/finance/FinancePanel.jsx:65-71, 149-170` re-derive the early-repayment fee that `src/game/state/managers/debt.js:214-240` computes.
 - **Found by:** Structure & Boundaries, Error Handling & Observability
+- **Status:** Fixed
+- **Status reason:** Repair pricing (fceb628): RepairManager now owns all repair pricing (getRepairAllCost, single-charge repairAll, canAffordStandardRepair), the panel shows manager prices, and the duplicate helpers in repairUtils.js are deleted. This fixed a real defect: with an NPC discount, Repair All could charge more than it showed. The refuel evidence was wrong (costs are always integers). Finance (this commit): DebtManager.quotePayment computes what makePayment will pay and charge, including reduce-to-fit, and makePayment uses it. getPaymentFee and a single isEarlyRepayment replace the duplicated fee and window rules. FinancePanel labels its tier buttons with game.getDebtPaymentFee and Pay All with game.quoteDebtPayment, so it no longer computes fees. A 200-run property test confirmed Pay All matches the panel's old formula exactly. A float edge both copies shared (33/1.1) is logged in docs/backlog.md.
+- **Status date:** 2026-11-27 16:39 UTC
+- **Status commit:** fceb628, 0f295c0
 
 ### [F-7] Jump execution lives in NavigationSystem, outside the manager layer
 - **Category:** 13 Inconsistent boundaries (also 3 Tight coupling, 26)
@@ -244,6 +251,10 @@ How it is built:
   - `src/main.jsx:62-64`.
   - `src/hooks/useNavigationActions.js:15`: `game.navigationSystem.executeJump`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies, Integration & Data
+- **Status:** Fixed
+- **Status reason:** Jump execution moved into NavigationManager.executeJump. It validates through a narrow validateJump capability and commits fuel, time, location and wear through capabilities. GameCoordinator.executeJump calls the manager and then plays the attached animation. The hook now calls game.executeJump(id). NavigationSystem.executeJump is deleted, along with the dead uiManager panel code and the redundant saveGame() (updateLocation already calls markDirty). updateLocation now checks the id before mutating. This can't be reached in play, because validateJump rejects unknown ids first. NavigationSystem keeps only its pure calculations. Not changed: main.jsx still builds the NavigationSystem and injects it.
+- **Status date:** 2026-11-27 16:23 UTC
+- **Status commit:** 2e0019b
 
 ### [F-8] Player-facing failures are swallowed into console output, and load recovery branches on error text
 - **Category:** 20 Weak error handling strategy (also 34)
@@ -261,6 +272,10 @@ How it is built:
   - `src/game/state/managers/save-load.js:169`: "if (error.message && error.message.includes('NPC'))".
   - `src/game/state/game-coordinator.js:614`: `this.state` is assigned before `_registerEventEngine`, `_emitAllStateEvents` and `checkAchievements`.
 - **Found by:** Error Handling & Observability, Integration & Data
+- **Status:** Partially fixed
+- **Status reason:** Encounter and dialogue failures now reach the player. A failed encounter resolution is dismissed with an error toast (one helper replaces the two catch blocks). A dialogue that fails to start closes with a message instead of hanging on "Loading dialogue...". A failed choice closes with a message. A dialogue action that throws now returns a warning through selectDialogueChoice, which the panel shows while the conversation continues, replacing the console.warn. The panel's unreachable catch blocks are gone. Not done, deliberately: the save-load "NPC" error-text branch and the half-restore in restoreState. A premise check found no reachable trigger for either, and F-1 already keeps the player on the title screen when a load fails.
+- **Status date:** 2026-11-27 18:10 UTC
+- **Status commit:** 2df8c47
 
 ### [F-9] The coordinator facade is bypassed even where facade methods exist
 - **Category:** 2 God object (facade variant; also 6)
@@ -271,6 +286,10 @@ How it is built:
   - `src/hooks/useEncounterProbabilities.js:20, 25`: `game.dangerManager.calculate…`. The facade already has these at `game-coordinator.js:1385-1397`.
   - `game.navigationSystem.*` from `src/features/navigation/SystemPanel.jsx:355-372`, `src/features/missions/MissionBoardPanel.jsx:41`, `src/hooks/useJumpValidation.js:25`, `src/hooks/useNavigationActions.js:15`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies
+- **Status:** Fixed
+- **Status reason:** UI code no longer reads game.navigationSystem or game.dangerManager. The danger hooks use the existing facade methods. New NavigationManager.previewJump validates a jump against live state, and executeJump validates through it, so the numbers the SystemPanel shows (jump info and connections list, via useJumpValidation and game.previewJump) come from the same call that charges the jump. The UI no longer assembles fuel, quirk and condition inputs itself. Route indicators moved from features/missions into NavigationSystem.getRouteIndicator behind game.getRouteIndicator. The facade also gained getConnectedSystems. The useNavigationActions reference went with F-7.
+- **Status date:** 2026-11-27 16:28 UTC
+- **Status commit:** 4f5b794
 
 ### [F-10] Knowledge of the state shape is copied into several hand-maintained lists that have drifted
 - **Category:** 9 Shotgun surgery (also 22, 24)
@@ -285,6 +304,9 @@ How it is built:
   - Re-emitted events: `src/game/state/game-coordinator.js:678-727` (`_emitAllStateEvents`) leaves out SHIP_NAME_CHANGED, DIALOGUE_CHANGED, NPCS_CHANGED, INTELLIGENCE_CHANGED, CURRENT_SYSTEM_CHANGED and HULL/ENGINE/LIFE_SUPPORT_CHANGED.
   - Version chain: `state-validators.js:167-189` ("GAME_VERSION === '5.0.0'") against MIGRATIONS at `game-coordinator.js:635-641`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies, Integration & Data
+- **Status:** Skipped
+- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): the missing re-emits cause no stale UI, because all game UI mounts after load and reads its initial value fresh; HULL/ENGINE/LIFE_SUPPORT are not in EVENT_STATE_MAP (SHIP_CONDITION_CHANGED covers them); every completionHistory reader guards; and the version chain agrees with MIGRATIONS. The duplication is real but costs nothing today (effectively Low). Revisit before adding saved fields or changing the save format.
+- **Status date:** 2026-11-27 16:20 UTC
 
 ### [F-11] Two save paths with different semantics, and a docstring that contradicts the code
 - **Category:** 24 Inconsistent API contracts (also 22)
@@ -292,6 +314,10 @@ How it is built:
 - **Explanation:** `markDirty()` writes 500ms after changes stop. `saveGame()` uses a separate 1s leading throttle that silently drops writes. It returns false both when it was throttled and when it failed, and its docstring says throttled returns true. Non-manager code still calls `saveGame()`, contrary to the steering files.
 - **Evidence:** `src/game/state/managers/save-load.js:34-46` (`markDirty`) and `:103-127` (`saveGame`; doc at 103: "True if save succeeded or was debounced"). `src/game/state/save-load.js:22-27`. Callers: `src/game/game-navigation.js:475`, `src/App.jsx:250`, `src/hooks/useGameAction.js:61`.
 - **Found by:** Error Handling & Observability, Integration & Data, Structure & Boundaries
+- **Status:** Fixed
+- **Status reason:** There is one write routine and one deferred path. SaveLoadManager._forceSave writes through the standalone saveGame(state), and the 1 s leading throttle, its lastSaveTime argument and UI_CONFIG.SAVE_DEBOUNCE_MS are deleted. saveGame() now cancels any pending debounced write, writes immediately, and returns true or false honestly. The docstring says so. Managers still use markDirty(). The non-manager callers are gone: game-navigation.js with F-7, App.jsx's call after updateShipName (which already calls markDirty), and the unused saveGame on useGameAction. A premise check found no write that was actually lost, because the only production caller followed a markDirty. The one throttle-only unit test was deleted.
+- **Status date:** 2026-11-27 16:34 UTC
+- **Status commit:** 1e0eda9
 
 ### [F-12] Steering files and in-code docs contradict the code
 - **Category:** 22 Configuration sprawl (documentation drift)

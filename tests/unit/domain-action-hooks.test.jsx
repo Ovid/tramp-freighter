@@ -20,10 +20,7 @@ function createMockGame() {
     getCurrentSystemPrices: vi.fn(),
     recordVisitedPrices: vi.fn(),
     calculateTradeWithholding: vi.fn(),
-    navigationSystem: {
-      executeJump: vi.fn().mockResolvedValue({ success: true }),
-    },
-    animationSystem: {},
+    executeJump: vi.fn().mockResolvedValue({ success: true }),
     refuel: vi.fn(),
     repairShipSystem: vi.fn(),
     applyEmergencyPatch: vi.fn(),
@@ -59,9 +56,10 @@ function createMockGame() {
     getDebtInfo: vi.fn(),
     borrowFromCole: vi.fn(),
     makeDebtPayment: vi.fn(),
+    quoteDebtPayment: vi.fn(),
+    getDebtPaymentFee: vi.fn(),
     dock: vi.fn(),
     undock: vi.fn(),
-    saveGame: vi.fn(),
     updateCredits: vi.fn(),
   };
 }
@@ -134,27 +132,27 @@ describe('Domain Action Hooks', () => {
       expect(Object.keys(result.current).sort()).toEqual(EXPECTED_METHODS);
     });
 
-    it('delegates executeJump to game.navigationSystem.executeJump', async () => {
+    it('delegates executeJump to game.executeJump', async () => {
       const { result } = renderHook(() => useNavigationActions(), { wrapper });
       await result.current.executeJump(42);
-      expect(mockGame.navigationSystem.executeJump).toHaveBeenCalledWith(
-        mockGame,
-        42,
-        mockGame.animationSystem
-      );
+      expect(mockGame.executeJump).toHaveBeenCalledWith(42);
     });
   });
 
   describe('useShipActions', () => {
     const EXPECTED_METHODS = [
       'applyEmergencyPatch',
+      'canAffordStandardRepair',
       'cannibalizeSystem',
       'getFuelPrice',
+      'getRepairAllCost',
+      'getRepairCost',
       'moveToHiddenCargo',
       'moveToRegularCargo',
       'purchaseUpgrade',
       'refuel',
       'repair',
+      'repairAll',
       'updateShipName',
       'validateRefuel',
     ];
@@ -178,8 +176,8 @@ describe('Domain Action Hooks', () => {
 
     it('delegates applyEmergencyPatch to game', () => {
       const { result } = renderHook(() => useShipActions(), { wrapper });
-      result.current.applyEmergencyPatch('engine');
-      expect(mockGame.applyEmergencyPatch).toHaveBeenCalledWith('engine');
+      result.current.applyEmergencyPatch('engine', 0.1);
+      expect(mockGame.applyEmergencyPatch).toHaveBeenCalledWith('engine', 0.1);
     });
 
     it('delegates cannibalizeSystem to game', () => {
@@ -424,7 +422,9 @@ describe('Domain Action Hooks', () => {
     const EXPECTED_METHODS = [
       'borrowFromCole',
       'getDebtInfo',
+      'getDebtPaymentFee',
       'makeDebtPayment',
+      'quoteDebtPayment',
     ];
 
     it('returns exactly the expected methods', () => {
@@ -464,6 +464,7 @@ describe('Domain Action Hooks', () => {
         'borrowFromCole',
         'buyGood',
         'calculateTradeWithholding',
+        'canAffordStandardRepair',
         'canGetFreeRepair',
         'canStartQuestStage',
         'cannibalizeSystem',
@@ -477,6 +478,7 @@ describe('Domain Action Hooks', () => {
         'getCompletableMissions',
         'getCurrentSystemPrices',
         'getDebtInfo',
+        'getDebtPaymentFee',
         'getEpilogueData',
         'getEpilogueStats',
         'getFreeRepair',
@@ -484,6 +486,8 @@ describe('Domain Action Hooks', () => {
         'getNarrativeFlags',
         'getQuestStage',
         'getQuestState',
+        'getRepairAllCost',
+        'getRepairCost',
         'getServiceDiscount',
         'isQuestComplete',
         'makeDebtPayment',
@@ -491,11 +495,12 @@ describe('Domain Action Hooks', () => {
         'moveToRegularCargo',
         'purchaseIntelligence',
         'purchaseUpgrade',
+        'quoteDebtPayment',
         'recordVisitedPrices',
         'refreshMissionBoard',
         'refuel',
         'repair',
-        'saveGame',
+        'repairAll',
         'sellGood',
         'undock',
         'updateCredits',
@@ -515,9 +520,6 @@ describe('Domain Action Hooks', () => {
 
       result.current.undock();
       expect(mockGame.undock).toHaveBeenCalled();
-
-      result.current.saveGame();
-      expect(mockGame.saveGame).toHaveBeenCalled();
 
       result.current.updateCredits(5000);
       expect(mockGame.updateCredits).toHaveBeenCalledWith(5000);

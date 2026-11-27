@@ -16,10 +16,7 @@ vi.mock('../../src/game/utils/wormhole-graph.js', () => ({
 }));
 
 import { getShortestPath } from '../../src/game/utils/wormhole-graph.js';
-import {
-  calculateRouteIndicator,
-  formatRouteIndicator,
-} from '../../src/features/missions/missionRouteUtils.js';
+import { formatRouteIndicator } from '../../src/features/missions/missionRouteUtils.js';
 
 const navigationSystem = new NavigationSystem(TEST_STAR_DATA, []);
 
@@ -28,7 +25,7 @@ describe('Mission Route Indicator', () => {
     vi.clearAllMocks();
   });
 
-  describe('calculateRouteIndicator', () => {
+  describe('NavigationSystem.getRouteIndicator', () => {
     it('returns hops and travel days for a direct 1-hop route', () => {
       // Sol (0) -> Alpha Centauri A (1): 1 hop, ~4.4 LY, jump time = 3 days
       getShortestPath.mockReturnValue({
@@ -37,12 +34,7 @@ describe('Mission Route Indicator', () => {
         systemNames: ['Sol', 'Alpha Centauri A'],
       });
 
-      const result = calculateRouteIndicator(
-        0,
-        1,
-        TEST_STAR_DATA,
-        navigationSystem
-      );
+      const result = navigationSystem.getRouteIndicator(0, 1);
 
       expect(result).toEqual({ hops: 1, totalDays: 3 });
     });
@@ -58,12 +50,7 @@ describe('Mission Route Indicator', () => {
         systemNames: ['Sol', 'Alpha Centauri A', 'Epsilon Eridani'],
       });
 
-      const result = calculateRouteIndicator(
-        0,
-        13,
-        TEST_STAR_DATA,
-        navigationSystem
-      );
+      const result = navigationSystem.getRouteIndicator(0, 13);
 
       expect(result).toEqual({ hops: 2, totalDays: 10 });
     });
@@ -79,12 +66,7 @@ describe('Mission Route Indicator', () => {
         systemNames: ['Sol', "Barnard's Star", 'Wolf 359'],
       });
 
-      const result = calculateRouteIndicator(
-        0,
-        5,
-        TEST_STAR_DATA,
-        navigationSystem
-      );
+      const result = navigationSystem.getRouteIndicator(0, 5);
 
       expect(result).toEqual({ hops: 2, totalDays: 9 });
     });
@@ -92,23 +74,13 @@ describe('Mission Route Indicator', () => {
     it('returns null when no route exists', () => {
       getShortestPath.mockReturnValue(null);
 
-      const result = calculateRouteIndicator(
-        0,
-        999,
-        TEST_STAR_DATA,
-        navigationSystem
-      );
+      const result = navigationSystem.getRouteIndicator(0, 999);
 
       expect(result).toBeNull();
     });
 
     it('returns null for same-system route', () => {
-      const result = calculateRouteIndicator(
-        0,
-        0,
-        TEST_STAR_DATA,
-        navigationSystem
-      );
+      const result = navigationSystem.getRouteIndicator(0, 0);
 
       // Should short-circuit before calling getShortestPath
       expect(getShortestPath).not.toHaveBeenCalled();
@@ -122,7 +94,7 @@ describe('Mission Route Indicator', () => {
         systemNames: ['Sirius A', 'Sol'],
       });
 
-      calculateRouteIndicator(7, 0, TEST_STAR_DATA, navigationSystem);
+      navigationSystem.getRouteIndicator(7, 0);
 
       expect(getShortestPath).toHaveBeenCalledWith(7, 0);
     });

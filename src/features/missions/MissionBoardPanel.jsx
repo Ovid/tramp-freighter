@@ -2,11 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useGame } from '../../context/GameContext';
-import { useStarData } from '../../hooks/useStarData';
 import { EVENT_NAMES, MISSION_CONFIG } from '../../game/constants.js';
 import { capitalizeFirst, pluralizeUnit } from '@game/utils/string-utils.js';
 import {
-  calculateRouteIndicator,
   formatRouteIndicator,
   getFeasibilityWarning,
 } from './missionRouteUtils.js';
@@ -17,7 +15,6 @@ export function MissionBoardPanel({ onClose }) {
   useGameEvent(EVENT_NAMES.QUEST_CHANGED);
   const { acceptMission, refreshMissionBoard } = useGameAction();
   const game = useGame();
-  const starData = useStarData();
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
@@ -26,7 +23,7 @@ export function MissionBoardPanel({ onClose }) {
 
   // Pre-compute route indicators for all board missions
   const routeIndicators = useMemo(() => {
-    if (!missions?.board || !starData || !game?.navigationSystem) {
+    if (!missions?.board) {
       return {};
     }
     const indicators = {};
@@ -34,16 +31,11 @@ export function MissionBoardPanel({ onClose }) {
       const destId = mission.destination?.systemId;
       const originId = mission.giverSystem;
       if (destId !== undefined && originId !== undefined) {
-        indicators[mission.id] = calculateRouteIndicator(
-          originId,
-          destId,
-          starData,
-          game.navigationSystem
-        );
+        indicators[mission.id] = game.getRouteIndicator(originId, destId);
       }
     }
     return indicators;
-  }, [missions?.board, starData, game?.navigationSystem]);
+  }, [missions?.board, game]);
 
   // Compute why each board mission can't be accepted (if any).
   // No useMemo — the computation is trivially cheap and avoiding it

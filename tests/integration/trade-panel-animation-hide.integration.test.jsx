@@ -82,11 +82,7 @@ describe('Panel Animation Hide Integration', () => {
     let result;
     await act(async () => {
       game.updateFuel(100);
-      result = await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      result = await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify jump was successful
@@ -123,11 +119,7 @@ describe('Panel Animation Hide Integration', () => {
     // Ensure player has enough fuel for jump and execute jump
     await act(async () => {
       game.updateFuel(100);
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // Verify app is still rendered
@@ -162,11 +154,8 @@ describe('Panel Animation Hide Integration', () => {
     let result;
     await act(async () => {
       game.updateFuel(100);
-      result = await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        null // No animation system
-      );
+      game.setAnimationSystem(null);
+      result = await game.executeJump(1); // Alpha Centauri
     });
 
     // Verify jump was successful
@@ -244,11 +233,7 @@ describe('Panel Animation Hide Integration', () => {
     let result1;
     await act(async () => {
       game.updateFuel(100);
-      result1 = await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      result1 = await game.executeJump(1); // Alpha Centauri;
     });
 
     expect(result1.success).toBe(true);
@@ -257,11 +242,7 @@ describe('Panel Animation Hide Integration', () => {
     let result2;
     await act(async () => {
       game.updateFuel(100);
-      result2 = await navigationSystem.executeJump(
-        game,
-        0, // Sol
-        game.animationSystem
-      );
+      result2 = await game.executeJump(0); // Sol;
     });
 
     expect(result2.success).toBe(true);
@@ -294,11 +275,7 @@ describe('Panel Animation Hide Integration', () => {
     // Execute jump with invalid system ID
     let result;
     await act(async () => {
-      result = await navigationSystem.executeJump(
-        game,
-        999, // Invalid system ID
-        game.animationSystem
-      );
+      result = await game.executeJump(999); // Invalid system ID;
     });
 
     // Verify jump failed
@@ -332,11 +309,7 @@ describe('Panel Animation Hide Integration', () => {
     // Execute jump
     await act(async () => {
       game.updateFuel(100);
-      await navigationSystem.executeJump(
-        game,
-        1, // Alpha Centauri
-        game.animationSystem
-      );
+      await game.executeJump(1); // Alpha Centauri;
     });
 
     // HUD should still be visible with updated location

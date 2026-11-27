@@ -11,13 +11,7 @@ export function useNavigationActions() {
 
   return useMemo(
     () => ({
-      executeJump: async (targetSystemId) => {
-        return await game.navigationSystem.executeJump(
-          game,
-          targetSystemId,
-          game.animationSystem
-        );
-      },
+      executeJump: (targetSystemId) => game.executeJump(targetSystemId),
     }),
     [game]
   );

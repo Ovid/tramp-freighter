@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { TEST_STAR_DATA, TEST_WORMHOLE_DATA } from '../test-data.js';
-import { GAME_VERSION } from '../../src/game/constants.js';
+import { SAVE_FORMAT_VERSION } from '../../src/game/constants.js';
 
 describe('GameCoordinator.restoreState', () => {
   let manager;
@@ -32,7 +32,7 @@ describe('GameCoordinator.restoreState', () => {
     expect(result.state).toBeDefined();
     expect(manager.state).not.toBeNull();
     expect(manager.state.player.credits).toBe(validState.player.credits);
-    expect(manager.state.meta.version).toBe(GAME_VERSION);
+    expect(manager.state.meta.version).toBe(SAVE_FORMAT_VERSION);
   });
 
   it('rejects null input', () => {
@@ -60,7 +60,7 @@ describe('GameCoordinator.restoreState', () => {
 
   it('rejects state that fails structure validation', () => {
     const result = manager.restoreState({
-      meta: { version: GAME_VERSION, timestamp: Date.now() },
+      meta: { version: SAVE_FORMAT_VERSION, timestamp: Date.now() },
       player: { credits: 'not-a-number' },
     });
     expect(result.success).toBe(false);
@@ -101,7 +101,7 @@ describe('GameCoordinator.restoreState', () => {
     const result = manager.restoreState(v1State);
 
     expect(result.success).toBe(true);
-    expect(result.state.meta.version).toBe(GAME_VERSION);
+    expect(result.state.meta.version).toBe(SAVE_FORMAT_VERSION);
     // v1 migration adds ship condition
     expect(result.state.ship.hull).toBeDefined();
     expect(result.state.ship.engine).toBeDefined();

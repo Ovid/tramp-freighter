@@ -58,6 +58,25 @@ describe('NarrativeEventPanel', () => {
     expect(screen.getByText('Captain Renn')).toBeInTheDocument();
   });
 
+  it('shows the portrait of an NPC speaker', () => {
+    const event = makeEvent();
+    event.content.speaker = 'Marcus Cole';
+    const { container } = render(
+      <NarrativeEventPanel event={event} onClose={onClose} />
+    );
+    expect(container.querySelector('img.portrait')).toHaveAttribute(
+      'src',
+      expect.stringContaining('portraits/npc/cole_sol.webp')
+    );
+  });
+
+  it('shows no portrait for a speaker who is not an NPC', () => {
+    const { container } = render(
+      <NarrativeEventPanel event={makeEvent()} onClose={onClose} />
+    );
+    expect(container.querySelector('img.portrait')).toBeNull();
+  });
+
   it('does not render speaker element when speaker is absent', () => {
     const event = makeEvent({
       content: {

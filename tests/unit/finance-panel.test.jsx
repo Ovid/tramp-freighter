@@ -15,6 +15,12 @@ vi.mock('../../src/hooks/useGameAction.js', () => ({
     getDebtInfo: mockGetDebtInfo,
     borrowFromCole: mockBorrowFromCole,
     makeDebtPayment: mockMakeDebtPayment,
+    // No fee in these fixtures, so a quote pays what was asked
+    quoteDebtPayment: (amount) =>
+      amount > 0
+        ? { success: true, amount, fee: 0 }
+        : { success: false, reason: 'Invalid payment amount' },
+    getDebtPaymentFee: () => 0,
   })),
 }));
 

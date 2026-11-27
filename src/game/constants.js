@@ -618,7 +618,9 @@ export async function initDevMode() {
 }
 
 /**
- * Game version for save compatibility
+ * Save format version. Drives save migration and compatibility checks, so
+ * bump it only when the save shape changes. The version players see comes
+ * from package.json plus the commit count (shared-config.js).
  *
  * Version history:
  * - 1.0.0: Initial release with basic trading
@@ -627,7 +629,7 @@ export async function initDevMode() {
  * - 4.0.0: NPC foundation with reputation system and dialogue
  * - 4.1.0: NPC benefits system with tips, favors, loans, and storage
  */
-export const GAME_VERSION = '5.0.0';
+export const SAVE_FORMAT_VERSION = '5.0.0';
 
 export const GAME_START_DATE = '2167-06-20';
 
@@ -1214,7 +1216,6 @@ export const UI_CONFIG = {
   ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
 
   // Save system configuration
-  SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
   MARK_DIRTY_DEBOUNCE_MS: 500, // Trailing debounce for markDirty auto-save
 
   // Mobile breakpoint (must match --breakpoint-mobile in CSS and @media queries)

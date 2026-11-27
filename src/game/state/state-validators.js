@@ -1,5 +1,5 @@
 import {
-  GAME_VERSION,
+  SAVE_FORMAT_VERSION,
   SHIP_CONFIG,
   NEW_GAME_DEFAULTS,
   COMMODITY_TYPES,
@@ -168,22 +168,22 @@ export function isVersionCompatible(saveVersion) {
   if (!saveVersion) return false;
 
   // Exact version match
-  if (saveVersion === GAME_VERSION) return true;
+  if (saveVersion === SAVE_FORMAT_VERSION) return true;
 
   // Support migration from v1.0.0 to v5.0.0
-  if (saveVersion === '1.0.0' && GAME_VERSION === '5.0.0') return true;
+  if (saveVersion === '1.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
 
   // Support migration from v2.0.0 to v5.0.0
-  if (saveVersion === '2.0.0' && GAME_VERSION === '5.0.0') return true;
+  if (saveVersion === '2.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
 
   // Support migration from v2.1.0 to v5.0.0
-  if (saveVersion === '2.1.0' && GAME_VERSION === '5.0.0') return true;
+  if (saveVersion === '2.1.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
 
   // Support migration from v4.0.0 to v5.0.0
-  if (saveVersion === '4.0.0' && GAME_VERSION === '5.0.0') return true;
+  if (saveVersion === '4.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
 
   // Support migration from v4.1.0 to v5.0.0
-  if (saveVersion === '4.1.0' && GAME_VERSION === '5.0.0') return true;
+  if (saveVersion === '4.1.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
 
   return false;
 }
@@ -1042,7 +1042,7 @@ export function migrateFromV4_1ToV5(state) {
     };
   }
 
-  state.meta.version = GAME_VERSION;
+  state.meta.version = SAVE_FORMAT_VERSION;
 
   devLog('Migration complete');
 

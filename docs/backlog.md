@@ -318,3 +318,61 @@ from `src/features/danger/transformOutcome`. After the F-4 fix this is the only
 beside the hook or accept the dependency and say so in DEVELOPMENT.md.
 
 Found during the F-4 architecture fix (2026-11-27 report).
+
+## Service-panel repair discount test never checks anything
+
+`tests/integration/service-panel-discounts.integration.test.jsx` calls
+`game.setNPCReputation`, which does not exist on GameCoordinator, and its
+RepairPanel cases look for a repair NPC at system 1 and `return` early when none
+is found. The only repair NPC is at Procyon (system 19), so those cases pass
+without asserting. Repair discounts are now covered by
+`repair-panel-charge-matches-display.integration.test.jsx`; this file should be
+fixed or the hollow cases removed.
+
+Found during the F-6 architecture fix (2026-11-27 report).
+
+## Early-repayment reduce-to-fit underpays by 1 credit on float boundaries
+
+`DebtManager.quotePayment` reduces a payment that can't cover its fee with
+`Math.floor(credits / (1 + EARLY_REPAYMENT_FEE_RATE))`. Floating point makes
+`33 / 1.1` come out as `29.999…`, so with 33 credits the player is offered ₡29
+(+₡3 fee) when ₡30 (+₡3) is affordable. The label still matches the charge; the
+player just pays slightly less than they could. An integer search for the
+largest `a` with `a + ceil(a * rate) <= credits` would fix it. The property
+test `debt-payment-quote.property.test.js` pins the old formula and would need
+its oracle updated alongside.
+
+Found during the F-6 architecture fix (2026-11-27 report).
+
+## The coordinator's updateCredits does not mark state dirty
+
+`StateManager.updateCredits` (`src/game/state/managers/state.js`) sets credits
+and emits CREDITS_CHANGED but never calls `markDirty`; every current caller
+marks dirty itself. A new caller that relies on `game.updateCredits` alone
+would lose the change on reload unless something else marks dirty first.
+
+Found while writing the F-11 safety net (2026-11-27 report).
+
+## Tests still reset lastSaveTime "to avoid debouncing"
+
+The 1 s save throttle is gone, so `lastSaveTime` is now only a record of the
+last write. `npc-extensibility.test.js`, `manager-coverage-gaps.test.js` and
+`danger-state-persistence.property.test.js` still set it to 0 with comments
+about debouncing. The resets are harmless but misleading; remove them, and
+consider dropping the `lastSaveTime` accessor from GameCoordinator if nothing
+else reads it.
+
+Found during the F-11 architecture fix (2026-11-27 report).
+
+## Critical-damage design doc says day advance triggers degradation
+
+`docs/plans/2026-02-18-critical-damage-confinement-design.md:25` says the
+emergency patch's days "advance through normal day-advance logic (triggers
+degradation, loan checks, etc.)". `EventsManager.updateTime`
+(`src/game/state/managers/events.js:95-145`) runs loan, debt, market and
+mission-deadline checks but no ship degradation. Either the doc is wrong or
+degradation was meant to happen there.
+
+Possible fix: correct the doc, unless degradation on idle days is intended.
+
+Found during rethink on `paad/code-reviews/ovid-architecture-2026-11-27-18-12-55-86f198a.md`.

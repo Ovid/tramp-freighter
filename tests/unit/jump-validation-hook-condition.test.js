@@ -1,85 +1,48 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { NavigationSystem } from '../../src/game/game-navigation.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
+import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
 
 describe('executeJump passes shipCondition to validateJump', () => {
+  let game;
+  let target;
+
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    });
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    game = new GameCoordinator(
+      STAR_DATA,
+      WORMHOLE_DATA,
+      new NavigationSystem(STAR_DATA, WORMHOLE_DATA)
+    );
+    game.isTestEnvironment = true;
+    game.initNewGame();
+    target = game.navigationSystem.getConnectedSystems(0)[0];
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
   it('should reject jump when ship hull is critically damaged', async () => {
-    const stars = [
-      { id: 0, x: 0, y: 0, z: 0, name: 'Sol' },
-      { id: 1, x: 10, y: 0, z: 0, name: 'Target' },
-    ];
-    const wormholes = [[0, 1]];
-    const nav = new NavigationSystem(stars, wormholes);
+    game.updateShipCondition(10, 50, 80);
 
-    const mockGSM = {
-      getState: () => ({
-        player: { currentSystem: 0 },
-        ship: {
-          fuel: 100,
-          engine: 50,
-          hull: 10,
-          lifeSupport: 80,
-          quirks: [],
-        },
-      }),
-      calculateShipCapabilities: () => ({
-        fuelConsumption: 1.0,
-        hullDegradation: 1.0,
-        lifeSupportDrain: 1.0,
-      }),
-      applyQuirkModifiers: vi.fn((val) => val),
-      updateFuel: vi.fn(),
-      updateTime: vi.fn(),
-      updateLocation: vi.fn(),
-      updateShipCondition: vi.fn(),
-      saveGame: vi.fn(),
-      beginJump: vi.fn(),
-      endJump: vi.fn(),
-      completeJump: vi.fn(),
-      markDirty: vi.fn(),
-    };
-
-    const result = await nav.executeJump(mockGSM, 1);
+    const result = await game.executeJump(target);
     expect(result.success).toBe(false);
     expect(result.error).toContain('Hull');
   });
 
   it('should allow jump when all systems are healthy', async () => {
-    const stars = [
-      { id: 0, x: 0, y: 0, z: 0, name: 'Sol' },
-      { id: 1, x: 10, y: 0, z: 0, name: 'Target' },
-    ];
-    const wormholes = [[0, 1]];
-    const nav = new NavigationSystem(stars, wormholes);
+    game.updateShipCondition(80, 80, 80);
 
-    const mockGSM = {
-      getState: () => ({
-        player: { currentSystem: 0 },
-        ship: {
-          fuel: 100,
-          engine: 80,
-          hull: 80,
-          lifeSupport: 80,
-          quirks: [],
-        },
-      }),
-      calculateShipCapabilities: () => ({
-        fuelConsumption: 1.0,
-        hullDegradation: 1.0,
-        lifeSupportDrain: 1.0,
-      }),
-      applyQuirkModifiers: vi.fn((val) => val),
-      updateFuel: vi.fn(),
-      updateTime: vi.fn(),
-      updateLocation: vi.fn(),
-      updateShipCondition: vi.fn(),
-      saveGame: vi.fn(),
-      beginJump: vi.fn(),
-      endJump: vi.fn(),
-      completeJump: vi.fn(),
-      markDirty: vi.fn(),
-    };
-
-    const result = await nav.executeJump(mockGSM, 1);
+    const result = await game.executeJump(target);
     expect(result.success).toBe(true);
   });
 });

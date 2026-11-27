@@ -51,10 +51,11 @@ export function SystemPanel({
   const game = useGame();
   const starData = useStarData();
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
-  const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
-  const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED) ?? [];
-  const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
+  // Subscribed so the connections list re-previews when jump inputs change
+  useGameEvent(EVENT_NAMES.FUEL_CHANGED);
+  useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
+  useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const { executeJump } = useGameAction();
   const notifications = useNotificationContext();
   const { selectStarById } = useStarmap();
@@ -66,8 +67,7 @@ export function SystemPanel({
   const headingId = useId();
   const headingRef = useRef(null);
 
-  // Jump validation via Bridge Pattern (passes shipCondition for critical damage check)
-  const validation = useJumpValidation(currentSystemId, viewingSystemId, fuel);
+  const validation = useJumpValidation(viewingSystemId);
 
   // State for danger warning dialog
   const [showDangerWarning, setShowDangerWarning] = useState(false);
@@ -233,8 +233,6 @@ export function SystemPanel({
               game={game}
               currentSystem={currentSystem}
               starData={starData}
-              shipCondition={shipCondition}
-              quirks={quirks}
               upgrades={upgrades}
               currentDay={currentDay}
               selectStarById={selectStarById}
@@ -341,45 +339,20 @@ function ConnectedSystems({
   game,
   currentSystem,
   starData,
-  shipCondition,
-  quirks,
   upgrades,
   currentDay,
   selectStarById,
 }) {
-  const capabilities = game.calculateShipCapabilities();
-  const engineCondition = shipCondition?.engine ?? 100;
   const hasAdvancedSensors = upgrades.includes('advanced_sensors');
   const idPrefix = useId();
 
-  const connectedSystems = game.navigationSystem
+  const connectedSystems = game
     .getConnectedSystems(currentSystem.id)
     .map((id) => {
       const system = starData.find((s) => s.id === id);
       if (!system) return null;
-
-      const distance = game.navigationSystem.calculateDistanceBetween(
-        currentSystem,
-        system
-      );
-      const fuelCost = game.navigationSystem.calculateFuelCostWithCondition(
-        distance,
-        engineCondition,
-        game.applyQuirkModifiers.bind(game),
-        quirks,
-        capabilities.fuelConsumption
-      );
-      const jumpTime = game.navigationSystem.calculateJumpTimeWithCondition(
-        distance,
-        engineCondition
-      );
-
-      return {
-        ...system,
-        distance,
-        fuelCost,
-        jumpTime,
-      };
+      const { distance, fuelCost, jumpTime } = game.previewJump(id);
+      return { ...system, distance, fuelCost, jumpTime };
     })
     .filter(Boolean)
     .sort((a, b) => a.distance - b.distance);

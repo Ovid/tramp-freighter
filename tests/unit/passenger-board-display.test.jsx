@@ -10,26 +10,14 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: vi.fn(),
 }));
 
+const mockGetRouteIndicator = vi.fn(() => ({ hops: 2, totalDays: 6 }));
+
 vi.mock('../../src/context/GameContext', () => ({
   useGame: vi.fn(() => ({
-    navigationSystem: {
-      calculateDistanceBetween: vi.fn(() => 4),
-      calculateJumpTime: vi.fn(() => 3),
-    },
+    getRouteIndicator: mockGetRouteIndicator,
     getCargoRemaining: vi.fn(() => 100),
     getEffectiveMissionCount: vi.fn(() => 0),
   })),
-}));
-
-vi.mock('../../src/hooks/useStarData', () => ({
-  useStarData: vi.fn(() => []),
-}));
-
-// Route utils returns no data by default since starData is empty
-vi.mock('../../src/features/missions/missionRouteUtils.js', () => ({
-  calculateRouteIndicator: vi.fn(() => null),
-  formatRouteIndicator: vi.fn(() => ''),
-  getFeasibilityWarning: vi.fn(() => null),
 }));
 
 import { useGameEvent } from '../../src/hooks/useGameEvent';
@@ -57,6 +45,13 @@ const cargoMission = {
   description: 'Standard delivery.',
   requirements: { cargo: 'grain', quantity: 15, destination: 0, deadline: 7 },
   rewards: { credits: 200 },
+};
+
+const routedMission = {
+  ...passengerMission,
+  id: 'passenger_002',
+  giverSystem: 0,
+  destination: { systemId: 13 },
 };
 
 describe('MissionBoardPanel passenger rendering', () => {
@@ -118,5 +113,12 @@ describe('MissionBoardPanel passenger rendering', () => {
     expect(screen.getByText(/Fascinating ship you have/)).toBeInTheDocument();
     // Cargo elements present (appears in title and details)
     expect(screen.getAllByText(/grain/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should show the route from the giver to the destination', () => {
+    useGameEvent.mockReturnValue({ board: [routedMission] });
+    render(<MissionBoardPanel onClose={vi.fn()} />);
+    expect(mockGetRouteIndicator).toHaveBeenCalledWith(0, 13);
+    expect(screen.getByText(/2 hops .* ~6 days travel/)).toBeInTheDocument();
   });
 });

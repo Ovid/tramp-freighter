@@ -115,7 +115,7 @@ The single most important pattern in this codebase. It connects the imperative `
 
 - **`GameContext`** (`src/context/GameContext.jsx`) — exposes `GameCoordinator` via React Context.
 - **`useGameEvent(eventName)`** (`src/hooks/useGameEvent.js`) — subscribes to a `GameCoordinator` event, triggers a re-render on fire, auto-unsubscribes on unmount. Returns the event's payload — for state-tracked events, the value extracted via `EVENT_STATE_MAP` in `src/game/constants.js`; for direct-data events (encounters, narrative), the raw payload the manager emitted.
-- **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns action methods composed from 7 domain-specific hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, `useQuestActions`, `useNPCActions`, `useDebtActions`) plus a few `GameCoordinator` lifecycle pass-throughs (`dock`, `undock`, `saveGame`, `updateCredits`). Use whichever fits: `useGameAction()` for convenience, or the feature-specific hooks when you want a narrower surface and clearer dependencies.
+- **`useGameAction()`** (`src/hooks/useGameAction.js`) — returns action methods composed from 7 domain-specific hooks (`useTradeActions`, `useShipActions`, `useNavigationActions`, `useMissionActions`, `useQuestActions`, `useNPCActions`, `useDebtActions`) plus a few `GameCoordinator` lifecycle pass-throughs (`dock`, `undock`, `updateCredits`). Use whichever fits: `useGameAction()` for convenience, or the feature-specific hooks when you want a narrower surface and clearer dependencies.
 
 **Critical rule:** Components must never call `GameCoordinator.getState()` directly during render, and must never copy game state into React `useState`. `getState()` returns a snapshot, not a subscription — values read during render won't update when the underlying state changes, so the UI silently goes stale. Copying game state into `useState` creates a second source of truth that drifts from the coordinator as soon as the coordinator mutates without going through your setter. If you see `getState()` under `src/features/`, it must be inside a `useEffect` or in a non-component helper called from an action handler — never in a render path.
 
@@ -233,9 +233,9 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 
 **Backend:** `localStorage`, single key `'trampFreighterSave'` (`SAVE_KEY` in `src/game/constants.js`). No remote sync, no IndexedDB, no file export. Private browsing breaks saves.
 
-**Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `GAME_VERSION` (currently `'5.0.0'`).
+**Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `SAVE_FORMAT_VERSION` (currently `'5.0.0'`).
 
-**Versioning and migration:** Save schema versioning is real. Migration functions live in `src/game/state/state-validators.js`; `game-coordinator.js` imports them (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `GAME_VERSION`, (b) add a new migration function in `state-validators.js`, and (c) register it in the migration chain in `game-coordinator.js` so existing saves don't break.
+**Versioning and migration:** Save schema versioning is real. Migration functions live in `src/game/state/state-validators.js`; `game-coordinator.js` imports them (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `SAVE_FORMAT_VERSION`, (b) add a new migration function in `state-validators.js`, and (c) register it in the migration chain in `game-coordinator.js` so existing saves don't break.
 
 **Error handling:**
 - Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.

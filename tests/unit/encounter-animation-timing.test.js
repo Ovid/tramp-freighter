@@ -30,16 +30,46 @@ describe('EVENT_NAMES.JUMP_ANIMATION_NEAR_END', () => {
 
 describe('executeJump near-end event', () => {
   let NavigationSystem;
+  let GameCoordinator;
+  let STAR_DATA;
+  let WORMHOLE_DATA;
 
   beforeEach(async () => {
     vi.resetModules();
     const mod = await import('@game/game-navigation.js');
     NavigationSystem = mod.NavigationSystem;
+    ({ GameCoordinator } = await import('@game/state/game-coordinator.js'));
+    ({ STAR_DATA } = await import('@game/data/star-data.js'));
+    ({ WORMHOLE_DATA } = await import('@game/data/wormhole-data.js'));
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    });
+    vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
+
+  // A real coordinator on a new game at Sol (id 0), with validation stubbed
+  // as before so the jump to id 1 always passes.
+  function buildMockGameCoordinator(onEmit = () => {}) {
+    const nav = new NavigationSystem(STAR_DATA, WORMHOLE_DATA);
+    stubNavValidation(nav, NavigationSystem);
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA, nav);
+    game.isTestEnvironment = true;
+    game.initNewGame();
+    const emit = game.emit.bind(game);
+    vi.spyOn(game, 'emit').mockImplementation((event, ...rest) => {
+      onEmit(event);
+      return emit(event, ...rest);
+    });
+    return game;
+  }
 
   it('passes onTravelNearEnd callback to playJumpAnimation', async () => {
     const mockAnimationSystem = {
@@ -48,10 +78,8 @@ describe('executeJump near-end event', () => {
 
     const mockGSM = buildMockGameCoordinator();
 
-    const nav = new NavigationSystem();
-    stubNavValidation(nav, NavigationSystem);
-
-    await nav.executeJump(mockGSM, 1, mockAnimationSystem);
+    mockGSM.setAnimationSystem(mockAnimationSystem);
+    await mockGSM.executeJump(1);
 
     // Third argument should be the near-end callback function
     expect(mockAnimationSystem.playJumpAnimation).toHaveBeenCalledWith(
@@ -75,10 +103,8 @@ describe('executeJump near-end event', () => {
       emittedEvents.push(event)
     );
 
-    const nav = new NavigationSystem();
-    stubNavValidation(nav, NavigationSystem);
-
-    await nav.executeJump(mockGSM, 1, mockAnimationSystem);
+    mockGSM.setAnimationSystem(mockAnimationSystem);
+    await mockGSM.executeJump(1);
 
     expect(emittedEvents).toContain(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
   });
@@ -89,48 +115,15 @@ describe('executeJump near-end event', () => {
       emittedEvents.push(event)
     );
 
-    const nav = new NavigationSystem();
-    stubNavValidation(nav, NavigationSystem);
-
     // No animation system — should not emit
-    await nav.executeJump(mockGSM, 1, null);
+    mockGSM.setAnimationSystem(null);
+    await mockGSM.executeJump(1);
 
     expect(emittedEvents).not.toContain(EVENT_NAMES.JUMP_ANIMATION_NEAR_END);
   });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────
-
-function buildMockGameCoordinator(onEmit = () => {}) {
-  return {
-    getState: () => ({
-      player: { currentSystem: 0, daysElapsed: 10 },
-      ship: {
-        fuel: 100,
-        hull: 100,
-        engine: 100,
-        lifeSupport: 100,
-        quirks: [],
-      },
-    }),
-    calculateShipCapabilities: () => ({
-      fuelConsumption: 1,
-      hullDegradation: 1,
-      lifeSupportDrain: 1,
-    }),
-    updateFuel: vi.fn(),
-    updateTime: vi.fn(),
-    updateLocation: vi.fn(),
-    updateShipCondition: vi.fn(),
-    saveGame: vi.fn(),
-    beginJump: vi.fn(),
-    endJump: vi.fn(),
-    completeJump: vi.fn(),
-    applyQuirkModifiers: vi.fn((_, val) => val),
-    emit: vi.fn((event) => onEmit(event)),
-    markDirty: vi.fn(),
-  };
-}
 
 function stubNavValidation(nav, NavigationSystem) {
   vi.spyOn(nav, 'validateJump').mockReturnValue({

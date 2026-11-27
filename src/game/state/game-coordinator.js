@@ -203,6 +203,17 @@ export class GameCoordinator {
           source
         ),
       checkAchievements: () => this.achievementsManager.checkAchievements(),
+      getShip: () => this.state.ship,
+      calculateShipCapabilities: () => this.calculateShipCapabilities(),
+      applyQuirkModifiers: (...args) => this.applyQuirkModifiers(...args),
+      // Read at call time: some callers attach navigationSystem after construction
+      validateJump: (...args) => this.navigationSystem.validateJump(...args),
+      updateFuel: (value) => this.updateFuel(value),
+      updateTime: (days) => this.updateTime(days),
+      updateShipCondition: (...args) => this.updateShipCondition(...args),
+      beginJump: () => this.beginJump(),
+      endJump: () => this.endJump(),
+      completeJump: (systemId) => this.completeJump(systemId),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,
@@ -871,6 +882,40 @@ export class GameCoordinator {
     return this.navigationManager.updateLocation(newSystemId);
   }
 
+  getRouteIndicator(fromSystemId, toSystemId) {
+    return this.navigationSystem.getRouteIndicator(fromSystemId, toSystemId);
+  }
+
+  getConnectedSystems(systemId) {
+    return this.navigationSystem.getConnectedSystems(systemId);
+  }
+
+  previewJump(targetSystemId) {
+    return this.navigationManager.previewJump(targetSystemId);
+  }
+
+  /**
+   * Jump to a connected system, then play the jump animation if one is
+   * attached. State is committed before the animation starts.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {Promise<{success: boolean, error: string|null}>}
+   */
+  async executeJump(targetSystemId) {
+    const fromSystemId = this.state.player.currentSystem;
+    const result = this.navigationManager.executeJump(targetSystemId);
+    if (!result.success || !this.animationSystem) {
+      return result;
+    }
+
+    await this.animationSystem.playJumpAnimation(
+      fromSystemId,
+      targetSystemId,
+      () => this.emit(EVENT_NAMES.JUMP_ANIMATION_NEAR_END)
+    );
+    return result;
+  }
+
   setCredits(amount) {
     return this.stateManager.setCredits(amount);
   }
@@ -1131,6 +1176,14 @@ export class GameCoordinator {
     return this.debtManager.makePayment(amount);
   }
 
+  quoteDebtPayment(amount) {
+    return this.debtManager.quotePayment(amount);
+  }
+
+  getDebtPaymentFee(amount) {
+    return this.debtManager.getPaymentFee(amount);
+  }
+
   calculateTradeWithholding(totalRevenue) {
     return this.debtManager.calculateWithholding(totalRevenue);
   }
@@ -1322,20 +1375,33 @@ export class GameCoordinator {
   // SHIP REPAIR SYSTEM
   // ========================================================================
 
-  getRepairCost(systemType, amount, currentCondition) {
+  getRepairCost(systemType, amount, currentCondition, discount = 0) {
     return this.repairManager.getRepairCost(
       systemType,
       amount,
-      currentCondition
+      currentCondition,
+      discount
     );
+  }
+
+  getRepairAllCost(discount = 0) {
+    return this.repairManager.getRepairAllCost(discount);
+  }
+
+  repairAll(discount = 0) {
+    return this.repairManager.repairAll(discount);
+  }
+
+  canAffordStandardRepair(systemType, discount = 0) {
+    return this.repairManager.canAffordStandardRepair(systemType, discount);
   }
 
   repairShipSystem(systemType, amount, discount = 0) {
     return this.repairManager.repairShipSystem(systemType, amount, discount);
   }
 
-  applyEmergencyPatch(systemType) {
-    return this.repairManager.applyEmergencyPatch(systemType);
+  applyEmergencyPatch(systemType, discount = 0) {
+    return this.repairManager.applyEmergencyPatch(systemType, discount);
   }
 
   cannibalizeSystem(targetType, donations) {

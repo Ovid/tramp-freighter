@@ -11,7 +11,7 @@ import {
  * as ENCOUNTER_TRIGGERED / NARRATIVE_EVENT_TRIGGERED.
  *
  * Docking, passing time and clearing debt are picked up from the event bus.
- * Jumps are not: NavigationSystem calls beginJump/endJump around its state
+ * Jumps are not: NavigationManager calls beginJump/endJump around its state
  * updates and completeJump once location and wear are applied, so a jump's
  * checks see the destination and the worn ship.
  */
