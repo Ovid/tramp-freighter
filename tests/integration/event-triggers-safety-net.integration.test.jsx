@@ -250,3 +250,154 @@ describe('Event trigger pipeline safety net', () => {
     expect(narratives.map((n) => n.id)).toEqual(['test_time']);
   });
 });
+
+describe('Event trigger pipeline safety net — generated encounters and popups', () => {
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    });
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  function chanceEvent(id, generator, chanceKey) {
+    return {
+      ...dangerEvent(id, generator),
+      trigger: { system: null, condition: null, chance: chanceKey },
+    };
+  }
+
+  it('a jump whose mechanical check fails triggers a failure encounter for the destination', async () => {
+    const game = startGame();
+    onlyEvents(game, [
+      chanceEvent('test_mech', 'mechanical_failure', 'mechanical_chance'),
+    ]);
+    vi.spyOn(
+      game.mechanicalFailureManager,
+      'checkMechanicalFailure'
+    ).mockReturnValue({ type: 'engine_failure', severity: 12 });
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    const encounters = emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED);
+    expect(encounters).toHaveLength(1);
+    expect(encounters[0].type).toBe('mechanical_failure');
+    expect(encounters[0].encounter).toMatchObject({
+      type: 'engine_failure',
+      systemId: NEIGHBOUR,
+      severity: 12,
+    });
+    expect(typeof encounters[0].encounter.id).toBe('string');
+  });
+
+  it('a jump whose mechanical check passes triggers no failure encounter', async () => {
+    const game = startGame();
+    onlyEvents(game, [
+      chanceEvent('test_mech', 'mechanical_failure', 'mechanical_chance'),
+    ]);
+    vi.spyOn(
+      game.mechanicalFailureManager,
+      'checkMechanicalFailure'
+    ).mockReturnValue(null);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    expect(emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED)).toHaveLength(
+      0
+    );
+  });
+
+  it('a jump that picks up a distress call triggers an encounter carrying that call', async () => {
+    const game = startGame();
+    onlyEvents(game, [
+      chanceEvent('test_distress', 'distress_call', 'distress_chance'),
+    ]);
+    const call = {
+      id: 'distress_test',
+      type: 'civilian_distress',
+      description: 'Engines failed',
+      options: ['respond', 'ignore', 'loot'],
+    };
+    vi.spyOn(game.distressManager, 'checkDistressCall').mockReturnValue(call);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    const encounters = emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED);
+    expect(encounters).toEqual([{ type: 'distress_call', encounter: call }]);
+  });
+
+  it('a narrative event with generated content is emitted with that content merged in', () => {
+    const game = startGame();
+    onlyEvents(game, [
+      {
+        id: 'test_generated',
+        type: 'dock',
+        category: 'narrative',
+        trigger: { system: null, condition: null, chance: 1.0 },
+        once: false,
+        cooldown: 0,
+        priority: 1,
+        content: { speaker: 'Dock hand', text: ['static'] },
+        generateContent: (state) => ({
+          text: [`Day ${Math.floor(state.player.daysElapsed)}`],
+        }),
+      },
+    ]);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    act(() => {
+      game.emit(EVENT_NAMES.DOCKED, { systemId: SOL });
+    });
+
+    const narratives = emissionsOf(
+      emitSpy,
+      EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED
+    );
+    expect(narratives).toHaveLength(1);
+    expect(narratives[0].content).toEqual({
+      speaker: 'Dock hand',
+      text: [`Day ${Math.floor(game.getState().player.daysElapsed)}`],
+    });
+  });
+
+  it('paying off the debt shows the debt-free narrative once', () => {
+    const game = startGame();
+    const emitSpy = vi.spyOn(game, 'emit');
+    const state = game.getState();
+
+    act(() => {
+      state.player.debt = 100;
+      state.player.credits = 100;
+      game.debtManager.makePayment(100);
+    });
+
+    const firstIds = emissionsOf(
+      emitSpy,
+      EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED
+    ).map((n) => n.id);
+    expect(firstIds).toEqual(['cond_debt_free']);
+
+    game.markEventFired('cond_debt_free');
+    emitSpy.mockClear();
+    act(() => {
+      game.emit(EVENT_NAMES.DEBT_CLEARED);
+    });
+
+    expect(
+      emissionsOf(emitSpy, EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED)
+    ).toHaveLength(0);
+  });
+});
