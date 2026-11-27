@@ -52,6 +52,14 @@ vi.mock('../../src/context/GameContext', () => {
     }),
     calculateShipCapabilities: () => ({ fuelConsumption: 1.0 }),
     applyQuirkModifiers: (val) => val,
+    getConnectedSystems: () => [1],
+    previewJump: () => ({
+      valid: true,
+      distance: 4.3,
+      fuelCost: 15,
+      jumpTime: 1,
+    }),
+    getDangerZone: () => 'safe',
   });
   return { useGame: hook };
 });

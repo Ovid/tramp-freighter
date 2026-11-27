@@ -286,6 +286,9 @@ How it is built:
   - `src/hooks/useEncounterProbabilities.js:20, 25`: `game.dangerManager.calculate…`. The facade already has these at `game-coordinator.js:1385-1397`.
   - `game.navigationSystem.*` from `src/features/navigation/SystemPanel.jsx:355-372`, `src/features/missions/MissionBoardPanel.jsx:41`, `src/hooks/useJumpValidation.js:25`, `src/hooks/useNavigationActions.js:15`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies
+- **Status:** Fixed
+- **Status reason:** UI code no longer reads game.navigationSystem or game.dangerManager. The danger hooks use the existing facade methods. New NavigationManager.previewJump validates a jump against live state, and executeJump validates through it, so the numbers the SystemPanel shows (jump info and connections list, via useJumpValidation and game.previewJump) come from the same call that charges the jump. The UI no longer assembles fuel, quirk and condition inputs itself. Route indicators moved from features/missions into NavigationSystem.getRouteIndicator behind game.getRouteIndicator. The facade also gained getConnectedSystems. The useNavigationActions reference went with F-7.
+- **Status date:** 2026-11-27 16:28 UTC
 
 ### [F-10] Knowledge of the state shape is copied into several hand-maintained lists that have drifted
 - **Category:** 9 Shotgun surgery (also 22, 24)

@@ -50,4 +50,35 @@ describe('Jump execution through the coordinator', () => {
     expect(after.world.visitedSystems).toEqual(before.world.visitedSystems);
     expect(after.world.priceKnowledge[99999]).toBeUndefined();
   });
+
+  it('game.previewJump reports the fuel and days the jump then charges', async () => {
+    const dest = game.navigationSystem.getConnectedSystems(SOL)[0];
+    const fuel0 = game.getState().ship.fuel;
+    const day0 = game.getState().player.daysElapsed;
+
+    const preview = game.previewJump(dest);
+    await game.executeJump(dest);
+
+    expect(preview.valid).toBe(true);
+    expect(preview.distance).toBeGreaterThan(0);
+    expect(game.getState().ship.fuel).toBeCloseTo(fuel0 - preview.fuelCost);
+    expect(game.getState().player.daysElapsed).toBe(day0 + preview.jumpTime);
+  });
+
+  it('game.getRouteIndicator gives hops and summed jump days for a route', () => {
+    const dest = game.navigationSystem.getConnectedSystems(SOL)[0];
+    const nav = game.navigationSystem;
+    const days = nav.calculateJumpTime(
+      nav.calculateDistanceBetween(
+        STAR_DATA.find((s) => s.id === SOL),
+        STAR_DATA.find((s) => s.id === dest)
+      )
+    );
+
+    expect(game.getRouteIndicator(SOL, dest)).toEqual({
+      hops: 1,
+      totalDays: days,
+    });
+    expect(game.getRouteIndicator(SOL, SOL)).toBeNull();
+  });
 });

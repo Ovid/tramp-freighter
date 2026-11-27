@@ -18,6 +18,30 @@ export class NavigationManager extends BaseManager {
   }
 
   /**
+   * Validate a jump from the current system against live ship state. The
+   * jump itself validates through this, so a preview shows exactly what
+   * the jump will charge.
+   *
+   * @param {number} targetSystemId - Destination system ID
+   * @returns {{valid: boolean, reason: string|null, error: string|null,
+   *   fuelCost: number, distance: number, jumpTime: number}}
+   */
+  previewJump(targetSystemId) {
+    const ship = this.capabilities.getShip();
+    const { currentSystem } = this.capabilities.getOwnState();
+    return this.capabilities.validateJump(
+      currentSystem,
+      targetSystemId,
+      ship.fuel,
+      ship.engine,
+      this.capabilities.applyQuirkModifiers,
+      ship.quirks || [],
+      this.capabilities.calculateShipCapabilities().fuelConsumption,
+      { hull: ship.hull, engine: ship.engine, lifeSupport: ship.lifeSupport }
+    );
+  }
+
+  /**
    * Validate and commit a jump: fuel, time, location and ship wear.
    *
    * State is committed before any animation so progress survives an
@@ -29,21 +53,11 @@ export class NavigationManager extends BaseManager {
    */
   executeJump(targetSystemId) {
     const ship = this.capabilities.getShip();
-    const { currentSystem } = this.capabilities.getOwnState();
     const quirks = ship.quirks || [];
     const shipCapabilities = this.capabilities.calculateShipCapabilities();
     const applyQuirkModifiers = this.capabilities.applyQuirkModifiers;
 
-    const validation = this.capabilities.validateJump(
-      currentSystem,
-      targetSystemId,
-      ship.fuel,
-      ship.engine,
-      applyQuirkModifiers,
-      quirks,
-      shipCapabilities.fuelConsumption,
-      { hull: ship.hull, engine: ship.engine, lifeSupport: ship.lifeSupport }
-    );
+    const validation = this.previewJump(targetSystemId);
 
     if (!validation.valid) {
       return { success: false, error: validation.error };

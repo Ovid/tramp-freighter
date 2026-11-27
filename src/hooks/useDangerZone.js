@@ -12,5 +12,5 @@ import { useGame } from '../context/GameContext';
  */
 export function useDangerZone(systemId) {
   const game = useGame();
-  return game.dangerManager.getDangerZone(systemId);
+  return game.getDangerZone(systemId);
 }

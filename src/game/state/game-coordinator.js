@@ -882,6 +882,18 @@ export class GameCoordinator {
     return this.navigationManager.updateLocation(newSystemId);
   }
 
+  getRouteIndicator(fromSystemId, toSystemId) {
+    return this.navigationSystem.getRouteIndicator(fromSystemId, toSystemId);
+  }
+
+  getConnectedSystems(systemId) {
+    return this.navigationSystem.getConnectedSystems(systemId);
+  }
+
+  previewJump(targetSystemId) {
+    return this.navigationManager.previewJump(targetSystemId);
+  }
+
   /**
    * Jump to a connected system, then play the jump animation if one is
    * attached. State is committed before the animation starts.

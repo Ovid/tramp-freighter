@@ -3,10 +3,7 @@ import { render, renderHook, screen } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext';
 import { SystemPanel } from '../../src/features/navigation/SystemPanel';
 import { MissionBoardPanel } from '../../src/features/missions/MissionBoardPanel';
-import {
-  calculateRouteIndicator,
-  formatRouteIndicator,
-} from '../../src/features/missions/missionRouteUtils';
+import { formatRouteIndicator } from '../../src/features/missions/missionRouteUtils';
 import { useDangerZone } from '../../src/hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../src/hooks/useEncounterProbabilities';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
@@ -102,14 +99,7 @@ describe('UI game reads safety net', () => {
 
     const board = game.getState().missions.board;
     const expected = board
-      .map((m) =>
-        calculateRouteIndicator(
-          m.giverSystem,
-          m.destination?.systemId,
-          STAR_DATA,
-          nav
-        )
-      )
+      .map((m) => nav.getRouteIndicator(m.giverSystem, m.destination?.systemId))
       .filter(Boolean)
       .map(formatRouteIndicator);
     expect(expected.length).toBeGreaterThan(0);
