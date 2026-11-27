@@ -1362,6 +1362,10 @@ export class GameCoordinator {
     return this.saveLoadManager.loadGame();
   }
 
+  getLoadError() {
+    return this.saveLoadManager.getLoadError();
+  }
+
   hasSavedGame() {
     return this.saveLoadManager.hasSavedGame();
   }

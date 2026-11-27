@@ -140,6 +140,10 @@ How it is built:
   - `src/features/title-screen/TitleScreen.jsx:29` and `src/game/state/save-load.js:83-87`: `hasSavedGame()` only checks that the key exists.
   - `src/App.jsx:229-242` (`handleStartGame`): "game.loadGame();" with the return value unused, followed by `setViewMode(VIEW_MODES.ORBIT)`.
 - **Found by:** Error Handling & Observability, Security & Code Quality, Integration & Data
+- **Status:** Fixed
+- **Status reason:** SaveLoadManager now records why a save was rejected (`getLoadError()`, cleared on a successful load or write). The title screen shows that reason in place of Continue, so the player is never dropped into a fresh game that later overwrites the save; New Game still confirms before replacing it.
+- **Status date:** 2026-11-27 11:47 UTC
+- **Status commit:** 2becc27
 
 ### [F-2] The encounter and event trigger pipeline lives in a React hook and depends on emit order
 - **Category:** 13 Inconsistent boundaries (also 27 Temporal coupling)
