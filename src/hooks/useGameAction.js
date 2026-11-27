@@ -57,9 +57,6 @@ export function useGameAction() {
       /** Undock from current system's station */
       undock: () => game.undock(),
 
-      /** Save the game */
-      saveGame: () => game.saveGame(),
-
       /** Update player credits */
       updateCredits: (newCredits) => game.updateCredits(newCredits),
     }),

@@ -1214,7 +1214,6 @@ export const UI_CONFIG = {
   ANIMATION_POLL_INTERVAL: 100, // Milliseconds between animation state checks
 
   // Save system configuration
-  SAVE_DEBOUNCE_MS: 1000, // Minimum milliseconds between save operations
   MARK_DIRTY_DEBOUNCE_MS: 500, // Trailing debounce for markDirty auto-save
 
   // Mobile breakpoint (must match --breakpoint-mobile in CSS and @media queries)

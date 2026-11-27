@@ -73,9 +73,7 @@ describe('Save paths safety net', () => {
     game.updateCredits(4321);
     game.saveGame();
 
-    vi.advanceTimersByTime(
-      Math.max(UI_CONFIG.SAVE_DEBOUNCE_MS, UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS) + 1
-    );
+    vi.advanceTimersByTime(UI_CONFIG.MARK_DIRTY_DEBOUNCE_MS + 1);
 
     expect(saved().ship.name).toBe('First');
     expect(saved().player.credits).toBe(4321);

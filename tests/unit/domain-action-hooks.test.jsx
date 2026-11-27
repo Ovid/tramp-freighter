@@ -58,7 +58,6 @@ function createMockGame() {
     makeDebtPayment: vi.fn(),
     dock: vi.fn(),
     undock: vi.fn(),
-    saveGame: vi.fn(),
     updateCredits: vi.fn(),
   };
 }
@@ -496,7 +495,6 @@ describe('Domain Action Hooks', () => {
         'refuel',
         'repair',
         'repairAll',
-        'saveGame',
         'sellGood',
         'undock',
         'updateCredits',
@@ -516,9 +514,6 @@ describe('Domain Action Hooks', () => {
 
       result.current.undock();
       expect(mockGame.undock).toHaveBeenCalled();
-
-      result.current.saveGame();
-      expect(mockGame.saveGame).toHaveBeenCalled();
 
       result.current.updateCredits(5000);
       expect(mockGame.updateCredits).toHaveBeenCalledWith(5000);

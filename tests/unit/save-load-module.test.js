@@ -36,30 +36,17 @@ describe('save-load module', () => {
     it('should save game state to localStorage', () => {
       const testState = createTestState();
 
-      const result = saveGame(testState, 0);
+      const result = saveGame(testState);
 
       expect(result.success).toBe(true);
       expect(result.newLastSaveTime).toBeGreaterThan(0);
       expect(localStorage.getItem('trampFreighterSave')).not.toBeNull();
     });
 
-    it('should debounce saves within 1 second', () => {
-      const testState = createTestState();
-
-      // First save should succeed
-      const firstResult = saveGame(testState, 0);
-      expect(firstResult.success).toBe(true);
-
-      // Immediate second save should be debounced
-      const secondResult = saveGame(testState, firstResult.newLastSaveTime);
-      expect(secondResult.success).toBe(false);
-      expect(secondResult.newLastSaveTime).toBe(firstResult.newLastSaveTime);
-    });
-
     it('should return false if state is null', () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = saveGame(null, 0);
+      const result = saveGame(null);
       expect(result.success).toBe(false);
     });
   });
@@ -69,7 +56,7 @@ describe('save-load module', () => {
       const testState = createTestState();
 
       // Save first
-      saveGame(testState, 0);
+      saveGame(testState);
 
       // Then load
       const loadedState = loadGame();
@@ -95,7 +82,7 @@ describe('save-load module', () => {
     it('should return true if save exists', () => {
       const testState = createTestState();
 
-      saveGame(testState, 0);
+      saveGame(testState);
       expect(hasSavedGame()).toBe(true);
     });
 
@@ -109,7 +96,7 @@ describe('save-load module', () => {
       const testState = createTestState();
 
       // Save first
-      saveGame(testState, 0);
+      saveGame(testState);
       expect(hasSavedGame()).toBe(true);
 
       // Clear

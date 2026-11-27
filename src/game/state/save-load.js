@@ -1,33 +1,23 @@
-import { SAVE_KEY, UI_CONFIG } from '../constants.js';
+import { SAVE_KEY } from '../constants.js';
 import { devLog } from '../utils/dev-logger.js';
 
 /**
- * Save game state to localStorage with debouncing
+ * Write game state to localStorage now, stamping meta.timestamp.
  *
- * Implements save debouncing to prevent excessive saves (max 1 save per second).
- * This protects against rapid state changes causing performance issues.
- *
- * Creates a new state object with updated timestamp without mutating the input.
+ * Does not mutate the input. Callers own scheduling: managers call
+ * markDirty(), which debounces before writing through here.
  *
  * @param {Object} state - Complete game state to save
- * @param {number} lastSaveTime - Timestamp of last save (milliseconds since epoch)
- * @returns {Object} { success: boolean, newLastSaveTime: number }
+ * @returns {{success: boolean, newLastSaveTime: number|null, error?: Error}}
  */
-export function saveGame(state, lastSaveTime) {
+export function saveGame(state) {
   if (!state) {
     console.error('Cannot save: no game state exists');
-    return { success: false, newLastSaveTime: lastSaveTime };
-  }
-
-  // Debounce: skip save if less than 1 second since last save
-  const now = Date.now();
-  if (now - lastSaveTime < UI_CONFIG.SAVE_DEBOUNCE_MS) {
-    devLog('Save debounced (too soon since last save)');
-    return { success: false, newLastSaveTime: lastSaveTime };
+    return { success: false, newLastSaveTime: null };
   }
 
   try {
-    // Create new state object with updated timestamp (avoid mutation)
+    const now = Date.now();
     const stateToSave = {
       ...state,
       meta: {
@@ -35,14 +25,12 @@ export function saveGame(state, lastSaveTime) {
         timestamp: now,
       },
     };
-    const saveData = JSON.stringify(stateToSave);
-    localStorage.setItem(SAVE_KEY, saveData);
+    localStorage.setItem(SAVE_KEY, JSON.stringify(stateToSave));
 
     devLog('Game saved successfully');
     return { success: true, newLastSaveTime: now };
   } catch (error) {
-    console.error('Failed to save game:', error);
-    return { success: false, newLastSaveTime: lastSaveTime };
+    return { success: false, newLastSaveTime: null, error };
   }
 }
 

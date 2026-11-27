@@ -243,8 +243,6 @@ export default function App({ devMode = false }) {
   const handleShipNamed = (shipName) => {
     // Update ship name in game state
     game.updateShipName(shipName);
-    // Save game with ship name
-    game.saveGame();
     // Transition to game
     setViewMode(VIEW_MODES.ORBIT);
     setShowInstructions(true);
