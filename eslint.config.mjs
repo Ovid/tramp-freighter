@@ -59,6 +59,8 @@ export default [
         ...globals.es2021,
         // Allow process for environment detection
         process: 'readonly',
+        // Version injected by Vite's define (shared-config.js)
+        __APP_VERSION__: 'readonly',
       },
     },
     settings: {

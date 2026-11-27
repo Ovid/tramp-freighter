@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { aliases } from './shared-config.js';
+import { aliases, define } from './shared-config.js';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.VITE_BASE_PATH || '/',
   plugins: [react()],
+  define,
   resolve: {
     alias: aliases,
   },

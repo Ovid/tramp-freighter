@@ -1,4 +1,20 @@
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import path from 'path';
+
+// Major.minor come from package.json and are bumped by hand for releases.
+// The patch is the git commit count, so it rises on every commit without
+// anyone remembering to bump it. A shallow clone undercounts it.
+function appVersion() {
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
+  const [major, minor] = version.split('.');
+  const commits = execSync('git rev-list --count HEAD').toString().trim();
+  return `${major}.${minor}.${commits}`;
+}
+
+export const define = {
+  __APP_VERSION__: JSON.stringify(appVersion()),
+};
 
 /**
  * Shared configuration for Vite and Vitest.

@@ -67,10 +67,11 @@ describe('Property: Title screen displays on load', () => {
         const buttons = menuButtons.querySelectorAll('.menu-btn');
         expect(buttons.length).toBeGreaterThan(0);
 
-        // Verify version number is displayed
+        // The patch number is the commit count, so it rises on every commit
+        // without anyone remembering to bump it
         const menuVersion = container.querySelector('.menu-version');
         expect(menuVersion).toBeTruthy();
-        expect(menuVersion.textContent).toMatch(/^v\d+\.\d+\.\d+$/);
+        expect(menuVersion.textContent).toMatch(/^v\d+\.\d+\.[1-9]\d*$/);
       }),
       { numRuns: 100 }
     );

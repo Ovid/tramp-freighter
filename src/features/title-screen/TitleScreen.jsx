@@ -10,7 +10,6 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ConfirmModal } from '../../components/Modal';
-import { GAME_VERSION } from '../../game/constants';
 
 /**
  * TitleScreen component that displays the game title and menu options.
@@ -87,7 +86,7 @@ export function TitleScreen({ onStartGame }) {
         </div>
 
         <div className="menu-footer">
-          <div className="menu-version">v{GAME_VERSION}</div>
+          <div className="menu-version">v{__APP_VERSION__}</div>
         </div>
       </div>
 

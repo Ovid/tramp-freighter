@@ -233,9 +233,9 @@ The save system is the only persistence mechanism. Treat it as load-bearing.
 
 **Backend:** `localStorage`, single key `'trampFreighterSave'` (`SAVE_KEY` in `src/game/constants.js`). No remote sync, no IndexedDB, no file export. Private browsing breaks saves.
 
-**Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `GAME_VERSION` (currently `'5.0.0'`).
+**Format:** The full state tree is serialized as JSON. Each save includes `meta.timestamp` (epoch ms) and is tagged with the current `SAVE_FORMAT_VERSION` (currently `'5.0.0'`).
 
-**Versioning and migration:** Save schema versioning is real. Migration functions live in `src/game/state/state-validators.js`; `game-coordinator.js` imports them (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `GAME_VERSION`, (b) add a new migration function in `state-validators.js`, and (c) register it in the migration chain in `game-coordinator.js` so existing saves don't break.
+**Versioning and migration:** Save schema versioning is real. Migration functions live in `src/game/state/state-validators.js`; `game-coordinator.js` imports them (`migrateFromV1ToV2`, `migrateFromV2ToV2_1`, `migrateFromV2_1ToV4`, `migrateFromV4ToV4_1`, `migrateFromV4_1ToV5`) and applies them in sequence on load via `restoreState()`. When you ship a state-shape change, you must (a) bump `SAVE_FORMAT_VERSION`, (b) add a new migration function in `state-validators.js`, and (c) register it in the migration chain in `game-coordinator.js` so existing saves don't break.
 
 **Error handling:**
 - Save failures emit `EVENT_NAMES.SAVE_FAILED` and log via the manager's `error()` method. The game does not stop.
