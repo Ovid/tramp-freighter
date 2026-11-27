@@ -69,8 +69,13 @@ No new game-state reads: every key is already a prop or encounter field.
 1. `getPortraitUrl` builds the path with `BASE_URL`.
 2. `<Portrait>` renders `<img alt="">`; renders nothing after an `error` event.
 3. Asset completeness: a file exists in `public/portraits/` for every NPC in
-   `npc-data.js`, every threat level, plus `inspection` and `distress`. The
+   `ALL_NPCS`, every threat level, plus `inspection` and `distress`. The
    fallback hides missing art at runtime, so this test is what catches rename
    typos or renamed threat levels. Adding an NPC without art fails it on
-   purpose.
+   purpose. Threat levels are not hardcoded in the test: it builds one game
+   state per level from `THREAT_LEVEL_CONFIG` thresholds (very high cargo
+   value, high cargo value, a neutral default state, very negative outlaw
+   rep), runs
+   each through `determineThreatLevel`, and asserts `pirate/<result>.webp`
+   exists. A rename in the calculator then fails the test.
 4. One render assertion per wired panel (correct `src`).
