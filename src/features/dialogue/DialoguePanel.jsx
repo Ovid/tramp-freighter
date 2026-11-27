@@ -3,6 +3,8 @@ import { useDialogue } from '../../hooks/useDialogue';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { Modal } from '../../components/Modal.jsx';
 import { CargoStoragePicker } from '../cargo-storage/CargoStoragePicker.jsx';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 
 // selectChoice returns no message when the call throws
 const PICKER_FALLBACK_ERROR = 'Something went wrong. Please try again.';
@@ -216,8 +218,11 @@ export function DialoguePanel({ npcId, onClose }) {
       {/* Dialogue Content */}
       <div className="dialogue-content">
         {/* NPC Dialogue Text */}
-        <div className="dialogue-text">
-          <p>{dialogueDisplay.text}</p>
+        <div className="portrait-row">
+          <Portrait src={getPortraitUrl('npc', npcId)} />
+          <div className="dialogue-text">
+            <p>{dialogueDisplay.text}</p>
+          </div>
         </div>
 
         {/* Player Response Choices */}
