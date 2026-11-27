@@ -121,7 +121,8 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **No text, logos, UI frames, borders or watermarks**, apart from the "0"
   noted above.
 - **File names:** as given in each entry. Portraits use a role name; scenes
-  use `scene_` plus the event id.
+  use `scene_` plus the event id. Source art goes in `images/narrative/`;
+  `scripts/build-portraits.sh` builds `public/portraits/narrative/*.webp`.
 
 ---
 
