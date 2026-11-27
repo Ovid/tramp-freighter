@@ -205,27 +205,6 @@ fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
 
-## "Continue" after a rejected save starts a fresh game and overwrites the save
-
-When `loadGame()` rejects a save (bad JSON, incompatible version, failed
-validation), `src/main.jsx` falls back to `initNewGame()` and only logs in dev
-mode. `TitleScreen` still offers Continue because `hasSavedGame()` only checks
-that the key exists. `handleStartGame` in `src/App.jsx` ignores the return
-value of `game.loadGame()`, goes straight to ORBIT (skipping ship naming), and
-the first `markDirty()` overwrites the unreadable save.
-
-Found during the 2026-11-27 architecture review (F-1).
-
-## Combat panels show different evasion odds from the resolver
-
-`CombatPanel.jsx` and `PirateEncounterPanel.jsx` add
-`COMBAT_CONFIG.ENGINE_PENALTY_VALUE` when the engine is degraded, but
-`CombatManager.resolveEvasiveManeuvers` (`managers/combat.js`) never applies
-it. The resolver subtracts `encounter.strengthModifier`, which neither panel
-includes, so displayed odds are wrong after an escalation.
-
-Found during the 2026-11-27 architecture review (F-3).
-
 ## Refuel charges credits before a check that can throw
 
 `refuel()` in `src/game/state/managers/refuel.js` calls `updateCredits` before
@@ -245,14 +224,6 @@ install and remove have none). The quest path in `game-coordinator.js` copies
 the array. `trading.js` does the same with `priceKnowledge`.
 
 Found during the 2026-11-27 architecture review (F-19).
-
-## Salvage merge mutates a live cargo stack
-
-`applyEncounterOutcome.js` copies the cargo array shallowly, then does
-`existingStack.qty += qtyToAdd` on the stored object before `updateCargo`
-runs, so the stored state changes outside the manager.
-
-Found during the 2026-11-27 architecture review (F-4).
 
 ## `saveGame()` docstring contradicts its return value
 
@@ -303,21 +274,12 @@ Found during the 2026-11-27 rethink of the F-1 fix options.
 
 ## Dev admin panel hand-builds encounter payloads
 
-`DevAdminPanel.jsx` (~331-405) calls the danger chance calculators and emits
+`DevAdminPanel.jsx` (~340-405) calls the danger chance calculators and emits
 `ENCOUNTER_TRIGGERED` with its own payloads (`threatLevel: 'moderate'`
-hard-coded), duplicating the generator shapes in `useEventTriggers.js`. They
+hard-coded), duplicating the shapes built by
+`EncounterTriggerManager.generateEncounter` (`managers/encounter-trigger.js`). They
 will drift from the real encounter shapes. Possible fix: have the panel ask the
 same generator the trigger pipeline uses.
-
-Found during rethink on the F-2 architecture fix (2026-11-27 report).
-
-## New Game after the credits runs a jump encounter check at Sol
-
-`useEventTriggers` leaves `lastSystemRef` at Delta Pavonis after victory
-(it is set before the victory early-return). Return to Title and New Game then
-emit `LOCATION_CHANGED` for Sol, which the hook treats as a real jump and rolls
-pirate/inspection/mechanical/distress checks on day 0. Resolved by F-2 option 1
-if chosen (jump checks become an explicit call from `executeJump`).
 
 Found during rethink on the F-2 architecture fix (2026-11-27 report).
 
@@ -333,8 +295,8 @@ Found during the F-2 architecture fix (2026-11-27 report).
 
 ## Kidnap penalties apply even when abandoning the passenger mission fails
 
-In `src/features/danger/applyEncounterOutcome.js`, `costs.kidnappedPassengerId`
-calls `abandonMission` and then applies the faction and karma penalties
+In `OutcomeManager` (`src/game/state/managers/outcome.js`, ~134-143),
+`costs.kidnappedPassengerId` calls `abandonMission` and then applies the faction and karma penalties
 regardless of its `{success: false}` result (missing or non-abandonable
 mission). Decide whether the penalties should depend on the abandon succeeding.
 
