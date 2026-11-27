@@ -157,7 +157,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** New EncounterTriggerManager (game layer) owns all trigger rules; it subscribes to dock, time and debt-cleared events, and executeJump calls it explicitly after location and jump wear are applied, so jump checks (including the jump's time check) see the destination and the worn ship (developer-approved behaviour change). The LOCATION_CHANGED skip-first heuristic and useEventTriggers hook are gone; trigger errors are logged and cannot fail a jump. Threat escalation is a pure escalateEncounter() with its table in constants, and the hook stores the escalated copy instead of mutating React state.
 - **Status date:** 2026-11-27 12:22 UTC
-- **Status commit:** 4cee63c
+- **Status commit:** 790f521
 
 ### [F-3] The combat odds shown to the player differ from the odds the resolver uses
 - **Category:** 25 Business logic in the UI (also 9 Shotgun surgery)
