@@ -109,3 +109,33 @@ would have introduced a bug.
 - Before estimating test churn for moving a free function behind the facade,
   grep for partial mock games, `vi.spyOn(game, ...)` on the callees, and
   `vi.mock` of the module path, not just direct call sites.
+
+## 2026-11-27 — Review S1/S2 (post-jump condition warning, dev teleport)
+
+**Verdict:** Lucky, with a mislabelled option. Both recommendations held, but
+the load-bearing premise ("only one narrative popup shows per jump") was
+asserted from a code comment before React batching and the synchronous jump
+path were checked.
+
+**What went wrong:**
+- "Only the last narrative is shown" came from the comment in
+  `encounter-trigger.js`, not from `useGameEvent`, the App narrative effect and
+  `executeJump`'s pre-`await` section. It holds only because every emit lands
+  in one synchronous run under React 18 batching; a narrative emitted in a
+  later render is held and shown after the current one closes.
+- Labelled an option "exact old behaviour" without checking timing. On main
+  the jump-time checks ran at the ORIGIN system and before jump wear, so no
+  option on the branch reproduces the old behaviour exactly.
+- Described "call completeJump on teleport" as "behaves like the old teleport";
+  it also runs a time check the old teleport never ran, and has no
+  same-system skip.
+
+**Guidance for future sessions:**
+- Before claiming a player sees only one of several emitted events, check the
+  receiving hook (setState of latest payload?), the consumer's guard, and
+  whether the emits share one synchronous tick. Do not cite a code comment as
+  proof.
+- Before calling an option "the old behaviour", diff the event ORDER and the
+  state each check saw (location, wear, day) on main versus the branch.
+- When an option reuses an existing method for a new caller, list every check
+  that method runs and compare it to what the old caller ran.
