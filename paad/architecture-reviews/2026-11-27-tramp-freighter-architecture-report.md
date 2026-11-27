@@ -254,7 +254,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** Jump execution moved into NavigationManager.executeJump. It validates through a narrow validateJump capability and commits fuel, time, location and wear through capabilities. GameCoordinator.executeJump calls the manager and then plays the attached animation. The hook now calls game.executeJump(id). NavigationSystem.executeJump is deleted, along with the dead uiManager panel code and the redundant saveGame() (updateLocation already calls markDirty). updateLocation now checks the id before mutating. This can't be reached in play, because validateJump rejects unknown ids first. NavigationSystem keeps only its pure calculations. Not changed: main.jsx still builds the NavigationSystem and injects it.
 - **Status date:** 2026-11-27 16:23 UTC
-- **Status commit:** e9f2ef9
+- **Status commit:** 2e0019b
 
 ### [F-8] Player-facing failures are swallowed into console output, and load recovery branches on error text
 - **Category:** 20 Weak error handling strategy (also 34)
