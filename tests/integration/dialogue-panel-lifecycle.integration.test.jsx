@@ -357,4 +357,47 @@ describe('DialoguePanel Lifecycle', () => {
       expect(mockOnClose).not.toHaveBeenCalled();
     });
   });
+
+  describe('Failure handling', () => {
+    it('closes the panel and clears dialogue when a choice throws', async () => {
+      vi.spyOn(game, 'selectDialogueChoice').mockRejectedValue(
+        new Error('choice failure')
+      );
+
+      render(
+        <GameProvider game={game}>
+          <DialoguePanel npcId="chen_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+      await waitFor(() => {
+        expect(screen.getByText('Wei Chen')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('Nothing right now. Take care.'));
+
+      await waitFor(() => {
+        expect(mockOnClose).toHaveBeenCalled();
+      });
+      expect(game.getState().dialogue.isActive).toBe(false);
+    });
+
+    it('still lets the player close the panel when the dialogue fails to start', async () => {
+      vi.spyOn(game, 'startDialogue').mockRejectedValue(
+        new Error('start failure')
+      );
+
+      render(
+        <GameProvider game={game}>
+          <DialoguePanel npcId="chen_barnards" onClose={mockOnClose} />
+        </GameProvider>
+      );
+      await waitFor(() => {
+        expect(game.startDialogue).toHaveBeenCalled();
+      });
+
+      fireEvent.click(screen.getByLabelText('Close'));
+
+      expect(mockOnClose).toHaveBeenCalled();
+    });
+  });
 });

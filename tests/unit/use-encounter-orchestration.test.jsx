@@ -488,6 +488,56 @@ describe('useEncounterOrchestration', () => {
       expect(setViewMode).toHaveBeenCalledWith('ORBIT');
     });
 
+    it('returns to orbit when a combat-phase resolution throws', () => {
+      mockGame.resolveCombatChoice.mockImplementation(() => {
+        throw new Error('Combat engine failure');
+      });
+
+      const { result } = renderOrchestrationHook();
+      act(() => {
+        result.current.handleEncounterTriggered(makePirateEncounter());
+      });
+      act(() => {
+        result.current.handleEncounterChoice('fight');
+      });
+      setViewMode.mockClear();
+
+      act(() => {
+        result.current.handleEncounterChoice('return_fire');
+      });
+
+      expect(result.current.currentEncounter).toBeNull();
+      expect(result.current.encounterOutcome).toBeNull();
+      expect(result.current.encounterPhase).toBe('initial');
+      expect(setViewMode).toHaveBeenCalledWith('ORBIT');
+    });
+
+    it('returns to orbit when applying the outcome throws', () => {
+      mockGame.resolveEncounter.mockReturnValue({
+        success: true,
+        costs: {},
+        rewards: {},
+        description: 'Inspection passed',
+      });
+      mockGame.applyEncounterOutcome.mockImplementation(() => {
+        throw new Error('Apply failure');
+      });
+
+      const { result } = renderOrchestrationHook();
+      act(() => {
+        result.current.handleEncounterTriggered(makeInspectionEncounter());
+      });
+      setViewMode.mockClear();
+
+      act(() => {
+        result.current.handleEncounterChoice('cooperate');
+      });
+
+      expect(result.current.currentEncounter).toBeNull();
+      expect(result.current.encounterOutcome).toBeNull();
+      expect(setViewMode).toHaveBeenCalledWith('ORBIT');
+    });
+
     it('does nothing when handleEncounterChoice called with no encounter', () => {
       const { result } = renderOrchestrationHook();
 
