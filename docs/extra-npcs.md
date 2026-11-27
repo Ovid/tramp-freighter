@@ -20,7 +20,7 @@ There are two kinds of image:
 |---|---|---|
 | `dock_sol_first` | `scene_dock_sol_first.png` | scene |
 | `dock_barnards_first` | `chen_barnards.png` (from `npcs.md`) | portrait |
-| `dock_generic_rumor` | `dockworker_f.png` or `dockworker_m.png` | portrait |
+| `dock_generic_rumor` | `dockworker_m.png` | portrait |
 | `dock_beyond_the_lanes_rumor` | `dockworker_f.png` | portrait |
 | `dock_barnards_engineer_rumor` | `dockworker_m.png` | portrait |
 | `dock_cheap_fuel` | `mechanic_fuel.png` | portrait |
@@ -486,9 +486,14 @@ These came up while writing this brief. They are not fixed here.
    two portraits to match the text, but the identical opening line still
    reads as one recurring person.
 2. **`dock_barnards_first` has no speaker.** The event introduces Wei Chen
-   ("Her jumpsuit says 'CHEN'") but sets `speaker: null`, so no portrait is
-   shown.
-3. **The panel can't display any of this art yet.** `NarrativeEventPanel`
-   only shows a portrait when `content.speaker` matches a name in `ALL_NPCS`,
-   and it has no way to show a scene image. The *Event → Image* table above
-   is the spec for wiring that up later.
+   ("Her jumpsuit says 'CHEN'") but sets `speaker: null`. It now shows her
+   portrait through `art`, but the panel still doesn't show her name.
+
+## Wiring
+
+Each event names its image in `content.art` as a `'category/key'` path
+(for example `'narrative/news_anchor'`), and `NarrativeEventPanel` shows it.
+Events with an NPC speaker don't need one. `passenger_complaint_comfort`
+sets `art` in `generateContent()` from the passenger on board.
+`tests/unit/portrait-assets.test.js` fails if an event has no art or names a
+file that doesn't exist.

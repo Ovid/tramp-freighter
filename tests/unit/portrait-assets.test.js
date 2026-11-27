@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync } from 'fs';
 import { ALL_NPCS } from '../../src/game/data/npc-data.js';
+import { NARRATIVE_EVENTS } from '../../src/game/data/narrative-events.js';
 import { determineThreatLevel } from '../../src/game/utils/calculators.js';
-import { THREAT_LEVEL_CONFIG } from '../../src/game/constants.js';
+import {
+  PASSENGER_CONFIG,
+  THREAT_LEVEL_CONFIG,
+} from '../../src/game/constants.js';
 
 const portraitExists = (category, key) =>
   existsSync(`public/portraits/${category}/${key}.webp`);
@@ -41,4 +45,23 @@ describe('portrait assets', () => {
   it.each(['inspection', 'distress'])('has a portrait for %s', (key) => {
     expect(portraitExists('encounter', key)).toBe(true);
   });
+
+  // NPC speakers get their art from npc-data; every other event names it.
+  const npcNames = new Set(ALL_NPCS.map((npc) => npc.name));
+  it.each(
+    NARRATIVE_EVENTS.filter((e) => !npcNames.has(e.content.speaker)).map(
+      (e) => [e.id, e.content.art]
+    )
+  )('has art for narrative event %s', (id, art) => {
+    expect(art, id).toBeTruthy();
+    expect(portraitExists(...art.split('/'))).toBe(true);
+  });
+
+  // passenger_complaint_comfort picks its art from the passenger's type.
+  it.each(Object.keys(PASSENGER_CONFIG.TYPES))(
+    'has a portrait for %s passengers',
+    (type) => {
+      expect(portraitExists('narrative', `passenger_${type}`)).toBe(true);
+    }
+  );
 });

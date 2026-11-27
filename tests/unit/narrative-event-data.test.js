@@ -184,4 +184,21 @@ describe('Narrative Event Data', () => {
       expect(tanakaIntro.priority).toBeGreaterThan(preTanaka.priority);
     });
   });
+
+  it('shows the passenger on board when a passenger complains', () => {
+    const complaint = NARRATIVE_EVENTS.find(
+      (e) => e.id === 'passenger_complaint_comfort'
+    );
+    const state = {
+      missions: {
+        active: [
+          { type: 'delivery' },
+          { type: 'passenger', passenger: { type: 'scientist' } },
+        ],
+      },
+    };
+    expect(complaint.generateContent(state).art).toBe(
+      'narrative/passenger_scientist'
+    );
+  });
 });
