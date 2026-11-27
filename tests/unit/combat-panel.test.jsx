@@ -34,13 +34,9 @@ const mockGameCoordinator = {
 vi.mock('../../src/hooks/useGameEvent.js', () => ({
   useGameEvent: vi.fn((eventName) => {
     switch (eventName) {
-      case 'hullChanged':
-        return 100;
-      case 'engineChanged':
-        return 100;
+      case 'shipConditionChanged':
+        return { hull: 100, engine: 100, lifeSupport: 100 };
       case 'fuelChanged':
-        return 100;
-      case 'lifeSupportChanged':
         return 100;
       case 'cargoChanged':
         return [];

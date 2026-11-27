@@ -33,7 +33,8 @@ export function DistressCallPanel({
 }) {
   // Subscribe to relevant game events for moral choice context
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
-  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
+  const { lifeSupport } =
+    useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED) ?? {};
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
   const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);
   const factions = useGameEvent(EVENT_NAMES.FACTION_REP_CHANGED);

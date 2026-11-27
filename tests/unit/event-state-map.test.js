@@ -146,11 +146,6 @@ describe('EVENT_STATE_MAP', () => {
       npcId: 'bartender',
       node: 'greeting',
     });
-    expect(EVENT_STATE_MAP[EVENT_NAMES.HULL_CHANGED](mockState)).toBe(90);
-    expect(EVENT_STATE_MAP[EVENT_NAMES.ENGINE_CHANGED](mockState)).toBe(85);
-    expect(EVENT_STATE_MAP[EVENT_NAMES.LIFE_SUPPORT_CHANGED](mockState)).toBe(
-      95
-    );
     expect(EVENT_STATE_MAP[EVENT_NAMES.KARMA_CHANGED](mockState)).toBe(5);
     expect(
       EVENT_STATE_MAP[EVENT_NAMES.INTELLIGENCE_CHANGED](mockState)

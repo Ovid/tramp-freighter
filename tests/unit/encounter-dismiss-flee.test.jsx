@@ -9,10 +9,8 @@ import { NegotiationPanel } from '../../src/features/danger/NegotiationPanel.jsx
 vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: (eventName) => {
     const defaults = {
-      hullChanged: 100,
-      engineChanged: 100,
+      shipConditionChanged: { hull: 100, engine: 100, lifeSupport: 100 },
       fuelChanged: 100,
-      lifeSupportChanged: 100,
       cargoChanged: [],
       hiddenCargoChanged: [],
       creditsChanged: 1000,

@@ -34,10 +34,9 @@ export function CombatPanel({
 }) {
   // Subscribe to relevant game events for ship status and modifiers
   const game = useGame();
-  const hull = useGameEvent(EVENT_NAMES.HULL_CHANGED);
-  const engine = useGameEvent(EVENT_NAMES.ENGINE_CHANGED);
+  const { hull, engine, lifeSupport } =
+    useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED) ?? {};
   const fuel = useGameEvent(EVENT_NAMES.FUEL_CHANGED);
-  const lifeSupport = useGameEvent(EVENT_NAMES.LIFE_SUPPORT_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
   const karma = useGameEvent(EVENT_NAMES.KARMA_CHANGED);

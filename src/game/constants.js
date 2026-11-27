@@ -1932,9 +1932,6 @@ export const EVENT_NAMES = Object.freeze({
   // Ship systems
   FUEL_CHANGED: 'fuelChanged',
   SHIP_CONDITION_CHANGED: 'shipConditionChanged',
-  HULL_CHANGED: 'hullChanged',
-  ENGINE_CHANGED: 'engineChanged',
-  LIFE_SUPPORT_CHANGED: 'lifeSupportChanged',
   SHIP_NAME_CHANGED: 'shipNameChanged',
   CONDITION_WARNING: 'conditionWarning',
 
@@ -2026,9 +2023,6 @@ export const EVENT_STATE_MAP = {
     engine: state.ship.engine,
     lifeSupport: state.ship.lifeSupport,
   }),
-  [EVENT_NAMES.HULL_CHANGED]: (state) => state.ship.hull,
-  [EVENT_NAMES.ENGINE_CHANGED]: (state) => state.ship.engine,
-  [EVENT_NAMES.LIFE_SUPPORT_CHANGED]: (state) => state.ship.lifeSupport,
   [EVENT_NAMES.SHIP_NAME_CHANGED]: (state) => state.ship.name,
 
   // Cargo & inventory
