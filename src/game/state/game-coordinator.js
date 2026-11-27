@@ -630,10 +630,18 @@ export class GameCoordinator {
       return { success: false, reason: 'No state data provided' };
     }
 
-    if (!isVersionCompatible(rawState.meta?.version)) {
+    // No version at all means the data isn't a save, not an old one
+    if (!rawState.meta?.version) {
       return {
         success: false,
-        reason: `Incompatible save version: ${rawState.meta?.version}`,
+        reason: 'Save data is corrupted and could not be read',
+      };
+    }
+
+    if (!isVersionCompatible(rawState.meta.version)) {
+      return {
+        success: false,
+        reason: `Incompatible save version: ${rawState.meta.version}`,
       };
     }
 

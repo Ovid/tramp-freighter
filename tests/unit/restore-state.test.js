@@ -49,6 +49,15 @@ describe('GameCoordinator.restoreState', () => {
     expect(result.reason).toContain('Incompatible save version');
   });
 
+  it.each([[5], ['text'], [{}], [{ meta: {} }]])(
+    'calls a save with no version corrupted, not incompatible: %j',
+    (raw) => {
+      const result = manager.restoreState(raw);
+      expect(result.success).toBe(false);
+      expect(result.reason).toMatch(/corrupted/i);
+    }
+  );
+
   it('rejects state that fails structure validation', () => {
     const result = manager.restoreState({
       meta: { version: GAME_VERSION, timestamp: Date.now() },
