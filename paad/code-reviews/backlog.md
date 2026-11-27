@@ -8,18 +8,6 @@
 
 ---
 
-## `ae66925e` — Salvage free-space check ignores passenger cargo space
-- **File (at first sighting):** `src/game/state/managers/outcome.js:159`
-- **Symbol:** `OutcomeManager.mergeSalvage`
-- **Bug class:** Contract
-- **Description:** mergeSalvage computes free space as cargoCapacity minus the sum of cargo qty. StateManager.getCargoRemaining also subtracts passenger requirements.cargoSpace. With passengers aboard, salvage (distress loot, narrative rewards.cargo) can overfill the hold and make getCargoRemaining negative. Moved verbatim from the deleted src/features/danger/applyEncounterOutcome.js.
-- **Suggested fix:** Inject a getCargoRemaining capability into OutcomeManager (and its typedef) and use it for available space; consider reusing TradingSystem.addCargoStack.
-- **Confidence:** Medium
-- **Found by:** Contract & Integration (`claude-opus-5-5`)
-- **First seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
-- **Last seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
-- **Severity:** Important
-
 ## `859deb84` — Intel Offer acceptance chance ignores the karma modifier the resolver applies
 - **File (at first sighting):** `src/features/danger/NegotiationPanel.jsx:272`
 - **Symbol:** `NegotiationPanel`

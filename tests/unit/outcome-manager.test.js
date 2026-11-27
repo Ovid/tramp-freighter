@@ -56,6 +56,25 @@ describe('GameCoordinator.applyEncounterOutcome', () => {
     expect(game.getState().ship.cargo[0].qty).toBe(8);
   });
 
+  it('salvage leaves room for passengers aboard', () => {
+    const capacity = game.getState().ship.cargoCapacity;
+    game.updateCargo([]);
+    game.getState().missions.active.push({
+      id: 'vip_ride',
+      type: 'passenger',
+      requirements: { cargoSpace: 5 },
+    });
+
+    const result = game.applyEncounterOutcome({
+      rewards: { cargo: [{ good: 'food', qty: capacity, buyPrice: 50 }] },
+    });
+
+    expect(game.getCargoRemaining()).toBe(0);
+    expect(result.salvageMessages).toEqual([
+      `Could only fit ${capacity - 5} of ${capacity} units.`,
+    ]);
+  });
+
   it('salvage is added after the time cost, so cargo of a delivery that expires that tick stays gone', () => {
     const day = game.getState().player.daysElapsed;
     game.getState().missions.active.push({

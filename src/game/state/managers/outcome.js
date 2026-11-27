@@ -158,11 +158,10 @@ export class OutcomeManager extends BaseManager {
    */
   mergeSalvage(state, rewardCargo, salvageMessages) {
     const cargo = [...state.ship.cargo];
-    const capacity = state.ship.cargoCapacity;
-    let total = cargo.reduce((sum, item) => sum + item.qty, 0);
+    // Passengers take hold space too; getCargoRemaining counts them
+    let availableSpace = this.capabilities.getCargoRemaining();
 
     for (const reward of rewardCargo) {
-      const availableSpace = capacity - total;
       if (availableSpace <= 0) {
         salvageMessages.push('Your hold is full — nothing salvaged.');
         break;
@@ -192,7 +191,7 @@ export class OutcomeManager extends BaseManager {
         });
       }
 
-      total += qtyToAdd;
+      availableSpace -= qtyToAdd;
     }
 
     return cargo;

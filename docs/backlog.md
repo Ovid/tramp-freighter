@@ -319,18 +319,6 @@ beside the hook or accept the dependency and say so in DEVELOPMENT.md.
 
 Found during the F-4 architecture fix (2026-11-27 report).
 
-## Salvage ignores passenger cargo space
-
-`OutcomeManager.mergeSalvage` (`src/game/state/managers/outcome.js`) computes
-free space as capacity minus trade cargo. `StateManager.getCargoRemaining()`
-also subtracts passenger `cargoSpace`. With passengers aboard, distress loot
-or narrative cargo rewards can overfill the hold.
-
-Possible fix: pass a `getCargoRemaining` capability to OutcomeManager and use
-it; consider reusing `TradingSystem.addCargoStack`.
-
-Found during agentic-review of `ovid/architecture` (paad backlog `ae66925e`).
-
 ## Intel Offer chance ignores karma
 
 `NegotiationPanel.jsx` shows `INTEL_OFFER.BASE_SUCCESS_RATE`, but

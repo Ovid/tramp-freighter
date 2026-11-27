@@ -486,6 +486,7 @@ export class GameCoordinator {
       updateCredits: (...args) => this.updateCredits(...args),
       updateDebt: (...args) => this.updateDebt(...args),
       updateCargo: (...args) => this.updateCargo(...args),
+      getCargoRemaining: () => this.getCargoRemaining(),
       clearHiddenCargo: (...args) => this.clearHiddenCargo(...args),
       removeRestrictedCargo: (...args) => this.removeRestrictedCargo(...args),
       failMissionsDueToCargoLoss: (...args) =>

@@ -542,6 +542,7 @@
  * @property {function(number): void} updateCredits
  * @property {function(number): void} updateDebt
  * @property {function(Array): void} updateCargo
+ * @property {function(): number} getCargoRemaining
  * @property {function(): void} clearHiddenCargo
  * @property {function(): void} removeRestrictedCargo
  * @property {function(): void} failMissionsDueToCargoLoss
