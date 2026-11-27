@@ -231,6 +231,29 @@ describe('EncounterTriggerManager', () => {
     expect(console.error).toHaveBeenCalled();
   });
 
+  it('a time narrative that throws does not drop the jump encounter', async () => {
+    const game = newGame();
+    onlyEvents(game, [
+      event('broken_time', 'time', {
+        generateContent: () => {
+          throw new Error('boom');
+        },
+      }),
+      event('test_pirate', 'jump', {
+        category: 'danger',
+        encounter: { generator: 'pirate' },
+      }),
+    ]);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    expect(emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED)).toHaveLength(
+      1
+    );
+    expect(console.error).toHaveBeenCalled();
+  });
+
   it('starting a new game after reaching another system runs no jump checks', async () => {
     const game = newGame();
     await jump(game, NEIGHBOUR);

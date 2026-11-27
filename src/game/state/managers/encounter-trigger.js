@@ -52,26 +52,43 @@ export class EncounterTriggerManager extends BaseManager {
    * @param {number} systemId - Destination system
    */
   completeJump(systemId) {
+    const state = this.capabilities.getState();
+    if (!state || state.meta?.victory) return;
+
+    // Each step is guarded alone, so a fault in the time narrative cannot
+    // drop the jump's encounter, and the reverse.
+    const timeEvent = this.guarded('Time event check failed:', () =>
+      this.check('time', { system: systemId })
+    );
+    let jumpContext = null;
+    const jumpEvent = this.guarded('Jump event check failed:', () => {
+      jumpContext = this.buildJumpContext(systemId, state);
+      return this.check('jump', jumpContext);
+    });
+
+    // A condition warning is a fallback: emitted after a time narrative it
+    // would hide it, and beside an encounter it would cover it. A skipped
+    // warning keeps its cooldown, so the next dock or tick shows it.
+    if (!timeEvent && !jumpEvent) {
+      this.guarded('Condition event check failed:', () =>
+        this.dispatch(this.check('condition', { system: systemId }), null)
+      );
+      return;
+    }
+    // Only the last narrative emitted is shown, so the jump's wins.
+    this.guarded('Time event failed:', () => this.dispatch(timeEvent, null));
+    this.guarded('Jump event failed:', () =>
+      this.dispatch(jumpEvent, jumpContext)
+    );
+  }
+
+  /** Runs `fn`, logging and swallowing any error; returns null on error. */
+  guarded(label, fn) {
     try {
-      const state = this.capabilities.getState();
-      if (!state || state.meta?.victory) return;
-
-      const timeEvent = this.check('time', { system: systemId });
-      const jumpContext = this.buildJumpContext(systemId, state);
-      const jumpEvent = this.check('jump', jumpContext);
-
-      // A condition warning is a fallback: emitted after a time narrative it
-      // would hide it, and beside an encounter it would cover it. A skipped
-      // warning keeps its cooldown, so the next dock or tick shows it.
-      if (!timeEvent && !jumpEvent) {
-        this.dispatch(this.check('condition', { system: systemId }), null);
-        return;
-      }
-      // Only the last narrative emitted is shown, so the jump's wins.
-      this.dispatch(timeEvent, null);
-      this.dispatch(jumpEvent, jumpContext);
+      return fn();
     } catch (error) {
-      this.error('Jump event check failed:', error);
+      this.error(label, error);
+      return null;
     }
   }
 
