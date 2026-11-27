@@ -317,6 +317,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** There is one write routine and one deferred path. SaveLoadManager._forceSave writes through the standalone saveGame(state), and the 1 s leading throttle, its lastSaveTime argument and UI_CONFIG.SAVE_DEBOUNCE_MS are deleted. saveGame() now cancels any pending debounced write, writes immediately, and returns true or false honestly. The docstring says so. Managers still use markDirty(). The non-manager callers are gone: game-navigation.js with F-7, App.jsx's call after updateShipName (which already calls markDirty), and the unused saveGame on useGameAction. A premise check found no write that was actually lost, because the only production caller followed a markDirty. The one throttle-only unit test was deleted.
 - **Status date:** 2026-11-27 16:34 UTC
+- **Status commit:** 1e0eda9
 
 ### [F-12] Steering files and in-code docs contradict the code
 - **Category:** 22 Configuration sprawl (documentation drift)
