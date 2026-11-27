@@ -21,7 +21,8 @@ export class NegotiationManager extends BaseManager {
    * Success chances the negotiation resolvers roll against, with the
    * modifiers to list beside them.
    * @returns {{counterProposal: {finalChance: number, modifiers: Array},
-   *   medicineClaim: {finalChance: number, modifiers: Array}}}
+   *   medicineClaim: {finalChance: number, modifiers: Array},
+   *   intelOffer: {finalChance: number, modifiers: Array}}}
    */
   getNegotiationOdds() {
     const karma = this.capabilities.getKarma();
@@ -33,6 +34,10 @@ export class NegotiationManager extends BaseManager {
       },
       medicineClaim: {
         finalChance: medicineClaimChance(karma),
+        modifiers: [...modifiers],
+      },
+      intelOffer: {
+        finalChance: intelOfferChance(karma),
         modifiers: [...modifiers],
       },
     };
@@ -221,12 +226,7 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    let successChance = NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE;
-    successChance += calculateKarmaModifier(gameState.player.karma);
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success = rng < intelOfferChance(gameState.player.karma);
 
     if (success) {
       return {
@@ -408,6 +408,13 @@ function karmaModifiers(karma) {
 function counterProposalChance(karma) {
   return clampChance(
     NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE +
+      calculateKarmaModifier(karma)
+  );
+}
+
+function intelOfferChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE +
       calculateKarmaModifier(karma)
   );
 }

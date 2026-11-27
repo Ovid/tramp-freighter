@@ -270,7 +270,7 @@ export function NegotiationPanel({ encounter, onChoice, onClose: _onClose }) {
                     <span className="prob-label">Acceptance Chance:</span>
                     <span className="prob-value">
                       {Math.round(
-                        NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE * 100
+                        negotiationAnalysis.intelOffer.finalChance * 100
                       )}
                       %
                     </span>

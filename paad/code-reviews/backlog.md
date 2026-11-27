@@ -8,18 +8,6 @@
 
 ---
 
-## `859deb84` — Intel Offer acceptance chance ignores the karma modifier the resolver applies
-- **File (at first sighting):** `src/features/danger/NegotiationPanel.jsx:272`
-- **Symbol:** `NegotiationPanel`
-- **Bug class:** Contract
-- **Description:** The panel shows NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE * 100, while resolveIntelOffer rolls against base + calculateKarmaModifier(karma), clamped to [0,1]. Shown odds differ from used odds whenever karma is nonzero (up to 5 points).
-- **Suggested fix:** Add intelOffer {finalChance, modifiers} to getNegotiationOdds via a shared intelOfferChance(karma) helper used by the resolver, and render it in the panel.
-- **Confidence:** Medium
-- **Found by:** Contract & Integration (`claude-opus-5-5`)
-- **First seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
-- **Last seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
-- **Severity:** Suggestion
-
 ## `b13080d6` — Continue ignores the result of the second loadGame call
 - **File (at first sighting):** `src/App.jsx:229`
 - **Symbol:** `handleStartGame`

@@ -319,17 +319,6 @@ beside the hook or accept the dependency and say so in DEVELOPMENT.md.
 
 Found during the F-4 architecture fix (2026-11-27 report).
 
-## Intel Offer chance ignores karma
-
-`NegotiationPanel.jsx` shows `INTEL_OFFER.BASE_SUCCESS_RATE`, but
-`resolveIntelOffer` (`src/game/state/managers/negotiation.js`) adds the karma
-modifier. This is the one shown-vs-rolled gap the F-3 fix did not cover.
-
-Possible fix: add `intelOffer` to `getNegotiationOdds` through a helper the
-resolver also uses.
-
-Found during agentic-review of `ovid/architecture` (paad backlog `859deb84`).
-
 ## Continue ignores a rejected second load
 
 `handleStartGame` in `src/App.jsx` calls `game.loadGame()` again on Continue,

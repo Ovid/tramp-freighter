@@ -134,6 +134,9 @@ describe('Combat odds', () => {
     expect(odds.medicineClaim.finalChance).toBeCloseTo(
       NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE + 0.1
     );
+    expect(odds.intelOffer.finalChance).toBeCloseTo(
+      NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE + 0.1
+    );
     expect(odds.counterProposal.modifiers).toEqual([
       { name: 'Good Karma', value: expect.closeTo(0.1), type: 'bonus' },
     ]);
