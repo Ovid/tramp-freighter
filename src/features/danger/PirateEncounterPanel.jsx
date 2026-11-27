@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 import {
   COMBAT_CONFIG,
   KARMA_CONFIG,
@@ -116,19 +118,22 @@ export function PirateEncounterPanel({
         {/* Threat Assessment Section */}
         <div className="encounter-section threat-assessment">
           <h3>Threat Assessment</h3>
-          <div className="threat-info">
-            <div className="threat-level">
-              <span className="threat-label">Threat Level:</span>
-              <span
-                className={`threat-value ${threatLevel}`}
-                style={{ color: threatColor }}
-              >
-                {threatLevel.charAt(0).toUpperCase() + threatLevel.slice(1)}
-              </span>
-            </div>
-            <div className="pirate-description">
-              {encounter.description ||
-                `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}% of your cargo as tribute.`}
+          <div className="portrait-row">
+            <Portrait src={getPortraitUrl('pirate', threatLevel)} />
+            <div className="threat-info">
+              <div className="threat-level">
+                <span className="threat-label">Threat Level:</span>
+                <span
+                  className={`threat-value ${threatLevel}`}
+                  style={{ color: threatColor }}
+                >
+                  {threatLevel.charAt(0).toUpperCase() + threatLevel.slice(1)}
+                </span>
+              </div>
+              <div className="pirate-description">
+                {encounter.description ||
+                  `${encounter.name || 'Pirates'} are demanding ${encounter.demandPercent ?? PIRATE_CREDIT_DEMAND_CONFIG.CARGO_DEMAND_PERCENT}% of your cargo as tribute.`}
+              </div>
             </div>
           </div>
         </div>
