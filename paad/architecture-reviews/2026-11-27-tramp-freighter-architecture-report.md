@@ -166,7 +166,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** CombatManager.getCombatOdds and NegotiationManager.getNegotiationOdds compute every chance once; the resolvers roll against the same helpers and both panels display them through the facade. The resolver now applies the worn-engine evasion penalty (developer's design call); the display now includes escalation strength and the sensitive_sensors bonus. Both panel-side calculations were deleted.
 - **Status date:** 2026-11-27 11:57 UTC
-- **Status commit:** see the following report commit
+- **Status commit:** eea25c5
 
 ### [F-4] Encounter and narrative outcomes are applied from feature code, one call at a time, partly on live state
 - **Category:** 13 Inconsistent boundaries (also 10, 26, 6)
