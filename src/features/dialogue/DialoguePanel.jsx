@@ -37,6 +37,11 @@ export function DialoguePanel({ npcId, onClose }) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
+  // Set only once this panel's own start succeeds: a dialogue left active by
+  // a save, then cleared by StrictMode's simulated unmount, would otherwise
+  // read as "ended" and close the panel before it ever shows
+  const wasActiveRef = useRef(false);
+
   // Initialize dialogue when component mounts or npcId changes
   useEffect(() => {
     // A restarted dialogue invalidates the open picker's choiceIndex
@@ -50,7 +55,9 @@ export function DialoguePanel({ npcId, onClose }) {
     const initializeDialogue = async () => {
       try {
         // Start dialogue with greeting node using Bridge Pattern
-        await startDialogue(npcId, 'greeting');
+        if (await startDialogue(npcId, 'greeting')) {
+          wasActiveRef.current = true;
+        }
       } catch (err) {
         console.error('Failed to initialize dialogue:', err);
         clearDialogue();
@@ -118,16 +125,6 @@ export function DialoguePanel({ npcId, onClose }) {
     clearDialogue();
     onClose();
   };
-
-  // Track if dialogue was ever active (to distinguish "ended" from "not started yet")
-  const wasActiveRef = useRef(false);
-
-  // Update the ref when dialogue becomes active
-  useEffect(() => {
-    if (dialogueState.isActive) {
-      wasActiveRef.current = true;
-    }
-  }, [dialogueState.isActive]);
 
   // Auto-close panel when dialogue ends (was active, now inactive)
   useEffect(() => {
