@@ -235,6 +235,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** Repair pricing (fceb628): RepairManager now owns all repair pricing (getRepairAllCost, single-charge repairAll, canAffordStandardRepair), the panel shows manager prices, and the duplicate helpers in repairUtils.js are deleted. This fixed a real defect: with an NPC discount, Repair All could charge more than it showed. The refuel evidence was wrong (costs are always integers). Finance (this commit): DebtManager.quotePayment computes what makePayment will pay and charge, including reduce-to-fit, and makePayment uses it. getPaymentFee and a single isEarlyRepayment replace the duplicated fee and window rules. FinancePanel labels its tier buttons with game.getDebtPaymentFee and Pay All with game.quoteDebtPayment, so it no longer computes fees. A 200-run property test confirmed Pay All matches the panel's old formula exactly. A float edge both copies shared (33/1.1) is logged in docs/backlog.md.
 - **Status date:** 2026-11-27 16:39 UTC
+- **Status commit:** fceb628, 0f295c0
 
 ### [F-7] Jump execution lives in NavigationSystem, outside the manager layer
 - **Category:** 13 Inconsistent boundaries (also 3 Tight coupling, 26)
