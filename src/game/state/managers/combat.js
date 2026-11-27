@@ -26,20 +26,28 @@ export class CombatManager extends BaseManager {
     const stateView = this._buildStateView();
 
     const rng = this._nextRoll();
+    // The lucky_ship rescue only runs after `rng` failed, so reusing it could
+    // never pass the rescue's much lower threshold.
+    const luckRoll = this._nextRoll();
 
     let result;
     switch (choice) {
       case 'evasive':
-        result = this.resolveEvasiveManeuvers(encounter, stateView, rng);
+        result = this.resolveEvasiveManeuvers(
+          encounter,
+          stateView,
+          rng,
+          luckRoll
+        );
         break;
       case 'return_fire':
-        result = this.resolveReturnFire(encounter, stateView, rng);
+        result = this.resolveReturnFire(encounter, stateView, rng, luckRoll);
         break;
       case 'dump_cargo':
         result = this.resolveDumpCargo();
         break;
       case 'distress_call':
-        result = this.resolveDistressCall(encounter, stateView, rng);
+        result = this.resolveDistressCall(encounter, stateView, rng, luckRoll);
         break;
       default:
         throw new Error(`Unknown combat choice: ${choice}`);
@@ -52,7 +60,8 @@ export class CombatManager extends BaseManager {
   /**
    * Success chances for each rolled combat option, with the modifiers that
    * produced them. The resolvers roll against these same numbers, so what
-   * the player is shown is what the game uses.
+   * the player is shown is what the game uses. The lucky_ship quirk's
+   * rescue of a failed roll is a separate hidden draw and is not included.
    *
    * @param {Object} encounter - The pirate encounter (may carry strengthModifier)
    * @returns {{evasive: Odds, returnFire: Odds, distressCall: Odds}} where
@@ -166,9 +175,10 @@ export class CombatManager extends BaseManager {
    * @param {Object} encounter - The pirate encounter
    * @param {Object} gameState - Current game state
    * @param {number} rng - Random number (0-1) for success determination
+   * @param {number} [luckRoll] - Separate random number for the lucky_ship rescue
    * @returns {Object} Combat outcome
    */
-  resolveEvasiveManeuvers(encounter, gameState, rng) {
+  resolveEvasiveManeuvers(encounter, gameState, rng, luckRoll = rng) {
     const { EVASIVE } = COMBAT_CONFIG;
 
     const success =
@@ -185,7 +195,7 @@ export class CombatManager extends BaseManager {
         description: 'Successfully evaded the pirates using evasive maneuvers.',
       };
     } else {
-      if (this.checkLuckyShipNegate(gameState, rng)) {
+      if (this.checkLuckyShipNegate(gameState, luckRoll)) {
         return {
           success: true,
           costs: {
@@ -223,9 +233,10 @@ export class CombatManager extends BaseManager {
    * @param {Object} encounter - The pirate encounter
    * @param {Object} gameState - Current game state
    * @param {number} rng - Random number (0-1) for success determination
+   * @param {number} [luckRoll] - Separate random number for the lucky_ship rescue
    * @returns {Object} Combat outcome
    */
-  resolveReturnFire(encounter, gameState, rng) {
+  resolveReturnFire(encounter, gameState, rng, luckRoll = rng) {
     const { RETURN_FIRE } = COMBAT_CONFIG;
 
     const success =
@@ -249,7 +260,7 @@ export class CombatManager extends BaseManager {
           'You drove off the pirates, but not before taking some hits. Your hull shows fresh scoring.',
       };
     } else {
-      if (this.checkLuckyShipNegate(gameState, rng)) {
+      if (this.checkLuckyShipNegate(gameState, luckRoll)) {
         let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
         hullDamage = this.applyHullDamageModifiers(hullDamage, gameState);
 
@@ -316,9 +327,10 @@ export class CombatManager extends BaseManager {
    * @param {Object} encounter - The pirate encounter
    * @param {Object} gameState - Current game state
    * @param {number} rng - Random number (0-1) for success determination
+   * @param {number} [luckRoll] - Separate random number for the lucky_ship rescue
    * @returns {Object} Combat outcome
    */
-  resolveDistressCall(encounter, gameState, rng) {
+  resolveDistressCall(encounter, gameState, rng, luckRoll = rng) {
     const { DISTRESS_CALL } = COMBAT_CONFIG;
 
     const success =
@@ -337,7 +349,7 @@ export class CombatManager extends BaseManager {
           'Patrol responded to distress call and drove off the pirates.',
       };
     } else {
-      if (this.checkLuckyShipNegate(gameState, rng)) {
+      if (this.checkLuckyShipNegate(gameState, luckRoll)) {
         return {
           success: true,
           costs: {},

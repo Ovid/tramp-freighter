@@ -358,35 +358,42 @@ describe('CombatManager coverage', () => {
         const m = managerOnDay(day);
         const flee = m.resolveCombatChoice({ strengthModifier: 0 }, 'evasive');
         if (flee.success) continue;
-        if (m.resolveCombatChoice({ strengthModifier: 0 }, 'return_fire').success)
+        if (
+          m.resolveCombatChoice({ strengthModifier: 0 }, 'return_fire').success
+        )
           followUpSuccesses++;
       }
       expect(followUpSuccesses).toBeGreaterThan(0);
     });
+
+    // The lucky check needs a roll below ~5%, but it only runs after the
+    // option roll failed (>= 25% at worst), so it must draw its own number.
+    it('lucky_ship can rescue a failed roll', () => {
+      let rescues = 0;
+      for (let day = 0; day < 500; day++) {
+        const result = managerOnDay(day, ['lucky_ship']).resolveCombatChoice(
+          { strengthModifier: 0 },
+          'return_fire'
+        );
+        if (result.description.startsWith('Lucky')) rescues++;
+      }
+      expect(rescues).toBeGreaterThan(0);
+    });
   });
 
   describe('lucky_ship negation in combat', () => {
+    // 0.99 fails every option's roll; 0.01 passes the separate luck roll
     it('can negate evasive failure', () => {
-      // Use lucky_ship with very low rng to trigger negation
       const gameState = makeGameState({
         ship: { quirks: ['lucky_ship'], upgrades: [] },
       });
-      // rng=0.99 fails evasive (base 0.7), then checkLuckyShipNegate uses same rng
-      // Lucky ship base chance 0.05 + karma bonus, rng 0.99 won't negate
-      // But rng needs to fail evasive but pass lucky check — that's contradictory
-      // with a single rng value. The implementation uses the same rng for both.
-      // With rng < lucky chance, evasive would also succeed (0.05 < 0.7).
-      // So lucky ship negation only matters when evasive fails but rng < lucky chance.
-      // Since rng must be >= 0.7 to fail evasive, but lucky base is 0.05,
-      // lucky_ship cannot realistically negate evasive failure with karma=0.
-      // This is expected behavior — test the code path at least
       const result = manager.resolveEvasiveManeuvers(
         { strengthModifier: 0 },
         gameState,
-        0.99
+        0.99,
+        0.01
       );
-      // With rng=0.99, lucky ship check (0.99 < 0.05) = false, so failure
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
 
     it('can negate return fire failure', () => {
@@ -396,9 +403,10 @@ describe('CombatManager coverage', () => {
       const result = manager.resolveReturnFire(
         { strengthModifier: 0 },
         gameState,
-        0.99
+        0.99,
+        0.01
       );
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
 
     it('can negate distress call failure', () => {
@@ -408,9 +416,10 @@ describe('CombatManager coverage', () => {
       const result = manager.resolveDistressCall(
         { strengthModifier: 0 },
         gameState,
-        0.99
+        0.99,
+        0.01
       );
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
   });
 });
