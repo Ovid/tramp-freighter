@@ -363,7 +363,8 @@
   transition: var(--transition-fast);
 }
 
-.moral-choice.available:hover {
+/* :not(.selected) because this selector out-specifies .selected and would mask it */
+.moral-choice.available:hover:not(.selected) {
   border-color: rgba(255, 255, 255, 0.4);
   background-color: var(--bg-overlay-dark);
 }
