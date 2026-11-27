@@ -8,8 +8,22 @@ import path from 'path';
 function appVersion() {
   const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
   const [major, minor] = version.split('.');
-  const commits = execSync('git rev-list --count HEAD').toString().trim();
-  return `${major}.${minor}.${commits}`;
+  return `${major}.${minor}.${commitCount()}`;
+}
+
+// Without git (a ZIP export, a container without .git, a "dubious ownership"
+// refusal) the build must still run; a cosmetic version is not worth failing
+// it over.
+function commitCount() {
+  try {
+    return execSync('git rev-list --count HEAD', {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim();
+  } catch {
+    return '0';
+  }
 }
 
 export const define = {
