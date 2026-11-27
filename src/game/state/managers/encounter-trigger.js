@@ -60,6 +60,9 @@ export class EncounterTriggerManager extends BaseManager {
       const jumpContext = this.buildJumpContext(systemId, state);
       const jumpEvent = this.check('jump', jumpContext);
 
+      // A condition warning is a fallback: emitted after a time narrative it
+      // would hide it, and beside an encounter it would cover it. A skipped
+      // warning keeps its cooldown, so the next dock or tick shows it.
       if (!timeEvent && !jumpEvent) {
         this.dispatch(this.check('condition', { system: systemId }), null);
         return;

@@ -137,6 +137,48 @@ describe('EncounterTriggerManager', () => {
     expect(ids).toEqual(['a_condition']);
   });
 
+  // Only the last narrative of a jump reaches the screen, so a condition
+  // warning emitted after a time narrative would hide it. Suppressed
+  // warnings keep their cooldown and fire again on the next dock or tick.
+  it('a time narrative on arrival suppresses the condition fallback', async () => {
+    const game = newGame();
+    onlyEvents(game, [
+      event('a_time', 'time'),
+      event('a_condition', 'condition'),
+    ]);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    const ids = emissionsOf(emitSpy, EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED).map(
+      (n) => n.id
+    );
+    expect(ids).toEqual(['a_time']);
+  });
+
+  // The narrative overlay renders above the encounter view, so a warning
+  // here would cover the encounter.
+  it('a jump encounter suppresses the condition fallback', async () => {
+    const game = newGame();
+    onlyEvents(game, [
+      event('test_pirate', 'jump', {
+        category: 'danger',
+        encounter: { generator: 'pirate' },
+      }),
+      event('a_condition', 'condition'),
+    ]);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    await jump(game, NEIGHBOUR);
+
+    expect(emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED)).toHaveLength(
+      1
+    );
+    expect(
+      emissionsOf(emitSpy, EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED)
+    ).toHaveLength(0);
+  });
+
   it('jump checks see the ship after jump wear', async () => {
     const game = newGame();
     const seen = [];
