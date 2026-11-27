@@ -139,3 +139,36 @@ path were checked.
   state each check saw (location, wear, day) on main versus the branch.
 - When an option reuses an existing method for a new caller, list every check
   that method runs and compare it to what the old caller ran.
+
+## 2026-11-27 — Premises of the Medium flaws F-5..F-10 (architecture report triage)
+
+**Verdict:** Premise false (F-5 and F-10 impact) + Wrong reason (F-6) + Lucky
+(F-7, F-8, F-9) + Ungrounded (F-7 half-applied jump).
+
+**What went wrong:**
+- F-10's load-bearing claim (events missing from `_emitAllStateEvents` leave the
+  UI stale) was false: all game UI mounts outside TITLE/SHIP_NAMING, so every
+  subscriber remounts after load and reads its initial value fresh. Hull/engine
+  "omissions" don't exist in `EVENT_STATE_MAP`.
+- F-5's bypasses all re-do the emit and markDirty; `updateCredits` does no
+  validation, so the info-broker `credits -=` skips nothing. The implied fix
+  (freeze/copy `getState`) is mis-aimed: writes leak through live `getOwnState`
+  / `getShipCargo` / `getStats` capability getters, not `getState`.
+- F-6 cited the wrong evidence: refuel cost is always integer and the finance
+  fee formula matches `debt.js`. The real defect is repair-all with an NPC
+  discount (display ceils once, charge ceils three times; `validateRepairAll`
+  checks the undiscounted total → false "Insufficient credits").
+- F-9 said "bypassed even where facade methods exist"; true only for
+  `dangerManager`. The facade has no navigation equivalents.
+
+**Guidance for future sessions:**
+- Rate a flaw's impact by an observable defect, not by structural impurity. For
+  every "X can drift" claim, check whether the two copies disagree TODAY, with a
+  concrete input.
+- For "missing event → stale UI" claims, find the subscribers and check whether
+  any is mounted across the transition before calling it a bug.
+- For ownership/bypass claims, compare the bypass to the sanctioned path line by
+  line; if the sanctioned path adds nothing, the bypass is cosmetic.
+- When a fix direction is implied ("return copies"), trace where mutation
+  actually flows before endorsing it.
+- "Facade bypassed" needs the facade method named for each call site.

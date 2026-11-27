@@ -219,6 +219,9 @@ How it is built:
     - That gives `src/game/game-information-broker.js:112` the live state, and it runs "gameState.player.credits -= cost".
     - `info-broker.js:44` then emits CREDITS_CHANGED by hand.
 - **Found by:** Coupling & Dependencies, Integration & Data, Structure & Boundaries
+- **Status:** Skipped
+- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): every cited bypass re-does the emit and markDirty, and updateCredits adds no validation, so no observable defect was found; impact is structural only (effectively Low). The implied fix (copy or freeze getState) is mis-aimed, because writes leak through live getOwnState/getShipCargo/getStats capability getters. A future fix should route writes through setters instead.
+- **Status date:** 2026-11-27 16:20 UTC
 
 ### [F-6] Repair, refuel and finance rules are duplicated between UI code and managers
 - **Category:** 9 Shotgun surgery (also 25)
@@ -285,6 +288,9 @@ How it is built:
   - Re-emitted events: `src/game/state/game-coordinator.js:678-727` (`_emitAllStateEvents`) leaves out SHIP_NAME_CHANGED, DIALOGUE_CHANGED, NPCS_CHANGED, INTELLIGENCE_CHANGED, CURRENT_SYSTEM_CHANGED and HULL/ENGINE/LIFE_SUPPORT_CHANGED.
   - Version chain: `state-validators.js:167-189` ("GAME_VERSION === '5.0.0'") against MIGRATIONS at `game-coordinator.js:635-641`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies, Integration & Data
+- **Status:** Skipped
+- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): the missing re-emits cause no stale UI, because all game UI mounts after load and reads its initial value fresh; HULL/ENGINE/LIFE_SUPPORT are not in EVENT_STATE_MAP (SHIP_CONDITION_CHANGED covers them); every completionHistory reader guards; and the version chain agrees with MIGRATIONS. The duplication is real but costs nothing today (effectively Low). Revisit before adding saved fields or changing the save format.
+- **Status date:** 2026-11-27 16:20 UTC
 
 ### [F-11] Two save paths with different semantics, and a docstring that contradicts the code
 - **Category:** 24 Inconsistent API contracts (also 22)
