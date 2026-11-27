@@ -289,6 +289,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** UI code no longer reads game.navigationSystem or game.dangerManager. The danger hooks use the existing facade methods. New NavigationManager.previewJump validates a jump against live state, and executeJump validates through it, so the numbers the SystemPanel shows (jump info and connections list, via useJumpValidation and game.previewJump) come from the same call that charges the jump. The UI no longer assembles fuel, quirk and condition inputs itself. Route indicators moved from features/missions into NavigationSystem.getRouteIndicator behind game.getRouteIndicator. The facade also gained getConnectedSystems. The useNavigationActions reference went with F-7.
 - **Status date:** 2026-11-27 16:28 UTC
+- **Status commit:** 4f5b794
 
 ### [F-10] Knowledge of the state shape is copied into several hand-maintained lists that have drifted
 - **Category:** 9 Shotgun surgery (also 22, 24)
