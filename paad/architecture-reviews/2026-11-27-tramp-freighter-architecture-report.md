@@ -143,7 +143,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** SaveLoadManager now records why a save was rejected (`getLoadError()`, cleared on a successful load or write). The title screen shows that reason in place of Continue, so the player is never dropped into a fresh game that later overwrites the save; New Game still confirms before replacing it.
 - **Status date:** 2026-11-27 11:47 UTC
-- **Status commit:** 2becc27
+- **Status commit:** 511f3fc
 
 ### [F-2] The encounter and event trigger pipeline lives in a React hook and depends on emit order
 - **Category:** 13 Inconsistent boundaries (also 27 Temporal coupling)
