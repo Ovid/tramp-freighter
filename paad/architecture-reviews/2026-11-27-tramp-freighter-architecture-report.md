@@ -417,7 +417,7 @@ How it is built:
 - **Impact:** Low
 - **Explanation:** The mission board, favour missions, distress calls and encounters are seeded, but their IDs come from `Date.now()`, so regenerating the same content gives different IDs. Several gameplay functions default `rng = Math.random`, so a new caller that leaves out the argument breaks the "no Math.random in gameplay" rule without any error.
 - **Evidence:**
-  - `Date.now()` IDs: `src/game/mission-generator.js:193, 288`, `src/game/state/managers/debt.js:429`, `src/game/state/managers/distress.js:32`, `src/hooks/useEventTriggers.js:76, 87, 98`.
+  - `Date.now()` IDs: `src/game/mission-generator.js:193, 288`, `src/game/state/managers/debt.js:429`, `src/game/state/managers/distress.js:32`, `src/game/state/managers/encounter-trigger.js:174, 185, 196` (moved from the deleted `src/hooks/useEventTriggers.js`).
   - `rng = Math.random` defaults: `mission-generator.js:111, 231, 322`, `managers/event-engine.js:62`, `managers/ship.js:39`, `game-coordinator.js:513`.
 - **Found by:** Error Handling & Observability
 

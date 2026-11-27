@@ -62,6 +62,7 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipQuirks
  * @property {function(): Array} getShipUpgrades
+ * @property {function(): number} getShipEngine
  * @property {function(): number} getKarma
  *
  * @property {function(string): void} incrementDangerFlag
