@@ -1722,6 +1722,8 @@ export class GameCoordinator {
     }
   }
 
+  // A teleport is not a jump, so it rolls no arrival encounters or
+  // narratives; the dev panel triggers each encounter type directly.
   devTeleport(systemId) {
     this.navigationManager.updateLocation(systemId);
   }

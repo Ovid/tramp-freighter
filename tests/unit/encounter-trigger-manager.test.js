@@ -137,6 +137,28 @@ describe('EncounterTriggerManager', () => {
     expect(ids).toEqual(['a_condition']);
   });
 
+  it('a dev teleport runs no encounter or narrative checks', () => {
+    const game = newGame();
+    onlyEvents(game, [
+      event('test_pirate', 'jump', {
+        category: 'danger',
+        encounter: { generator: 'pirate' },
+      }),
+      event('a_condition', 'condition'),
+    ]);
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    game.devTeleport(NEIGHBOUR);
+
+    expect(game.getState().player.currentSystem).toBe(NEIGHBOUR);
+    expect(emissionsOf(emitSpy, EVENT_NAMES.ENCOUNTER_TRIGGERED)).toHaveLength(
+      0
+    );
+    expect(
+      emissionsOf(emitSpy, EVENT_NAMES.NARRATIVE_EVENT_TRIGGERED)
+    ).toHaveLength(0);
+  });
+
   // Only the last narrative of a jump reaches the screen, so a condition
   // warning emitted after a time narrative would hide it. Suppressed
   // warnings keep their cooldown and fire again on the next dock or tick.
