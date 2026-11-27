@@ -312,6 +312,7 @@ export class GameCoordinator {
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipQuirks: () => this.state.ship.quirks,
       getShipUpgrades: () => this.state.ship.upgrades,
+      getShipEngine: () => this.state.ship.engine,
       getKarma: () => this.state.player.karma,
       incrementDangerFlag: (flagName) =>
         this.dangerManager.incrementDangerFlag(flagName),
@@ -1443,6 +1444,14 @@ export class GameCoordinator {
 
   resolveCombatChoice(encounter, choice) {
     return this.combatManager.resolveCombatChoice(encounter, choice);
+  }
+
+  getCombatOdds(encounter) {
+    return this.combatManager.getCombatOdds(encounter);
+  }
+
+  getNegotiationOdds() {
+    return this.negotiationManager.getNegotiationOdds();
   }
 
   resolveNegotiation(encounter, choice) {

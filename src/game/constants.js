@@ -1376,6 +1376,8 @@ export const COMBAT_CONFIG = {
   // Engine condition threshold for combat penalties (different from SHIP_CONFIG.ENGINE_CONDITION_PENALTIES.THRESHOLD which is for fuel/time)
   ENGINE_PENALTY_THRESHOLD: 50,
   ENGINE_PENALTY_VALUE: -0.1, // -10% evasive chance when engine below threshold
+  // Modifiers smaller than this are applied but not listed in the odds breakdown
+  MIN_DISPLAYED_MODIFIER: 0.001,
 
   // Quirk and upgrade modifier values
   QUIRK_UPGRADE_BONUSES: {

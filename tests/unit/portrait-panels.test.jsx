@@ -35,11 +35,16 @@ vi.mock('../../src/hooks/useGameAction', () => ({
   useGameAction: () => ({}),
 }));
 
-vi.mock('../../src/context/GameContext.jsx', () => ({
-  useGame: () => ({
-    getDangerZone: () => 'safe',
-  }),
-}));
+vi.mock('../../src/context/GameContext.jsx', async () => {
+  const { realOddsGetters } = await import('../mock-odds.js');
+  const odds = realOddsGetters();
+  return {
+    useGame: () => ({
+      getDangerZone: () => 'safe',
+      ...odds,
+    }),
+  };
+});
 
 const noop = () => {};
 const portraitSrc = (container) =>

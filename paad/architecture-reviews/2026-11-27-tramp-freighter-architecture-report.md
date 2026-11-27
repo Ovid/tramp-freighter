@@ -163,6 +163,10 @@ How it is built:
   - `src/features/danger/CombatPanel.jsx:517-560` and `src/features/danger/PirateEncounterPanel.jsx:395-458`: "if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) evasiveChance += COMBAT_CONFIG.ENGINE_PENALTY_VALUE". No manager references `ENGINE_PENALTY_*`.
   - `src/game/state/managers/combat.js:75-91` (`resolveEvasiveManeuvers`): "successChance -= encounter.strengthModifier || 0".
 - **Found by:** Error Handling & Observability
+- **Status:** Fixed
+- **Status reason:** CombatManager.getCombatOdds and NegotiationManager.getNegotiationOdds compute every chance once; the resolvers roll against the same helpers and both panels display them through the facade. The resolver now applies the worn-engine evasion penalty (developer's design call); the display now includes escalation strength and the sensitive_sensors bonus. Both panel-side calculations were deleted.
+- **Status date:** 2026-11-27 11:57 UTC
+- **Status commit:** see the following report commit
 
 ### [F-4] Encounter and narrative outcomes are applied from feature code, one call at a time, partly on live state
 - **Category:** 13 Inconsistent boundaries (also 10, 26, 6)

@@ -1,5 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import { COMBAT_CONFIG, KARMA_CONFIG } from '../../constants.js';
+import { COMBAT_CONFIG, KARMA_CONFIG, SHIP_CONFIG } from '../../constants.js';
 import { calculateKarmaModifier } from '../../utils/danger-utils.js';
 import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
 
@@ -23,13 +23,7 @@ export class CombatManager extends BaseManager {
   resolveCombatChoice(encounter, choice) {
     this.validateState();
 
-    const stateView = {
-      player: { karma: this.capabilities.getKarma() },
-      ship: {
-        quirks: this.capabilities.getShipQuirks(),
-        upgrades: this.capabilities.getShipUpgrades(),
-      },
-    };
+    const stateView = this._buildStateView();
 
     const seed = buildEncounterSeed(
       this.capabilities.getDaysElapsed(),
@@ -61,6 +55,94 @@ export class CombatManager extends BaseManager {
   }
 
   /**
+   * Success chances for each rolled combat option, with the modifiers that
+   * produced them. The resolvers roll against these same numbers, so what
+   * the player is shown is what the game uses.
+   *
+   * @param {Object} encounter - The pirate encounter (may carry strengthModifier)
+   * @returns {{evasive: Odds, returnFire: Odds, distressCall: Odds}} where
+   *   Odds is {finalChance: number, modifiers: Array<{name, value, type}>}
+   */
+  getCombatOdds(encounter) {
+    const gameState = this._buildStateView();
+    return {
+      evasive: this.calculateEvasiveOdds(encounter, gameState),
+      returnFire: this.calculateReturnFireOdds(encounter, gameState),
+      distressCall: this.calculateDistressCallOdds(encounter, gameState),
+    };
+  }
+
+  _buildStateView() {
+    return {
+      player: { karma: this.capabilities.getKarma() },
+      ship: {
+        quirks: this.capabilities.getShipQuirks(),
+        upgrades: this.capabilities.getShipUpgrades(),
+        engine: this.capabilities.getShipEngine(),
+      },
+    };
+  }
+
+  calculateEvasiveOdds(encounter, gameState) {
+    const modifiers = [];
+    const engine = gameState.ship.engine ?? SHIP_CONFIG.CONDITION_BOUNDS.MAX;
+    if (engine < COMBAT_CONFIG.ENGINE_PENALTY_THRESHOLD) {
+      modifiers.push(
+        penalty('Poor Engine Condition', COMBAT_CONFIG.ENGINE_PENALTY_VALUE)
+      );
+    }
+    if (gameState.ship.quirks.includes('hot_thruster')) {
+      modifiers.push(
+        bonus(
+          'Hot Thruster Quirk',
+          COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus
+        )
+      );
+    }
+    if (gameState.ship.upgrades.includes('efficient_drive')) {
+      modifiers.push(
+        bonus(
+          'Efficient Drive Upgrade',
+          COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus
+        )
+      );
+    }
+    return finishOdds(
+      COMBAT_CONFIG.EVASIVE.BASE_CHANCE,
+      modifiers,
+      encounter,
+      gameState
+    );
+  }
+
+  calculateReturnFireOdds(encounter, gameState) {
+    return finishOdds(
+      COMBAT_CONFIG.RETURN_FIRE.BASE_CHANCE,
+      [],
+      encounter,
+      gameState
+    );
+  }
+
+  calculateDistressCallOdds(encounter, gameState) {
+    const modifiers = [];
+    if (gameState.ship.quirks.includes('sensitive_sensors')) {
+      modifiers.push(
+        bonus(
+          'Sensitive Sensors Quirk',
+          COMBAT_CONFIG.MODIFIERS.sensitive_sensors.distressBonus
+        )
+      );
+    }
+    return finishOdds(
+      COMBAT_CONFIG.DISTRESS_CALL.BASE_CHANCE,
+      modifiers,
+      encounter,
+      gameState
+    );
+  }
+
+  /**
    * Resolve evasive maneuvers combat choice
    *
    * Success rate: 70% base chance + modifiers
@@ -75,22 +157,8 @@ export class CombatManager extends BaseManager {
   resolveEvasiveManeuvers(encounter, gameState, rng) {
     const { EVASIVE } = COMBAT_CONFIG;
 
-    let successChance = EVASIVE.BASE_CHANCE;
-
-    if (gameState.ship.quirks.includes('hot_thruster')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.hot_thruster.evasiveBonus;
-    }
-
-    if (gameState.ship.upgrades.includes('efficient_drive')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.efficient_drive.fleeBonus;
-    }
-
-    successChance += calculateKarmaModifier(gameState.player.karma);
-    successChance -= encounter.strengthModifier || 0;
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success =
+      rng < this.calculateEvasiveOdds(encounter, gameState).finalChance;
 
     if (success) {
       return {
@@ -146,14 +214,8 @@ export class CombatManager extends BaseManager {
   resolveReturnFire(encounter, gameState, rng) {
     const { RETURN_FIRE } = COMBAT_CONFIG;
 
-    let successChance = RETURN_FIRE.BASE_CHANCE;
-
-    successChance += calculateKarmaModifier(gameState.player.karma);
-    successChance -= encounter.strengthModifier || 0;
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success =
+      rng < this.calculateReturnFireOdds(encounter, gameState).finalChance;
 
     if (success) {
       let hullDamage = RETURN_FIRE.SUCCESS_HULL_DAMAGE;
@@ -245,18 +307,8 @@ export class CombatManager extends BaseManager {
   resolveDistressCall(encounter, gameState, rng) {
     const { DISTRESS_CALL } = COMBAT_CONFIG;
 
-    let successChance = DISTRESS_CALL.BASE_CHANCE;
-
-    if (gameState.ship.quirks.includes('sensitive_sensors')) {
-      successChance += COMBAT_CONFIG.MODIFIERS.sensitive_sensors.distressBonus;
-    }
-
-    successChance += calculateKarmaModifier(gameState.player.karma);
-    successChance -= encounter.strengthModifier || 0;
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success =
+      rng < this.calculateDistressCallOdds(encounter, gameState).finalChance;
 
     if (success) {
       return {
@@ -341,4 +393,35 @@ export class CombatManager extends BaseManager {
 
     return Math.max(1, Math.round(modifiedDamage));
   }
+}
+
+const bonus = (name, value) => ({ name, value, type: 'bonus' });
+const penalty = (name, value) => ({ name, value, type: 'penalty' });
+
+/**
+ * Apply the modifiers every combat option shares (karma, escalated
+ * encounter strength) and clamp to a probability.
+ */
+function finishOdds(baseChance, modifiers, encounter, gameState) {
+  const karma = gameState.player.karma;
+  const karmaModifier = calculateKarmaModifier(karma);
+  const strength = encounter?.strengthModifier || 0;
+  const total =
+    baseChance +
+    modifiers.reduce((sum, m) => sum + m.value, 0) +
+    karmaModifier -
+    strength;
+
+  // Karma always applies; it is only listed once it moves the odds visibly
+  if (Math.abs(karmaModifier) > COMBAT_CONFIG.MIN_DISPLAYED_MODIFIER) {
+    modifiers.push(
+      karma > 0
+        ? bonus('Good Karma', karmaModifier)
+        : penalty('Bad Karma', karmaModifier)
+    );
+  }
+  if (strength) {
+    modifiers.push(penalty('Escalated Threat', -strength));
+  }
+  return { finalChance: Math.max(0, Math.min(1, total)), modifiers };
 }

@@ -17,6 +17,18 @@ import { SeededRandom, buildEncounterSeed } from '../../utils/seeded-random.js';
  */
 export class NegotiationManager extends BaseManager {
   /**
+   * Success chances the negotiation resolvers roll against, for display.
+   * @returns {{counterProposal: number, medicineClaim: number}}
+   */
+  getNegotiationOdds() {
+    const karma = this.capabilities.getKarma();
+    return {
+      counterProposal: counterProposalChance(karma),
+      medicineClaim: medicineClaimChance(karma),
+    };
+  }
+
+  /**
    * Resolve a negotiation choice and return the outcome
    *
    * @param {Object} encounter - The pirate encounter object
@@ -84,12 +96,7 @@ export class NegotiationManager extends BaseManager {
   resolveCounterProposal(encounter, gameState, rng) {
     const { COUNTER_PROPOSAL } = NEGOTIATION_CONFIG;
 
-    let successChance = COUNTER_PROPOSAL.BASE_CHANCE;
-    successChance += calculateKarmaModifier(gameState.player.karma);
-
-    successChance = Math.max(0, Math.min(1, successChance));
-
-    const success = rng < successChance;
+    const success = rng < counterProposalChance(gameState.player.karma);
 
     if (success) {
       if (this.hasTradeCargoForPirates()) {
@@ -140,8 +147,6 @@ export class NegotiationManager extends BaseManager {
    * @returns {Object} Negotiation outcome
    */
   resolveMedicineClaim(encounter, gameState, rng) {
-    const { MEDICINE_CLAIM } = NEGOTIATION_CONFIG;
-
     const hasMedicine = gameState.ship.cargo.some(
       (item) => item.good === 'medicine'
     );
@@ -156,12 +161,7 @@ export class NegotiationManager extends BaseManager {
       };
     }
 
-    let sympathyChance = MEDICINE_CLAIM.SYMPATHY_CHANCE;
-    sympathyChance += calculateKarmaModifier(gameState.player.karma);
-
-    sympathyChance = Math.max(0, Math.min(1, sympathyChance));
-
-    const success = rng < sympathyChance;
+    const success = rng < medicineClaimChance(gameState.player.karma);
 
     if (success) {
       return {
@@ -379,4 +379,20 @@ export class NegotiationManager extends BaseManager {
       description: `You couldn't pay. Pirates damaged your ${targetSystem === 'lifeSupport' ? 'life support' : targetSystem} before leaving.`,
     };
   }
+}
+
+const clampChance = (chance) => Math.max(0, Math.min(1, chance));
+
+function counterProposalChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.COUNTER_PROPOSAL.BASE_CHANCE +
+      calculateKarmaModifier(karma)
+  );
+}
+
+function medicineClaimChance(karma) {
+  return clampChance(
+    NEGOTIATION_CONFIG.MEDICINE_CLAIM.SYMPATHY_CHANCE +
+      calculateKarmaModifier(karma)
+  );
 }

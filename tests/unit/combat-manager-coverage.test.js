@@ -31,6 +31,7 @@ describe('CombatManager coverage', () => {
       getCurrentSystem: () => state.player.currentSystem,
       getShipQuirks: () => state.ship.quirks,
       getShipUpgrades: () => state.ship.upgrades,
+      getShipEngine: () => state.ship.engine,
       getKarma: () => state.player.karma,
       incrementDangerFlag: vi.fn(),
       emit: vi.fn(),

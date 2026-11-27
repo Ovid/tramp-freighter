@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CombatPanel } from '../../src/features/danger/CombatPanel.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
+import { realOddsGetters } from '../mock-odds.js';
 
 // Mock the GameCoordinator
 const mockGameCoordinator = {
+  ...realOddsGetters(),
   getState: vi.fn(() => ({
     player: {
       currentSystem: 0,
