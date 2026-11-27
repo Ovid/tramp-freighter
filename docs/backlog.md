@@ -205,6 +205,63 @@ fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
 
+## "Continue" after a rejected save starts a fresh game and overwrites the save
+
+When `loadGame()` rejects a save (bad JSON, incompatible version, failed
+validation), `src/main.jsx` falls back to `initNewGame()` and only logs in dev
+mode. `TitleScreen` still offers Continue because `hasSavedGame()` only checks
+that the key exists. `handleStartGame` in `src/App.jsx` ignores the return
+value of `game.loadGame()`, goes straight to ORBIT (skipping ship naming), and
+the first `markDirty()` overwrites the unreadable save.
+
+Found during the 2026-11-27 architecture review (F-1).
+
+## Combat panels show different evasion odds from the resolver
+
+`CombatPanel.jsx` and `PirateEncounterPanel.jsx` add
+`COMBAT_CONFIG.ENGINE_PENALTY_VALUE` when the engine is degraded, but
+`CombatManager.resolveEvasiveManeuvers` (`managers/combat.js`) never applies
+it. The resolver subtracts `encounter.strengthModifier`, which neither panel
+includes, so displayed odds are wrong after an escalation.
+
+Found during the 2026-11-27 architecture review (F-3).
+
+## Refuel charges credits before a check that can throw
+
+`refuel()` in `src/game/state/managers/refuel.js` calls `updateCredits` before
+the "CRITICAL BUG" guard that throws if fuel would decrease. If the guard ever
+fires, the player has paid and got no fuel. `buyGood` in `trading.js`
+similarly debits before an unguarded `currentSystemObj.name` lookup.
+
+Found during the 2026-11-27 architecture review (F-21).
+
+## UPGRADES_CHANGED emits the live upgrades array
+
+`ShipManager` pushes to `ship.upgrades` in place and then emits the same array
+(`ship.js` install, remove and purchase paths). `useGameEvent` stores it with
+`setState`, and React's `Object.is` check treats it as unchanged, so
+subscribers update only if another event fires in the same action (dev-admin
+install and remove have none). The quest path in `game-coordinator.js` copies
+the array. `trading.js` does the same with `priceKnowledge`.
+
+Found during the 2026-11-27 architecture review (F-19).
+
+## Salvage merge mutates a live cargo stack
+
+`applyEncounterOutcome.js` copies the cargo array shallowly, then does
+`existingStack.qty += qtyToAdd` on the stored object before `updateCargo`
+runs, so the stored state changes outside the manager.
+
+Found during the 2026-11-27 architecture review (F-4).
+
+## `saveGame()` docstring contradicts its return value
+
+`saveGame()` in `src/game/state/managers/save-load.js` is documented as
+returning true when the save "succeeded or was debounced", but it returns
+false when the write is debounced, the same value as a real failure.
+
+Found during the 2026-11-27 architecture review (F-11).
+
 ## Gameplay RNG parameters default to `Math.random`
 
 `generateMissionBoard` and its helpers (`mission-generator.js`),
