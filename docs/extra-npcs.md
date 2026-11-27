@@ -18,7 +18,7 @@ There are two kinds of image:
 
 | Event id | Image | Kind |
 |---|---|---|
-| `dock_sol_first` | — (no art; see *Not covered*) | — |
+| `dock_sol_first` | `scene_dock_sol_first.png` | scene |
 | `dock_barnards_first` | `chen_barnards.png` (from `npcs.md`) | portrait |
 | `dock_generic_rumor` | `dockworker_f.png` or `dockworker_m.png` | portrait |
 | `dock_beyond_the_lanes_rumor` | `dockworker_f.png` | portrait |
@@ -47,9 +47,6 @@ The passenger `{type}` is one of the keys of `PASSENGER_CONFIG.TYPES` in
 - **Events with a named speaker** (`time_debt_warning`,
   `cole_first_payment_hint`, `tanaka_intro`) already use the `npcs.md`
   portraits.
-- **`dock_sol_first`** has nobody in it, but it isn't covered here: no scene
-  was asked for. If it's wanted later, a wide shot of Sol Station dwarfing the
-  player's ship would fit the "You feel very small" text.
 
 ---
 
@@ -345,6 +342,25 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 ---
 
 ## Scenes
+
+### Arrival at Sol Station
+
+- **File:** `scene_dock_sol_first.png`
+- **Tint:** green
+- **Event:** `dock_sol_first`
+- **Canon:** "Sol Station. The heart of human civilization. Massive.
+  Gleaming. Expensive. You feel very small, and very poor."
+- **Composition:** a wide external view on approach. Sol Station fills most
+  of the frame: towering, layered and lit by thousands of windows, with
+  traffic lanes of other ships streaming past. This is the one scene where
+  things *are* shiny and new, which is the point.
+  **Signature detail:** the player's battered little freighter, a small dark
+  silhouette in the lower corner, dwarfed by the station.
+- **Prompt:** Wide external view of a vast, gleaming space station filling
+  most of the frame, towering and layered, lit by thousands of windows, with
+  streams of ship traffic flowing past. In the lower corner, a small,
+  battered, boxy freighter approaches in silhouette, dwarfed by the station.
+  Awe-struck, intimidating mood.
 
 ### Salvage: Debris Field
 
