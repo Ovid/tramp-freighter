@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGame } from '../../context/GameContext.jsx';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 import { calculateInspectionAnalysis } from './inspectionUtils.js';
 import { formatCargoDisplayName } from '../../game/utils/string-utils.js';
 import {
@@ -76,23 +78,26 @@ export function InspectionPanel({ inspection, onChoice, onClose: _onClose }) {
         {/* Inspection Status Section */}
         <div className="inspection-section inspection-status">
           <h3>Inspection Status</h3>
-          <div className="inspection-info">
-            <div className="inspection-severity">
-              <span className="severity-label">Inspection Type:</span>
-              <span
-                className={`severity-value ${severity}`}
-                style={{ color: severityColor }}
-              >
-                {severity.charAt(0).toUpperCase() + severity.slice(1)}
-              </span>
-            </div>
-            <div className="inspection-description">
-              {inspection.description ||
-                'Customs officials are conducting a standard cargo inspection. Cooperation is expected.'}
-            </div>
-            <div className="inspector-dialogue">
-              "Please prepare your cargo manifest for inspection. Any restricted
-              items must be declared."
+          <div className="portrait-row">
+            <Portrait src={getPortraitUrl('encounter', 'inspection')} />
+            <div className="inspection-info">
+              <div className="inspection-severity">
+                <span className="severity-label">Inspection Type:</span>
+                <span
+                  className={`severity-value ${severity}`}
+                  style={{ color: severityColor }}
+                >
+                  {severity.charAt(0).toUpperCase() + severity.slice(1)}
+                </span>
+              </div>
+              <div className="inspection-description">
+                {inspection.description ||
+                  'Customs officials are conducting a standard cargo inspection. Cooperation is expected.'}
+              </div>
+              <div className="inspector-dialogue">
+                "Please prepare your cargo manifest for inspection. Any
+                restricted items must be declared."
+              </div>
             </div>
           </div>
         </div>
