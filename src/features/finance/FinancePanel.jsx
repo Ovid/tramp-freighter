@@ -3,6 +3,13 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { COLE_DEBT_CONFIG, EVENT_NAMES } from '../../game/constants';
 
+const HEAT_TIER_LABELS = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  critical: 'Critical',
+};
+
 /**
  * FinancePanel - React component for Cole's credit line
  *
@@ -67,6 +74,7 @@ export function FinancePanel({ onClose }) {
   const lienPercent = Math.round(debtInfo.lienRate * 100);
   const interestPercent = Math.round(debtInfo.interestRate * 100);
   const daysUntilInterest = Math.max(0, debtInfo.nextInterestDay - currentDay);
+  const daysUntilCheckpoint = Math.max(0, debtInfo.nextCheckpoint - currentDay);
 
   return (
     <div id="finance-panel" className="visible">
@@ -99,6 +107,31 @@ export function FinancePanel({ onClose }) {
               {debtInfo.debt > 0 ? `${daysUntilInterest} days` : 'N/A'}
             </span>
           </div>
+          {debtInfo.debt > 0 && (
+            <>
+              <div className="info-row">
+                <span className="label">Cole&apos;s attention:</span>
+                <span className="value">
+                  {HEAT_TIER_LABELS[debtInfo.heatTier]} ({debtInfo.heat}/
+                  {COLE_DEBT_CONFIG.HEAT_MAX})
+                </span>
+              </div>
+              <div className="info-row">
+                <span className="label">Next check-in:</span>
+                <span className="value">
+                  {daysUntilCheckpoint} days ·{' '}
+                  {debtInfo.paidSinceCheckpoint
+                    ? 'payment made'
+                    : 'no payment yet'}
+                </span>
+              </div>
+              <p className="finance-note">
+                Pay something before each check-in. Missing a check-in raises
+                Cole&apos;s attention, which raises withholding and interest.
+                Larger payments calm him faster.
+              </p>
+            </>
+          )}
         </div>
 
         {debtInfo.debt > 0 && (

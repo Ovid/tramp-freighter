@@ -251,8 +251,10 @@ export class DebtManager extends BaseManager {
 
     finance.totalRepaid += actualPayment;
 
-    // Heat reduction per payment action
-    this.updateHeat(COLE_DEBT_CONFIG.HEAT_VOLUNTARY_PAYMENT);
+    // Scaled by amount so splitting one payment into many clicks gains nothing
+    this.updateHeat(
+      -Math.floor(actualPayment / COLE_DEBT_CONFIG.HEAT_CREDITS_PER_POINT)
+    );
 
     // Cole respects payers: +floor(actualPayment/divisor), min +1
     const repGain = Math.max(
@@ -387,6 +389,9 @@ export class DebtManager extends BaseManager {
       totalBorrowed: finance.totalBorrowed,
       totalRepaid: finance.totalRepaid,
       nextCheckpoint: finance.nextCheckpoint,
+      heat: finance.heat,
+      heatTier: this.getHeatTier(),
+      paidSinceCheckpoint: finance.totalRepaid > finance.lastCheckpointRepaid,
       earlyRepaymentFeeRate: isEarlyRepayment
         ? COLE_DEBT_CONFIG.EARLY_REPAYMENT_FEE_RATE
         : 0,

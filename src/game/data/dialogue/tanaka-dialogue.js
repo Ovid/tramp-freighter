@@ -46,7 +46,7 @@ export const YUKI_TANAKA_DIALOGUE = {
         return '"My message for Captain Vasquez — have you delivered it yet?" She meets your eyes briefly. "They\'re at Eridani Hub. Epsilon Eridani."';
       }
       if (stage === 3) {
-        return '"The prototype integration is complete. Your ship performed admirably." She pauses. "I have one more request. A personal one."';
+        return '"The prototype integration is complete. The diagnostics came back clean." She pauses. "I have one more request. A personal one."';
       }
       if (stage === 2) {
         const exotics =
@@ -444,7 +444,7 @@ export const YUKI_TANAKA_DIALOGUE = {
   },
 
   mission_3_accepted: {
-    text: '"Installation complete. The Range Extender sits dormant until activation — it will not interfere with normal operations." She wipes her hands. "Take a test flight. Come back and we will verify the readings."',
+    text: '"Installation complete. The Range Extender sits dormant until activation — it will not interfere with normal operations." She wipes her hands. "Give me a moment to run the diagnostics, then we talk."',
     choices: [
       {
         text: '"Thank you, Tanaka."',

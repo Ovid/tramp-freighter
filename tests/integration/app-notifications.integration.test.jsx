@@ -201,16 +201,29 @@ describe('App Notification Integration', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(/Scanner: Already sampled this station\./)
+          screen.getByText(/Scanner: Already scanned this station\./)
         ).toBeInTheDocument();
       });
 
       const notification = screen.getByText(
-        /Scanner: Already sampled this station\./
+        /Scanner: Already scanned this station\./
       );
       expect(notification.closest('.notification')).toHaveClass(
         'notification-info'
       );
+    });
+
+    it('should show an info notification when a scan finds nothing', async () => {
+      renderApp();
+      await navigateToOrbit();
+
+      game.emit(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Scanner: No exotic matter here/)
+        ).toBeInTheDocument();
+      });
     });
 
     it('should unsubscribe from exotic matter events on unmount', async () => {

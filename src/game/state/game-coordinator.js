@@ -1057,7 +1057,10 @@ export class GameCoordinator {
   }
 
   startPavonisRun() {
-    this.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, true);
+    // React's useGameEvent ignores a repeated identical value, so a constant
+    // payload would stop "Let's fly." from reopening the run after "NOT YET".
+    this.pavonisRunTriggerCount = (this.pavonisRunTriggerCount || 0) + 1;
+    this.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, this.pavonisRunTriggerCount);
   }
 
   // ========================================================================

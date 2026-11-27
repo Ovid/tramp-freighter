@@ -382,6 +382,16 @@ export const SHIP_CONFIG = {
       tradeoff: 'Takes up cargo space.',
     },
   },
+
+  // Quest rewards. Kept out of UPGRADES so the shop never offers them.
+  QUEST_UPGRADES: {
+    range_extender: {
+      name: 'Range Extender',
+      description: 'One-way jump to Delta Pavonis, beyond the wormhole network',
+      effects: {},
+      tradeoff: 'Single use. There is no coming back.',
+    },
+  },
 };
 
 /**
@@ -512,7 +522,7 @@ export const COLE_DEBT_CONFIG = {
   HEAT_BORROW_STEP: 500,
   HEAT_BORROW_PER_STEP: 2,
   HEAT_MISSED_CHECKPOINT: 10,
-  HEAT_VOLUNTARY_PAYMENT: -3,
+  HEAT_CREDITS_PER_POINT: 250, // Each ₡250 repaid cools 1 heat; tiny payments cool none
   HEAT_NATURAL_DECAY: -1,
   HEAT_DECLINE_FAVOR: 5,
   HEAT_FAIL_MANDATORY: 15,
@@ -673,6 +683,7 @@ export const ENDGAME_CONFIG = {
   STAGE_2_EXOTIC_NEEDED: 5,
   STAGE_2_EXOTIC_DISTANCE: 15,
   STAGE_2_EXOTIC_CHANCE: 0.6,
+  STAGE_2_EXOTIC_MISS_BONUS: 0.2, // Each miss adds this to the next scan: 60% → 80% → 100%
   STAGE_2_REWARD_CREDITS: 3000,
   STAGE_2_REWARD_REP: 15,
   STAGE_3_REP: 50,
@@ -1950,6 +1961,7 @@ export const EVENT_NAMES = Object.freeze({
   QUEST_CHANGED: 'questChanged',
   EXOTIC_MATTER_COLLECTED: 'exoticMatterCollected',
   EXOTIC_MATTER_ALREADY_SAMPLED: 'exoticMatterAlreadySampled',
+  EXOTIC_MATTER_NOT_FOUND: 'exoticMatterNotFound',
 
   // Intelligence
   INTELLIGENCE_CHANGED: 'intelligenceChanged',

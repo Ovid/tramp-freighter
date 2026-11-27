@@ -255,14 +255,25 @@ describe('Cole Debt System', () => {
         expect(gsm.state.player.credits).toBe(4000);
       });
 
-      it('reduces heat by 3 per payment action', () => {
+      it('reduces heat in proportion to the amount paid', () => {
+        gsm.state.player.credits = 5000;
+        gsm.state.player.debt = 10000;
+        gsm.state.player.finance.heat = 30;
+
+        debtManager.makePayment(1000);
+
+        expect(gsm.state.player.finance.heat).toBe(26);
+      });
+
+      it('does not reduce heat for payments too small to matter', () => {
+        // Splitting a payment into many ₡100 clicks used to erase heat cheaply
         gsm.state.player.credits = 5000;
         gsm.state.player.debt = 10000;
         gsm.state.player.finance.heat = 30;
 
         debtManager.makePayment(100);
 
-        expect(gsm.state.player.finance.heat).toBe(27);
+        expect(gsm.state.player.finance.heat).toBe(30);
       });
 
       it('caps payment at current debt', () => {
@@ -607,6 +618,21 @@ describe('Cole Debt System', () => {
         expect(info.canPay).toBe(true);
         expect(info.totalBorrowed).toBe(2000);
         expect(info.totalRepaid).toBe(4000);
+      });
+
+      it("exposes Cole's heat and whether a payment was made since the last check-in", () => {
+        gsm.state.player.debt = 8000;
+        gsm.state.player.finance.heat = 25;
+        gsm.state.player.finance.totalRepaid = 4000;
+        gsm.state.player.finance.lastCheckpointRepaid = 4000;
+
+        const unpaid = debtManager.getDebtInfo();
+        expect(unpaid.heat).toBe(25);
+        expect(unpaid.heatTier).toBe('medium');
+        expect(unpaid.paidSinceCheckpoint).toBe(false);
+
+        gsm.state.player.finance.totalRepaid = 4500;
+        expect(debtManager.getDebtInfo().paidSinceCheckpoint).toBe(true);
       });
     });
 

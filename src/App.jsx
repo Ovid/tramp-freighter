@@ -20,7 +20,7 @@ import { useNotificationContext } from './context/NotificationContext';
 import { useGameEvent } from './hooks/useGameEvent';
 import { useEventTriggers } from './hooks/useEventTriggers';
 import { useEncounterOrchestration } from './hooks/useEncounterOrchestration';
-import { EVENT_NAMES, ENDGAME_CONFIG } from './game/constants.js';
+import { EVENT_NAMES } from './game/constants.js';
 import { getPageTitle } from './game/utils/page-title.js';
 import { NarrativeEventPanel } from './features/narrative/NarrativeEventPanel';
 import { InstructionsModal } from './features/instructions/InstructionsModal';
@@ -190,7 +190,12 @@ export default function App({ devMode = false }) {
       );
     };
     const handleAlreadySampled = () => {
-      notificationCtx.showInfo('Scanner: Already sampled this station.');
+      notificationCtx.showInfo('Scanner: Already scanned this station.');
+    };
+    const handleNotFound = () => {
+      notificationCtx.showInfo(
+        'Scanner: No exotic matter here. Odds improve at the next distant station.'
+      );
     };
 
     game.subscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
@@ -198,7 +203,9 @@ export default function App({ devMode = false }) {
       EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
       handleAlreadySampled
     );
+    game.subscribe(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND, handleNotFound);
     return () => {
+      game.unsubscribe(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND, handleNotFound);
       game.unsubscribe(EVENT_NAMES.EXOTIC_MATTER_COLLECTED, handleCollected);
       game.unsubscribe(
         EVENT_NAMES.EXOTIC_MATTER_ALREADY_SAMPLED,
@@ -387,7 +394,9 @@ export default function App({ devMode = false }) {
   useEffect(() => {
     if (epiloguePreviewEvent) {
       setShowDevAdmin(false);
-      game.devTeleport(ENDGAME_CONFIG.DELTA_PAVONIS_ID);
+      // Same path as the real ending, so the jump to Delta Pavonis can't
+      // trigger a random encounter over the Epilogue
+      game.markVictory();
       setViewMode(VIEW_MODES.EPILOGUE);
     }
   }, [epiloguePreviewEvent, game]);

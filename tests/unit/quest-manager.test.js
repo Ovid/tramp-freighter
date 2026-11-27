@@ -461,6 +461,35 @@ describe('Exotic material collection', () => {
     expect(manager.getQuestState('tanaka').data.exoticMaterials).toBe(1);
   });
 
+  it('marks a station as scanned when the roll fails, so redocking cannot re-roll', () => {
+    manager.questManager.onDock(99, () => 0.99);
+    manager.questManager.onDock(99, () => 0);
+    expect(
+      manager.getQuestState('tanaka').data.exoticMaterials
+    ).toBeUndefined();
+  });
+
+  it('raises the scan chance after each miss so bad luck cannot block the quest', () => {
+    manager.questManager.onDock(99, () => 0.99); // miss at 60%
+    expect(manager.getQuestState('tanaka').data.exoticMisses).toBe(1);
+
+    // After two misses the chance reaches 100%, so even the worst roll succeeds
+    manager.updateQuestData('tanaka', 'exoticMisses', 2);
+    manager.updateQuestData('tanaka', 'exoticFailedStations', []);
+    manager.questManager.onDock(99, () => 0.99);
+
+    const data = manager.getQuestState('tanaka').data;
+    expect(data.exoticMaterials).toBe(1);
+    expect(data.exoticMisses).toBe(0);
+  });
+
+  it('rolls with a seeded RNG instead of Math.random', () => {
+    const mathRandom = vi.spyOn(Math, 'random');
+    manager.questManager.onDock(99);
+    expect(mathRandom).not.toHaveBeenCalled();
+    mathRandom.mockRestore();
+  });
+
   it('does not collect past the required amount', () => {
     manager.updateQuestData(
       'tanaka',
@@ -516,6 +545,15 @@ describe('Exotic matter scanner feedback', () => {
     manager.questManager.onDock(99, () => 0);
 
     expect(alreadySampled).toHaveBeenCalledTimes(1);
+  });
+
+  it('emits EXOTIC_MATTER_NOT_FOUND when the scan misses', () => {
+    const notFound = vi.fn();
+    manager.subscribe(EVENT_NAMES.EXOTIC_MATTER_NOT_FOUND, notFound);
+
+    manager.questManager.onDock(99, () => 0.99);
+
+    expect(notFound).toHaveBeenCalledTimes(1);
   });
 
   it('does not emit scanner events when not at stage 2', () => {

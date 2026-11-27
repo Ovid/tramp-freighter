@@ -248,6 +248,24 @@ describe('FinancePanel', () => {
     expect(screen.getByText('Emergency Credit')).toBeTruthy();
   });
 
+  it("shows Cole's attention and the next check-in with payment status", () => {
+    mockGetDebtInfo.mockReturnValue(
+      makeDebtInfo({
+        heat: 25,
+        heatTier: 'medium',
+        nextCheckpoint: 21,
+        paidSinceCheckpoint: false,
+      })
+    );
+
+    render(<FinancePanel onClose={vi.fn()} />);
+
+    expect(screen.getByText('Medium (25/100)')).toBeTruthy();
+    // nextCheckpoint 21, currentDay 15 => 6 days
+    expect(screen.getByText('6 days · no payment yet')).toBeTruthy();
+    expect(screen.getByText(/Missing a check-in/)).toBeTruthy();
+  });
+
   it('shows next interest as N/A when debt is 0', () => {
     mockGetDebtInfo.mockReturnValue(makeDebtInfo({ debt: 0 }));
     setDefaultHookValues({ debt: 0 });

@@ -232,6 +232,33 @@ describe('Endgame Flow Integration', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should restart the Pavonis Run after the player cancels once', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+    game.dock();
+
+    game.startPavonisRun();
+    await waitFor(() => {
+      expect(screen.getByTestId('pavonis-run')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Cancel Run'));
+    await waitFor(() => {
+      expect(screen.queryByTestId('pavonis-run')).not.toBeInTheDocument();
+    });
+
+    // Choosing "Let's fly." again must reopen the Point of No Return screen
+    game.startPavonisRun();
+    await waitFor(() => {
+      expect(screen.getByTestId('pavonis-run')).toBeInTheDocument();
+    });
+  });
+
   it('should show Epilogue directly when EPILOGUE_PREVIEW_TRIGGERED is emitted', async () => {
     render(
       <GameProvider game={game}>
@@ -241,8 +268,7 @@ describe('Endgame Flow Integration', () => {
 
     await navigateToOrbit();
 
-    // Spy on devTeleport to verify it's called
-    const devTeleportSpy = vi.spyOn(game, 'devTeleport');
+    const markVictorySpy = vi.spyOn(game, 'markVictory');
 
     // Emit EPILOGUE_PREVIEW_TRIGGERED (dev shortcut, skips Pavonis Run)
     game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, true);
@@ -254,8 +280,41 @@ describe('Endgame Flow Integration', () => {
 
     expect(screen.queryByTestId('pavonis-run')).not.toBeInTheDocument();
 
-    expect(devTeleportSpy).toHaveBeenCalledWith(
+    expect(markVictorySpy).toHaveBeenCalled();
+    expect(game.getState().player.currentSystem).toBe(
       ENDGAME_CONFIG.DELTA_PAVONIS_ID
     );
+  });
+
+  it('should not let a jump encounter hijack the dev Epilogue preview', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+
+    game.eventEngineManager.registerEvent({
+      id: 'test_danger_jump_preview',
+      type: 'jump',
+      category: 'danger',
+      trigger: { system: null, condition: null, chance: 1.0 },
+      once: false,
+      cooldown: 0,
+      priority: 999,
+      encounter: { generator: 'pirate' },
+    });
+    const emitSpy = vi.spyOn(game, 'emit');
+
+    game.emit(EVENT_NAMES.EPILOGUE_PREVIEW_TRIGGERED, true);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('epilogue')).toBeInTheDocument();
+    });
+    const encounters = emitSpy.mock.calls.filter(
+      ([event]) => event === EVENT_NAMES.ENCOUNTER_TRIGGERED
+    );
+    expect(encounters).toHaveLength(0);
   });
 });

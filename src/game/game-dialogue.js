@@ -321,6 +321,23 @@ export function selectChoice(
 
   const selectedChoice = currentNode.choices[choiceIndex];
 
+  // Free conversation rep is paid once per choice, or repeating a chain
+  // farms every rep gate. Penalties, picker choices (which cost cargo) and
+  // action choices (loans, quest steps) still apply each time; an action
+  // that fails pays nothing.
+  const shouldAwardRepGain = (choice, id) => {
+    if (actionFailed) return false;
+    if (choice.repGain < 0 || choice.picker || choice.action) return true;
+    const npcState = gameStateManager.getNPCState(id);
+    npcState.repGainsClaimed ||= [];
+    // Keyed on text, not position, so reordering choices can't misattribute
+    // claims in existing saves; rewording a choice just pays it once more.
+    const key = `${currentNodeId}:${choice.text}`;
+    if (npcState.repGainsClaimed.includes(key)) return false;
+    npcState.repGainsClaimed.push(key);
+    return true;
+  };
+
   // The engine, not the UI, runs picker operations, so no caller can collect
   // the repGain without the cargo actually moving (ADR 0001)
   let message;
@@ -342,6 +359,7 @@ export function selectChoice(
   const context = buildDialogueContext(gameStateManager, npcId);
 
   // Execute action if present
+  let actionFailed = false;
   if (selectedChoice.action && typeof selectedChoice.action === 'function') {
     try {
       const actionResult = selectedChoice.action(context);
@@ -352,6 +370,7 @@ export function selectChoice(
         typeof actionResult === 'object' &&
         actionResult.success === false
       ) {
+        actionFailed = true;
         // Action failed - the action should have already provided user feedback
         // Log for debugging but continue with dialogue flow
         console.warn(
@@ -360,6 +379,7 @@ export function selectChoice(
         );
       }
     } catch (error) {
+      actionFailed = true;
       // Unexpected error in action execution
       console.error(
         `Error executing dialogue action for choice ${choiceIndex} in node ${currentNodeId} for NPC ${npcId}:`,
@@ -378,7 +398,7 @@ export function selectChoice(
   // Apply reputation gain before advancing to next node
   // Use modifyRepRaw to bypass trust personality modifier — dialogue repGain
   // values are intentional design choices that should apply at face value
-  if (selectedChoice.repGain && selectedChoice.repGain !== 0) {
+  if (selectedChoice.repGain && shouldAwardRepGain(selectedChoice, npcId)) {
     gameStateManager.modifyRepRaw(
       npcId,
       selectedChoice.repGain,

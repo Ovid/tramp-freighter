@@ -184,6 +184,37 @@ describe('useEventTriggers Integration', () => {
     expect(encounterEmissions[0][1]).toHaveProperty('type', 'pirate');
   });
 
+  it('should not trigger an encounter when markVictory moves the player to Delta Pavonis', () => {
+    renderWithGame(game);
+
+    game.eventEngineManager.registerEvent({
+      id: 'test_danger_jump_victory',
+      type: 'jump',
+      category: 'danger',
+      trigger: { system: null, condition: null, chance: 1.0 },
+      once: false,
+      cooldown: 0,
+      priority: 999,
+      encounter: { generator: 'pirate' },
+    });
+
+    act(() => {
+      game.emit('locationChanged', 4); // Initial skip
+    });
+    emitSpy.mockClear();
+
+    // The Pavonis Run's "Arrive at Delta Pavonis" calls markVictory, which
+    // relocates the player. The ending must not be hijacked by an encounter.
+    act(() => {
+      game.markVictory();
+    });
+
+    const encounterEmissions = emitSpy.mock.calls.filter(
+      ([event]) => event === 'encounterTriggered'
+    );
+    expect(encounterEmissions).toHaveLength(0);
+  });
+
   it('should ignore docked events with no systemId', () => {
     renderWithGame(game);
     emitSpy.mockClear();

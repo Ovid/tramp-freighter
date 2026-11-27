@@ -463,6 +463,13 @@ describe('ShipManager', () => {
       expect(def).toHaveProperty('cost');
     });
 
+    it('getUpgradeDefinition describes the Range Extender quest reward', () => {
+      // Ship Status hides any installed upgrade without a definition
+      const def = gsm.shipManager.getUpgradeDefinition('range_extender');
+      expect(def).not.toBeNull();
+      expect(def.name).toBe('Range Extender');
+    });
+
     it('getUpgradeDefinition returns null for unknown upgrade', () => {
       expect(gsm.shipManager.getUpgradeDefinition('fake')).toBeNull();
     });
@@ -479,6 +486,17 @@ describe('ShipManager', () => {
       expect(capabilities.hullDegradation).toBe(1.0);
       expect(capabilities.lifeSupportDrain).toBe(1.0);
       expect(capabilities.hiddenCargoCapacity).toBe(0);
+    });
+
+    it('calculateShipCapabilities treats the Range Extender as a known upgrade', () => {
+      const state = gsm.getState();
+      state.ship.upgrades = ['range_extender'];
+      const warnSpy = vi.spyOn(gsm.shipManager, 'warn');
+
+      const capabilities = gsm.shipManager.calculateShipCapabilities();
+
+      expect(warnSpy).not.toHaveBeenCalled();
+      expect(capabilities.fuelCapacity).toBe(SHIP_CONFIG.FUEL_CAPACITY);
     });
 
     it('calculateShipCapabilities with expanded_hold increases cargo', () => {
