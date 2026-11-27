@@ -72,6 +72,16 @@ describe('Load error reporting', () => {
     expect(game.getLoadError()).toMatch(/validation/i);
   });
 
+  it('reports a restore that throws without exposing the engine error', () => {
+    store[SAVE_KEY] = JSON.stringify(validState());
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    vi.spyOn(game, 'restoreState').mockImplementation(() => {
+      throw new TypeError("Cannot read properties of undefined (reading 'x').");
+    });
+    game.loadGame();
+    expect(game.getLoadError()).toBe('Save data could not be loaded');
+  });
+
   it('clears the load error after a successful load', () => {
     store[SAVE_KEY] = '{not json';
     const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);

@@ -170,8 +170,9 @@ export class SaveLoadManager extends BaseManager {
       return null;
     } catch (error) {
       const recovered = this.handleLoadError(error);
+      // The player sees this text; the raw error was logged above.
       if (!recovered) {
-        this._loadError = error.message || 'Save data could not be loaded';
+        this._loadError = 'Save data could not be loaded';
       }
       return recovered;
     }
