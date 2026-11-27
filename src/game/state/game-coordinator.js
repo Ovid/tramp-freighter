@@ -1322,12 +1322,25 @@ export class GameCoordinator {
   // SHIP REPAIR SYSTEM
   // ========================================================================
 
-  getRepairCost(systemType, amount, currentCondition) {
+  getRepairCost(systemType, amount, currentCondition, discount = 0) {
     return this.repairManager.getRepairCost(
       systemType,
       amount,
-      currentCondition
+      currentCondition,
+      discount
     );
+  }
+
+  getRepairAllCost(discount = 0) {
+    return this.repairManager.getRepairAllCost(discount);
+  }
+
+  repairAll(discount = 0) {
+    return this.repairManager.repairAll(discount);
+  }
+
+  canAffordStandardRepair(systemType) {
+    return this.repairManager.canAffordStandardRepair(systemType);
   }
 
   repairShipSystem(systemType, amount, discount = 0) {

@@ -243,12 +243,12 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
 
         const wrapper = createWrapper(game);
 
-        // Track repair calls
-        let repairCallCount = 0;
-        const originalRepair = game.repairShipSystem.bind(game);
-        game.repairShipSystem = (system, amount) => {
-          repairCallCount++;
-          return originalRepair(system, amount);
+        // Track Repair All calls
+        let repairAllCallCount = 0;
+        const originalRepairAll = game.repairAll.bind(game);
+        game.repairAll = (discount) => {
+          repairAllCallCount++;
+          return originalRepairAll(discount);
         };
 
         // Render RepairPanel
@@ -260,8 +260,8 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
 
         fireEvent.click(repairAllButton);
 
-        // Verify repair was called multiple times (once per system)
-        expect(repairCallCount).toBeGreaterThan(0);
+        // Repair All is one purchase, not one per system
+        expect(repairAllCallCount).toBe(1);
 
         return true;
       }),

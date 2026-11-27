@@ -3,15 +3,9 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useStarData } from '../../hooks/useStarData';
 import {
-  calculateRepairCost,
-  calculateDiscountedRepairCost,
-  calculateRepairAllCost,
-  calculateDiscountedRepairAllCost,
-  validateRepairAll,
   getSystemCondition,
   getSystemName,
   isSystemCritical,
-  canAffordRepairAboveThreshold,
   calculateCannibalizeRequired,
   calculateMaxDonation,
 } from './repairUtils';
@@ -42,6 +36,10 @@ export function RepairPanel({ onClose }) {
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
   const {
     repair,
+    repairAll,
+    getRepairCost,
+    getRepairAllCost,
+    canAffordStandardRepair,
     canGetFreeRepair,
     getFreeRepair,
     applyEmergencyPatch,
@@ -161,69 +159,13 @@ export function RepairPanel({ onClose }) {
   };
 
   const handleRepairAll = () => {
-    const validation = validateRepairAll(condition, credits);
-
-    if (!validation.valid) {
-      setValidationMessage(validation.reason);
-      setValidationClass('error');
-      return;
-    }
-
-    let repairCount = 0;
-    let failedRepairs = [];
-
-    // Repair hull
-    const hullAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.hull;
-    if (hullAmount > 0) {
-      const repairOutcome = repair('hull', hullAmount, bestDiscount.discount);
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Hull: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair engine
-    const engineAmount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.engine;
-    if (engineAmount > 0) {
-      const repairOutcome = repair(
-        'engine',
-        engineAmount,
-        bestDiscount.discount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Engine: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Repair life support
-    const lifeSupportAmount =
-      SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition.lifeSupport;
-    if (lifeSupportAmount > 0) {
-      const repairOutcome = repair(
-        'lifeSupport',
-        lifeSupportAmount,
-        bestDiscount.discount
-      );
-      if (repairOutcome.success) {
-        repairCount++;
-      } else {
-        failedRepairs.push(`Life Support: ${repairOutcome.reason}`);
-      }
-    }
-
-    // Show results
-    if (failedRepairs.length > 0) {
-      setValidationMessage(`Some repairs failed: ${failedRepairs.join(', ')}`);
-      setValidationClass('error');
-    } else if (repairCount > 0) {
+    const repairOutcome = repairAll(bestDiscount.discount);
+    if (repairOutcome.success) {
       setValidationMessage('');
       setValidationClass('');
     } else {
-      setValidationMessage('All systems already at maximum condition');
-      setValidationClass('info');
+      setValidationMessage(repairOutcome.reason);
+      setValidationClass('error');
     }
   };
 
@@ -257,45 +199,23 @@ export function RepairPanel({ onClose }) {
         <h4>{label}</h4>
         <div className="repair-buttons">
           {repairAmounts.map((amountStr) => {
-            let amount = 0;
-            let cost = 0;
-            let discountedCost = 0;
-            let buttonText = '';
-
-            if (amountStr === 'full') {
-              amount = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
-              cost = calculateRepairCost(amount, currentCondition);
-              discountedCost = calculateDiscountedRepairCost(
-                amount,
-                currentCondition,
-                bestDiscount.discount
-              );
-
-              if (bestDiscount.discount > 0) {
-                buttonText = `Full (₡${discountedCost})`;
-              } else {
-                buttonText = `Full (₡${cost})`;
-              }
-            } else {
-              amount = amountStr;
-              cost = calculateRepairCost(amount, currentCondition);
-              discountedCost = calculateDiscountedRepairCost(
-                amount,
-                currentCondition,
-                bestDiscount.discount
-              );
-
-              if (bestDiscount.discount > 0) {
-                buttonText = `+${amount}% (₡${discountedCost})`;
-              } else {
-                buttonText = `+${amount}% (₡${cost})`;
-              }
-            }
+            const isFull = amountStr === 'full';
+            const amount = isFull
+              ? SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition
+              : amountStr;
+            const finalCost = getRepairCost(
+              systemType,
+              amount,
+              currentCondition,
+              bestDiscount.discount
+            );
+            const buttonText = isFull
+              ? `Full (₡${finalCost})`
+              : `+${amount}% (₡${finalCost})`;
 
             const wouldExceedMax =
               currentCondition + amount > SHIP_CONFIG.CONDITION_BOUNDS.MAX;
             const atMax = currentCondition >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
-            const finalCost = bestDiscount.discount > 0 ? discountedCost : cost;
             const notEnoughCredits = credits < finalCost;
 
             const disabled =
@@ -317,20 +237,14 @@ export function RepairPanel({ onClose }) {
     );
   };
 
-  const totalCost = calculateRepairAllCost(condition);
-  const discountedTotalCost = calculateDiscountedRepairAllCost(
-    condition,
-    bestDiscount.discount
-  );
-  const finalTotalCost =
-    bestDiscount.discount > 0 ? discountedTotalCost : totalCost;
+  const finalTotalCost = getRepairAllCost(bestDiscount.discount);
 
   const allAtMax =
     condition.hull >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.engine >= SHIP_CONFIG.CONDITION_BOUNDS.MAX &&
     condition.lifeSupport >= SHIP_CONFIG.CONDITION_BOUNDS.MAX;
   const repairAllDisabled =
-    allAtMax || credits < finalTotalCost || totalCost === 0;
+    allAtMax || credits < finalTotalCost || finalTotalCost === 0;
 
   const currentSystem = starData.find((s) => s.id === currentSystemId);
 
@@ -407,10 +321,7 @@ export function RepairPanel({ onClose }) {
         {['hull', 'engine', 'lifeSupport'].some(
           (sys) =>
             isSystemCritical(getSystemCondition(condition, sys)) &&
-            !canAffordRepairAboveThreshold(
-              getSystemCondition(condition, sys),
-              credits
-            )
+            !canAffordStandardRepair(sys)
         ) && (
           <div className="repair-section emergency-section">
             <h3>Emergency Patch</h3>
@@ -421,7 +332,7 @@ export function RepairPanel({ onClose }) {
             {['hull', 'engine', 'lifeSupport'].map((sys) => {
               const cond = getSystemCondition(condition, sys);
               if (!isSystemCritical(cond)) return null;
-              if (canAffordRepairAboveThreshold(cond, credits)) return null;
+              if (canAffordStandardRepair(sys)) return null;
 
               return (
                 <button

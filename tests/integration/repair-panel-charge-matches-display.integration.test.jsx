@@ -121,4 +121,41 @@ describe('RepairPanel charges the price it displays', () => {
     expect(game.getState().player.credits).toBe(PLENTY_OF_CREDITS - shown);
     expect(game.getState().ship.engine).toBe(100);
   });
+
+  describe('Repair All with a discount, where per-system rounding differs', () => {
+    it('charges exactly the discounted total shown on the button', () => {
+      giveDiscount();
+      game.updateShipCondition(99, 99, 99);
+      renderPanel();
+
+      const button = screen.getByRole('button', {
+        name: /Repair All to Full/,
+      });
+      const shown = priceOf(button);
+      fireEvent.click(button);
+
+      expect(shown).toBe(14);
+      expect(game.getState().player.credits).toBe(PLENTY_OF_CREDITS - shown);
+      expect(game.getState().ship.hull).toBe(100);
+      expect(game.getState().ship.engine).toBe(100);
+      expect(game.getState().ship.lifeSupport).toBe(100);
+    });
+
+    it('lets a player who can afford the discounted total repair everything', () => {
+      giveDiscount();
+      game.updateShipCondition(99, 99, 99);
+      game.updateCredits(14);
+      renderPanel();
+
+      const button = screen.getByRole('button', {
+        name: /Repair All to Full/,
+      });
+      expect(button).not.toBeDisabled();
+      fireEvent.click(button);
+
+      expect(screen.queryByText(/Insufficient credits/)).toBeNull();
+      expect(game.getState().player.credits).toBe(0);
+      expect(game.getState().ship.hull).toBe(100);
+    });
+  });
 });

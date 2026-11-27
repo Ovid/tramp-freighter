@@ -6,6 +6,8 @@ import {
   NPC_BENEFITS_CONFIG,
 } from '../../constants.js';
 
+const REPAIR_SYSTEMS = ['hull', 'engine', 'lifeSupport'];
+
 /**
  * RepairManager - Manages ship repair operations
  *
@@ -108,6 +110,74 @@ export class RepairManager extends BaseManager {
   }
 
   /**
+   * Cost of restoring every system to maximum, charged as one purchase
+   *
+   * Rounded up once over the combined total, so the price shown for Repair
+   * All is exactly what repairAll() charges.
+   *
+   * @param {number} discount - Discount fraction (0-1)
+   * @returns {number} Cost in credits (ceiled integer)
+   */
+  getRepairAllCost(discount = 0) {
+    const condition = this.capabilities.getShipCondition();
+    const totalAmount = REPAIR_SYSTEMS.reduce(
+      (sum, sys) =>
+        sum + Math.max(0, SHIP_CONFIG.CONDITION_BOUNDS.MAX - condition[sys]),
+      0
+    );
+    return Math.ceil(
+      totalAmount * REPAIR_CONFIG.COST_PER_PERCENT * (1 - discount)
+    );
+  }
+
+  /**
+   * Restore every system to maximum in a single charge
+   *
+   * @param {number} discount - Discount fraction (0-1)
+   * @returns {Object} { success: boolean, reason: string | null }
+   */
+  repairAll(discount = 0) {
+    this.validateState();
+
+    const cost = this.getRepairAllCost(discount);
+    if (cost === 0) {
+      return {
+        success: false,
+        reason: 'All systems already at maximum condition',
+      };
+    }
+
+    const credits = this.capabilities.getCredits();
+    if (credits < cost) {
+      return { success: false, reason: 'Insufficient credits for full repair' };
+    }
+
+    const max = SHIP_CONFIG.CONDITION_BOUNDS.MAX;
+    this.capabilities.updateCredits(credits - cost);
+    this.capabilities.updateShipCondition(max, max, max);
+    this.capabilities.markDirty();
+    return { success: true, reason: null };
+  }
+
+  /**
+   * Whether the player can pay for a standard repair that lifts a system to
+   * the emergency patch target. Emergency patches exist only for players who
+   * cannot.
+   *
+   * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @returns {boolean}
+   */
+  canAffordStandardRepair(systemType) {
+    const currentCondition = this.capabilities.getShipCondition()[systemType];
+    const needed = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
+    if (needed <= 0) return true;
+    return (
+      this.capabilities.getCredits() >=
+      this.getRepairCost(systemType, needed, currentCondition)
+    );
+  }
+
+  /**
    * Apply emergency patch to a critically damaged system
    *
    * Available only when the system is at or below the critical threshold and
@@ -135,11 +205,7 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    const repairAmount =
-      REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
-    const repairCost = repairAmount * REPAIR_CONFIG.COST_PER_PERCENT;
-
-    if (this.capabilities.getCredits() >= repairCost) {
+    if (this.canAffordStandardRepair(systemType)) {
       return { success: false, reason: 'You can afford standard repair' };
     }
 
