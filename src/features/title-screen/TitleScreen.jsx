@@ -31,8 +31,16 @@ export function TitleScreen({ onStartGame }) {
     setLoadError(game.getLoadError());
   }, [game]);
 
+  // Reload here rather than trusting the boot-time load: the player may be
+  // back from the epilogue, or the save may have changed since boot. A
+  // rejected load keeps the player here, where the reason is shown.
   const handleContinue = () => {
-    onStartGame(false); // Load existing game
+    if (!game.loadGame()) {
+      setHasSave(game.hasSavedGame());
+      setLoadError(game.getLoadError());
+      return;
+    }
+    onStartGame(false);
   };
 
   const handleNewGame = () => {

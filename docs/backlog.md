@@ -318,17 +318,3 @@ from `src/features/danger/transformOutcome`. After the F-4 fix this is the only
 beside the hook or accept the dependency and say so in DEVELOPMENT.md.
 
 Found during the F-4 architecture fix (2026-11-27 report).
-
-## Continue ignores a rejected second load
-
-`handleStartGame` in `src/App.jsx` calls `game.loadGame()` again on Continue,
-ignores its result and `getLoadError()`, and always goes to ORBIT. If the save
-changed after boot and is now rejected, the error is never shown and the next
-write overwrites it. The title screen only guards the boot-time load. Related
-to "A restore that throws after assigning state leaves partial state on
-Continue".
-
-Possible fix: on a null result stay on TITLE and show `getLoadError()`, or
-skip the reload when the boot load already succeeded.
-
-Found during agentic-review of `ovid/architecture` (paad backlog `b13080d6`).

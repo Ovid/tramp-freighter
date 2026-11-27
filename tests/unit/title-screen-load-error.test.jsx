@@ -55,6 +55,24 @@ describe('TitleScreen with an unreadable save', () => {
     expect(screen.queryByText('Continue Game')).not.toBeInTheDocument();
   });
 
+  it('Continue stays on the title screen when the save went bad after boot', () => {
+    const writer = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    writer.initNewGame();
+    writer.saveGame();
+    const game = bootGame();
+    const onStartGame = vi.fn();
+    render(<TitleScreen onStartGame={onStartGame} />, {
+      wrapper: createWrapper(game),
+    });
+
+    store[SAVE_KEY] = '{not json';
+    fireEvent.click(screen.getByText('Continue Game'));
+
+    expect(onStartGame).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(/could not be read/i);
+    expect(screen.queryByText('Continue Game')).not.toBeInTheDocument();
+  });
+
   it('still asks for confirmation before New Game replaces the unreadable save', () => {
     const game = bootGame();
     const onStartGame = vi.fn();

@@ -225,8 +225,7 @@ export default function App({ devMode = false }) {
       // Show ship naming dialog
       setViewMode(VIEW_MODES.SHIP_NAMING);
     } else {
-      // Load existing game
-      game.loadGame();
+      // TitleScreen has already reloaded the save
       const isPostCredits = !!game.getNarrativeFlags()?.post_credits;
       if (isPostCredits) {
         // Reset Yumi's interaction counter so the full dialogue progression
