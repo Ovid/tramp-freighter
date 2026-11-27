@@ -11,6 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { StrictMode } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { DialoguePanel } from '../../src/features/dialogue/DialoguePanel.jsx';
@@ -63,6 +64,25 @@ describe('DialoguePanel Lifecycle', () => {
       });
 
       // Verify onClose was never called during initialization
+      expect(mockOnClose).not.toHaveBeenCalled();
+    });
+
+    it('opens over a dialogue left active by a save, under StrictMode', async () => {
+      // A save can hold an active dialogue. StrictMode's simulated unmount
+      // clears it, which must not read as this panel's dialogue ending.
+      await game.startDialogue('rodriguez_procyon', 'greeting');
+
+      render(
+        <StrictMode>
+          <GameProvider game={game}>
+            <DialoguePanel npcId="rodriguez_procyon" onClose={mockOnClose} />
+          </GameProvider>
+        </StrictMode>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/Rodriguez/)).toBeInTheDocument();
+      });
       expect(mockOnClose).not.toHaveBeenCalled();
     });
 

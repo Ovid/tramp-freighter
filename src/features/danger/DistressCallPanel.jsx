@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
+import { getPortraitUrl } from '../portraits/portrait-url.js';
+import { Portrait } from '../portraits/Portrait.jsx';
 import {
   DISTRESS_CONFIG,
   KARMA_CONFIG,
@@ -85,47 +87,50 @@ export function DistressCallPanel({
         {/* Distress Call Information Section */}
         <div className="distress-section call-info">
           <h3>Emergency Signal</h3>
-          <div className="call-details">
-            <div className="signal-header">
-              <div className="signal-strength">
-                <span className="signal-label">Signal Strength:</span>
-                <span
-                  className={`signal-value ${severity}`}
-                  style={{ color: severityColor }}
-                >
-                  {severity.charAt(0).toUpperCase() + severity.slice(1)}
-                </span>
+          <div className="portrait-row">
+            <Portrait src={getPortraitUrl('encounter', 'distress')} />
+            <div className="call-details">
+              <div className="signal-header">
+                <div className="signal-strength">
+                  <span className="signal-label">Signal Strength:</span>
+                  <span
+                    className={`signal-value ${severity}`}
+                    style={{ color: severityColor }}
+                  >
+                    {severity.charAt(0).toUpperCase() + severity.slice(1)}
+                  </span>
+                </div>
+                <div className="call-type">
+                  <span className="type-label">Emergency Type:</span>
+                  <span className="type-value">{formatCallType(callType)}</span>
+                </div>
               </div>
-              <div className="call-type">
-                <span className="type-label">Emergency Type:</span>
-                <span className="type-value">{formatCallType(callType)}</span>
+              <div className="distress-message">
+                <div className="message-header">Transmission:</div>
+                <div className="message-text">
+                  {distressCall.description ||
+                    '"Mayday, mayday! This is civilian transport vessel requesting immediate assistance. We have suffered critical system failures and are stranded. Please respond if you can hear this transmission."'}
+                </div>
               </div>
-            </div>
-            <div className="distress-message">
-              <div className="message-header">Transmission:</div>
-              <div className="message-text">
-                {distressCall.description ||
-                  '"Mayday, mayday! This is civilian transport vessel requesting immediate assistance. We have suffered critical system failures and are stranded. Please respond if you can hear this transmission."'}
-              </div>
-            </div>
-            <div className="signal-analysis">
-              <div className="analysis-item">
-                <span className="analysis-label">Vessel Type:</span>
-                <span className="analysis-value">
-                  {distressCall.vesselType || 'Civilian Transport'}
-                </span>
-              </div>
-              <div className="analysis-item">
-                <span className="analysis-label">Estimated Crew:</span>
-                <span className="analysis-value">
-                  {distressCall.crewCount || '3-5 persons'}
-                </span>
-              </div>
-              <div className="analysis-item">
-                <span className="analysis-label">Time Since Signal:</span>
-                <span className="analysis-value">
-                  {distressCall.timeElapsed || '2.3 hours'}
-                </span>
+              <div className="signal-analysis">
+                <div className="analysis-item">
+                  <span className="analysis-label">Vessel Type:</span>
+                  <span className="analysis-value">
+                    {distressCall.vesselType || 'Civilian Transport'}
+                  </span>
+                </div>
+                <div className="analysis-item">
+                  <span className="analysis-label">Estimated Crew:</span>
+                  <span className="analysis-value">
+                    {distressCall.crewCount || '3-5 persons'}
+                  </span>
+                </div>
+                <div className="analysis-item">
+                  <span className="analysis-label">Time Since Signal:</span>
+                  <span className="analysis-value">
+                    {distressCall.timeElapsed || '2.3 hours'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

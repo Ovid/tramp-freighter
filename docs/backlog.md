@@ -175,3 +175,32 @@ uses `Close <system> panel`.
 Possible fix: name each after its panel, e.g. `Close trade panel`.
 
 Found while fixing the SystemPanel accessibility audit.
+
+## Loading a save can resume a stale active dialogue
+
+`state.dialogue` is saved and restored as-is, so a save written while a
+conversation was open loads with `isActive: true` and no panel showing it.
+Only the NPC-recovery path in `src/game/state/managers/save-load.js` resets it.
+`clearDialogueState` in `src/game/state/managers/dialogue.js` also skips
+`markDirty()`, so a cleared dialogue isn't saved until something else dirties
+the state. `DialoguePanel` now tolerates the stale state (see `fb5f280`), so
+nothing visible breaks today, but anything else reading `dialogue.isActive`
+after a load would see a conversation that isn't happening.
+
+Possible fix: reset `dialogue` to its inactive defaults on every load, the
+same way the recovery path does.
+
+Found while debugging NPC dialogue not opening under StrictMode on `ovid/images`.
+
+## Dialogue panel sits flush left between 500px and 600px wide
+
+At viewport widths from 500px to 600px, the dialogue panel is pinned to the
+left edge at its 500px `max-width` (from the `@media (max-width: 900px)` rule
+in `css/panel/dialogue.css`), so the station menu shows in the gap on the
+right. Real phones are narrower than 500px and get a full-width panel, so
+this mostly affects narrow desktop windows and small tablets.
+
+Possible fix: drop the `max-width` inside the 600px mobile rule so the panel
+fills the width there.
+
+Found during UAT of the `ovid/images` branch (NPC portraits).

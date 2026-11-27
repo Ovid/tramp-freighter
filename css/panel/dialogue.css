@@ -301,3 +301,18 @@
     transform: translate(-50%, -50%) scale(1);
   }
 }
+
+/* Mobile makes the panel full screen with transform: none; the centring
+   translate above would override that mid-animation and push the panel
+   half off screen, so fade only */
+@media (max-width: 600px) {
+  .dialogue-panel.visible {
+    animation-name: dialogueFadeInMobile;
+  }
+}
+
+@keyframes dialogueFadeInMobile {
+  from {
+    opacity: 0;
+  }
+}

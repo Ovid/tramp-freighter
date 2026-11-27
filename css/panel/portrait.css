@@ -1,0 +1,48 @@
+/* Portrait on the left, text on the right; wraps with a smaller centred
+   portrait on narrow screens. Fixed sizes reserve space so lazy loading
+   doesn't shift layout. */
+.portrait-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.portrait-row > :last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.portrait {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--color-primary);
+}
+
+.portrait-thumb {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid var(--color-primary);
+}
+
+@media (max-width: 600px) {
+  .portrait-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Centre only the portrait; in a column, flex: 1 no longer sets width, so
+     without this short text blocks would shrink to content width. */
+  .portrait-row > :last-child {
+    align-self: stretch;
+  }
+
+  .portrait {
+    width: 96px;
+    height: 96px;
+  }
+}
