@@ -76,6 +76,15 @@ describe('Emergency Patch', () => {
     expect(result.reason).toContain('afford');
   });
 
+  it('should reject patch when the discount makes standard repair affordable', () => {
+    // Hull 5% needs +25 (₡125); with 20% off that is ₡100
+    mockState.player.credits = 100;
+    const result = repairManager.applyEmergencyPatch('hull', 0.2);
+
+    expect(result.success).toBe(false);
+    expect(result.reason).toContain('afford');
+  });
+
   it('should save game after successful patch', () => {
     repairManager.applyEmergencyPatch('hull');
 

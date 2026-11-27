@@ -176,8 +176,8 @@ describe('Domain Action Hooks', () => {
 
     it('delegates applyEmergencyPatch to game', () => {
       const { result } = renderHook(() => useShipActions(), { wrapper });
-      result.current.applyEmergencyPatch('engine');
-      expect(mockGame.applyEmergencyPatch).toHaveBeenCalledWith('engine');
+      result.current.applyEmergencyPatch('engine', 0.1);
+      expect(mockGame.applyEmergencyPatch).toHaveBeenCalledWith('engine', 0.1);
     });
 
     it('delegates cannibalizeSystem to game', () => {

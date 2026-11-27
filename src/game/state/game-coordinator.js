@@ -1392,16 +1392,16 @@ export class GameCoordinator {
     return this.repairManager.repairAll(discount);
   }
 
-  canAffordStandardRepair(systemType) {
-    return this.repairManager.canAffordStandardRepair(systemType);
+  canAffordStandardRepair(systemType, discount = 0) {
+    return this.repairManager.canAffordStandardRepair(systemType, discount);
   }
 
   repairShipSystem(systemType, amount, discount = 0) {
     return this.repairManager.repairShipSystem(systemType, amount, discount);
   }
 
-  applyEmergencyPatch(systemType) {
-    return this.repairManager.applyEmergencyPatch(systemType);
+  applyEmergencyPatch(systemType, discount = 0) {
+    return this.repairManager.applyEmergencyPatch(systemType, discount);
   }
 
   cannibalizeSystem(targetType, donations) {

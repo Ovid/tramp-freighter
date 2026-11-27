@@ -66,6 +66,7 @@ describe('Emergency Patch UI', () => {
       );
     expect(patchButtons.length).toBeGreaterThan(0);
     fireEvent.click(patchButtons[0]);
-    expect(mockApplyEmergencyPatch).toHaveBeenCalledWith('hull');
+    // No NPC discount is mocked, so the panel passes 0
+    expect(mockApplyEmergencyPatch).toHaveBeenCalledWith('hull', 0);
   });
 });

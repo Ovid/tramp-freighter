@@ -85,13 +85,25 @@ describe('RepairManager Repair All and standard-repair affordability', () => {
     });
   });
 
+  it('treats a standard repair as unaffordable when no offered repair amount fits the budget', () => {
+    // 1 point would cost ₡5, but the smallest repair the panel sells is +10 (₡50)
+    state.hull = 20;
+    state.credits = 30;
+    expect(manager.canAffordStandardRepair('hull')).toBe(false);
+  });
+
   it('reports whether a standard repair to the patch target is affordable', () => {
+    // +10 only reaches 20%, so the cheapest way out of the red is +25 (₡125)
     state.hull = 10;
-    state.credits = 55;
+    state.credits = 125;
     expect(manager.canAffordStandardRepair('hull')).toBe(true);
 
-    state.credits = 54;
+    state.credits = 124;
     expect(manager.canAffordStandardRepair('hull')).toBe(false);
+
+    // The discount the buttons apply lowers the bar too: 125 * 0.8 = 100
+    state.credits = 100;
+    expect(manager.canAffordStandardRepair('hull', 0.2)).toBe(true);
 
     state.hull = 50;
     state.credits = 0;

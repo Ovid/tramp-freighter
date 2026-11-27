@@ -128,7 +128,7 @@ export function RepairPanel({ onClose }) {
   };
 
   const handleEmergencyPatch = (systemType) => {
-    const result = applyEmergencyPatch(systemType);
+    const result = applyEmergencyPatch(systemType, bestDiscount.discount);
     if (result.success) {
       setValidationMessage(
         `Emergency patch applied to ${getSystemName(systemType)}. +${REPAIR_CONFIG.EMERGENCY_PATCH_DAYS_PENALTY} days.`
@@ -321,7 +321,7 @@ export function RepairPanel({ onClose }) {
         {['hull', 'engine', 'lifeSupport'].some(
           (sys) =>
             isSystemCritical(getSystemCondition(condition, sys)) &&
-            !canAffordStandardRepair(sys)
+            !canAffordStandardRepair(sys, bestDiscount.discount)
         ) && (
           <div className="repair-section emergency-section">
             <h3>Emergency Patch</h3>
@@ -332,7 +332,8 @@ export function RepairPanel({ onClose }) {
             {['hull', 'engine', 'lifeSupport'].map((sys) => {
               const cond = getSystemCondition(condition, sys);
               if (!isSystemCritical(cond)) return null;
-              if (canAffordStandardRepair(sys)) return null;
+              if (canAffordStandardRepair(sys, bestDiscount.discount))
+                return null;
 
               return (
                 <button

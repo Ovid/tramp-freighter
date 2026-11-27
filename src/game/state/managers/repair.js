@@ -4,6 +4,7 @@ import {
   SHIP_CONFIG,
   REPUTATION_BOUNDS,
   NPC_BENEFITS_CONFIG,
+  UI_CONFIG,
 } from '../../constants.js';
 
 const REPAIR_SYSTEMS = ['hull', 'engine', 'lifeSupport'];
@@ -164,16 +165,28 @@ export class RepairManager extends BaseManager {
    * the emergency patch target. Emergency patches exist only for players who
    * cannot.
    *
+   * Prices the cheapest repair the panel actually sells (a fixed step or
+   * Full), not the exact points needed. Pricing the exact points would call a
+   * player solvent when every button is out of reach.
+   *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} discount - Discount fraction (0-1), e.g. 0.1 for 10% off
    * @returns {boolean}
    */
-  canAffordStandardRepair(systemType) {
+  canAffordStandardRepair(systemType, discount = 0) {
     const currentCondition = this.capabilities.getShipCondition()[systemType];
     const needed = REPAIR_CONFIG.EMERGENCY_PATCH_TARGET - currentCondition;
     if (needed <= 0) return true;
+
+    const full = SHIP_CONFIG.CONDITION_BOUNDS.MAX - currentCondition;
+    const cheapest = Math.min(
+      ...UI_CONFIG.REPAIR_AMOUNTS.map((step) =>
+        step === 'full' ? full : step
+      ).filter((amount) => amount >= needed && amount <= full)
+    );
     return (
       this.capabilities.getCredits() >=
-      this.getRepairCost(systemType, needed, currentCondition)
+      this.getRepairCost(systemType, cheapest, currentCondition, discount)
     );
   }
 
@@ -185,9 +198,10 @@ export class RepairManager extends BaseManager {
    * EMERGENCY_PATCH_TARGET and advances time as a penalty.
    *
    * @param {string} systemType - One of: 'hull', 'engine', 'lifeSupport'
+   * @param {number} discount - Repair discount the panel's buttons apply
    * @returns {Object} { success: boolean, reason: string | null }
    */
-  applyEmergencyPatch(systemType) {
+  applyEmergencyPatch(systemType, discount = 0) {
     this.validateState();
 
     const validSystems = ['hull', 'engine', 'lifeSupport'];
@@ -205,7 +219,7 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    if (this.canAffordStandardRepair(systemType)) {
+    if (this.canAffordStandardRepair(systemType, discount)) {
       return { success: false, reason: 'You can afford standard repair' };
     }
 
