@@ -7,3 +7,39 @@
 > are removed only when explicitly addressed — no automatic cleanup.
 
 ---
+
+## `ae66925e` — Salvage free-space check ignores passenger cargo space
+- **File (at first sighting):** `src/game/state/managers/outcome.js:159`
+- **Symbol:** `OutcomeManager.mergeSalvage`
+- **Bug class:** Contract
+- **Description:** mergeSalvage computes free space as cargoCapacity minus the sum of cargo qty. StateManager.getCargoRemaining also subtracts passenger requirements.cargoSpace. With passengers aboard, salvage (distress loot, narrative rewards.cargo) can overfill the hold and make getCargoRemaining negative. Moved verbatim from the deleted src/features/danger/applyEncounterOutcome.js.
+- **Suggested fix:** Inject a getCargoRemaining capability into OutcomeManager (and its typedef) and use it for available space; consider reusing TradingSystem.addCargoStack.
+- **Confidence:** Medium
+- **Found by:** Contract & Integration (`claude-opus-5-5`)
+- **First seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Last seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Severity:** Important
+
+## `859deb84` — Intel Offer acceptance chance ignores the karma modifier the resolver applies
+- **File (at first sighting):** `src/features/danger/NegotiationPanel.jsx:272`
+- **Symbol:** `NegotiationPanel`
+- **Bug class:** Contract
+- **Description:** The panel shows NEGOTIATION_CONFIG.INTEL_OFFER.BASE_SUCCESS_RATE * 100, while resolveIntelOffer rolls against base + calculateKarmaModifier(karma), clamped to [0,1]. Shown odds differ from used odds whenever karma is nonzero (up to 5 points).
+- **Suggested fix:** Add intelOffer {finalChance, modifiers} to getNegotiationOdds via a shared intelOfferChance(karma) helper used by the resolver, and render it in the panel.
+- **Confidence:** Medium
+- **Found by:** Contract & Integration (`claude-opus-5-5`)
+- **First seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Last seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Severity:** Suggestion
+
+## `b13080d6` — Continue ignores the result of the second loadGame call
+- **File (at first sighting):** `src/App.jsx:229`
+- **Symbol:** `handleStartGame`
+- **Bug class:** Error Handling
+- **Description:** The Continue branch calls game.loadGame() again, ignores the return value and getLoadError(), and always switches to ORBIT. If the second load is rejected (save changed since boot) or throws after assigning state, the error is never shown and the next markDirty write overwrites the save. The title-screen guard only covers the boot load.
+- **Suggested fix:** Check the return value; on null stay on TITLE and show getLoadError(). Or skip the reload when the boot load already succeeded.
+- **Confidence:** Medium
+- **Found by:** Error Handling, Spec Compliance (`claude-opus-5-5`)
+- **First seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Last seen:** 2026-11-27 on branch `ovid/architecture` at `0801a90`
+- **Severity:** Suggestion
