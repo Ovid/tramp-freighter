@@ -198,3 +198,25 @@ path were checked.
   name the input that triggers it today.
 - When an option claims to own "all" of something, grep every copy of the
   formula (including helpers that use the constant) before naming its scope.
+
+## 2026-11-27 — Pushback I2 options (emergency patch affordability gate)
+
+**Verdict:** Premise false (option 1 loses its standing) + Lucky (remaining premises) + Wrong reason (minor, savings cap).
+
+**What went wrong:**
+- Recommended deleting the "can't afford repair" gate without reading the
+  feature's design doc. `docs/plans/2026-02-18-critical-damage-confinement-design.md:20,27,62`
+  requires the patch be offered only when the player can't afford repair. The
+  recommendation named this exact fact as its flip condition and never checked it.
+- Said a rich player saves at most ₡105; the cheapest real button is +10 (₡50)
+  or +25 (₡125), so the cap was computed against a repair the panel can't sell.
+- Treated the 3-day penalty as cheap; time advance runs debt interest, loan
+  default checks and mission deadlines.
+
+**Guidance for future sessions:**
+- Before recommending removal of a rule, grep `docs/plans/` for the feature
+  and read its design doc. If a flip condition is checkable on disk, check it
+  before presenting it.
+- Price "what the player saves" against the actions the UI actually offers,
+  not against an idealised exact amount.
+- Before calling a time penalty cheap, read what `updateTime` triggers.

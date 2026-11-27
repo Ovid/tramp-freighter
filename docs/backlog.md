@@ -363,3 +363,16 @@ consider dropping the `lastSaveTime` accessor from GameCoordinator if nothing
 else reads it.
 
 Found during the F-11 architecture fix (2026-11-27 report).
+
+## Critical-damage design doc says day advance triggers degradation
+
+`docs/plans/2026-02-18-critical-damage-confinement-design.md:25` says the
+emergency patch's days "advance through normal day-advance logic (triggers
+degradation, loan checks, etc.)". `EventsManager.updateTime`
+(`src/game/state/managers/events.js:95-145`) runs loan, debt, market and
+mission-deadline checks but no ship degradation. Either the doc is wrong or
+degradation was meant to happen there.
+
+Possible fix: correct the doc, unless degradation on idle days is intended.
+
+Found during rethink on `paad/code-reviews/ovid-architecture-2026-11-27-18-12-55-86f198a.md`.
