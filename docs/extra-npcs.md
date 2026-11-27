@@ -449,12 +449,19 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **Canon:** "A deep groan reverberates through the hull. The patch job from
   last time is holding, but barely. One more hard knock and you'll be
   breathing vacuum."
-- **Composition:** an interior bulkhead with a crudely welded patch plate,
-  slightly buckled, frost creeping from the seam.
-  **Signature detail:** a thin line of vapour escaping from the seam.
-- **Prompt:** Interior bulkhead of a freighter with a crudely welded patch
-  plate, slightly buckled, frost creeping from its seam and a thin wisp of
-  vapour escaping. Dim amber emergency lighting. Tense, fragile mood.
+- **Composition:** a dark grey-steel bulkhead, almost black, with a crudely
+  welded patch plate bulging outward at its centre. Thick white frost spreads
+  from the seam in jagged fingers. A bright jet of white vapour sprays
+  diagonally out of a split in the weld. The leak must be the brightest thing
+  in the image: a first attempt kept the bulkhead and patch the same brown,
+  and at 160 px it read as a plain plate on a wall.
+  **Signature detail:** the jet of white vapour venting from the split weld.
+- **Prompt:** Interior bulkhead of a freighter in dark, almost black grey
+  steel, with a crudely welded patch plate bulging outward. A bright white
+  jet of venting vapour sprays diagonally from a split in the weld, and thick
+  white frost spreads from the seam in jagged fingers. The venting vapour and
+  frost are the brightest elements, in strong contrast against the dark
+  metal. Dim amber emergency lighting from above. Urgent, dangerous mood.
 
 ### Debt Free
 
