@@ -3,6 +3,7 @@ import { render } from '@testing-library/react';
 import { PirateEncounterPanel } from '../../src/features/danger/PirateEncounterPanel.jsx';
 import { NegotiationPanel } from '../../src/features/danger/NegotiationPanel.jsx';
 import { InspectionPanel } from '../../src/features/danger/InspectionPanel.jsx';
+import { DistressCallPanel } from '../../src/features/danger/DistressCallPanel.jsx';
 
 vi.mock('../../src/hooks/useGameEvent', () => ({
   useGameEvent: (eventName) => {
@@ -76,5 +77,16 @@ describe('encounter panel portraits', () => {
       />
     );
     expect(portraitSrc(container)).toBe('/portraits/encounter/inspection.webp');
+  });
+
+  it('DistressCallPanel shows the mayday pilot', () => {
+    const { container } = render(
+      <DistressCallPanel
+        distressCall={{ description: 'Help!', type: 'stranded' }}
+        onChoice={noop}
+        onClose={noop}
+      />
+    );
+    expect(portraitSrc(container)).toBe('/portraits/encounter/distress.webp');
   });
 });
