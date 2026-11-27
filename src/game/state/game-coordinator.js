@@ -30,6 +30,7 @@ import { MissionManager } from './managers/mission.js';
 import { EventEngineManager } from './managers/event-engine.js';
 import { QuestManager } from './managers/quest-manager.js';
 import { EncounterTriggerManager } from './managers/encounter-trigger.js';
+import { OutcomeManager } from './managers/outcome.js';
 import { DebtManager } from './managers/debt.js';
 import { AchievementsManager } from './managers/achievements.js';
 import { InformationBroker } from '../game-information-broker.js';
@@ -474,6 +475,28 @@ export class GameCoordinator {
       emit: (...args) => this.emit(...args),
       subscribe: this.subscribe.bind(this),
       starData: this.starData,
+      isTestEnvironment: this.isTestEnvironment,
+    });
+    // Routed through the facade, not the managers, so an outcome goes through
+    // the same entry points as every other caller.
+    this.outcomeManager = new OutcomeManager({
+      getState: () => this.state,
+      updateFuel: (...args) => this.updateFuel(...args),
+      updateShipCondition: (...args) => this.updateShipCondition(...args),
+      updateCredits: (...args) => this.updateCredits(...args),
+      updateDebt: (...args) => this.updateDebt(...args),
+      updateCargo: (...args) => this.updateCargo(...args),
+      clearHiddenCargo: (...args) => this.clearHiddenCargo(...args),
+      removeRestrictedCargo: (...args) => this.removeRestrictedCargo(...args),
+      failMissionsDueToCargoLoss: (...args) =>
+        this.failMissionsDueToCargoLoss(...args),
+      updateTime: (...args) => this.updateTime(...args),
+      abandonMission: (...args) => this.abandonMission(...args),
+      modifyFactionRep: (...args) => this.modifyFactionRep(...args),
+      modifyKarma: (...args) => this.modifyKarma(...args),
+      modifyAllPassengerSatisfaction: (...args) =>
+        this.modifyAllPassengerSatisfaction(...args),
+      markDirty: (...args) => this.markDirty(...args),
       isTestEnvironment: this.isTestEnvironment,
     });
     this.debtManager = new DebtManager({
@@ -1621,6 +1644,10 @@ export class GameCoordinator {
 
   registerEvents(events) {
     return this.eventEngineManager.registerEvents(events);
+  }
+
+  applyEncounterOutcome(outcome) {
+    return this.outcomeManager.apply(outcome);
   }
 
   beginJump() {

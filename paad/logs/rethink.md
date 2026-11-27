@@ -68,3 +68,44 @@ premise and the recommendation's comparison rested on an unchecked one.
 - Heuristics such as "skip the first emission" usually have a stale-state path
   (here: Return to Title after victory). Trace the reset paths before claiming
   a heuristic's replacement is behaviour-preserving.
+
+## 2026-11-27 — F-4 fix options (encounter outcome application)
+
+**Verdict:** Premise false + Lucky. The recommended "compute the whole result
+from a snapshot first, then write" design rested on two false premises and
+would have introduced a bug.
+
+**What went wrong:**
+- Claimed "most failures land before the first write". The writes are where
+  the realistic throws are: `updateTime` runs a long chain (debt interest,
+  mission deadlines, market updates), `modifyFactionRep` throws on bad faction
+  names from mission penalty data, `modifyKarma` runs achievements. A pure
+  compute step can pre-check only fuel bounds and the outcome's own faction
+  keys.
+- Claimed "markDirty in a finally means anything written still gets saved" as
+  a benefit. Several writes already call markDirty, and the save serialises the
+  whole live state, so a half-applied outcome is already persisted. The finally
+  guarantees the half state is saved; it prevents nothing.
+- Snapshot-merging salvage would resurrect mission cargo: `updateTime` ->
+  `checkMissionDeadlines` -> `removeMissionCargo` filters `ship.cargo` in place
+  mid-outcome (distress "loot" has both days and cargo rewards).
+- Assumed the narrative panel's own markDirty was redundant; it is the only
+  save trigger for choices without effects (`markFired`/`setCooldown`/`setFlag`
+  do not mark dirty).
+- Test-cost estimate missed that several tests use partial mock games or spy
+  on facade methods, and that `use-encounter-orchestration.test.jsx`'s mock
+  game would need the new facade method.
+
+**Guidance for future sessions:**
+- Before claiming a "compute first, write second" design prevents half-applied
+  state, trace every write it calls for throw sites AND for side-effect chains
+  (time ticks, achievements, mission checks) that mutate state the compute step
+  read. If any write mutates its inputs, a snapshot is stale by construction.
+- In this codebase `updateTime` is not a plain setter; treat it as an event
+  that changes cargo, debt and missions, and keep its position in any sequence
+  explicit.
+- Before calling a save call redundant or a "finally markDirty" a benefit,
+  check which callees already mark dirty and what the save serialises.
+- Before estimating test churn for moving a free function behind the facade,
+  grep for partial mock games, `vi.spyOn(game, ...)` on the callees, and
+  `vi.mock` of the module path, not just direct call sites.

@@ -199,6 +199,7 @@ function TradePanel({ onClose }) {
 | EventsManager | Active world events | `events.js` |
 | EventEngineManager | Narrative event flags, cooldowns, triggers | `event-engine.js` |
 | EncounterTriggerManager | Decides when encounters and narrative events fire (jump, dock, time, debt cleared) | `encounter-trigger.js` |
+| OutcomeManager | Applies resolved encounter and narrative-choice costs and rewards | `outcome.js` |
 | InitializationManager | New-game and load-game initialization | `initialization.js` |
 | SaveLoadManager | Save / load with debounced writes | `save-load.js` |
 

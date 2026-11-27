@@ -8,6 +8,7 @@ const mockGSM = {
   setEventCooldown: vi.fn(),
   markDirty: vi.fn(),
   getEventById: vi.fn(),
+  applyEncounterOutcome: vi.fn(() => ({ salvageMessages: [] })),
 };
 
 const mockNotificationCtx = {
@@ -20,14 +21,6 @@ vi.mock('../../src/context/GameContext.jsx', () => ({
 
 vi.mock('../../src/context/NotificationContext.jsx', () => ({
   useNotificationContext: vi.fn(() => mockNotificationCtx),
-}));
-
-const { applyEncounterOutcome } = vi.hoisted(() => ({
-  applyEncounterOutcome: vi.fn(() => ({ salvageMessages: [] })),
-}));
-
-vi.mock('../../src/features/danger/applyEncounterOutcome.js', () => ({
-  applyEncounterOutcome,
 }));
 
 function makeEvent(overrides = {}) {
@@ -51,7 +44,7 @@ describe('NarrativeEventPanel', () => {
 
   beforeEach(() => {
     onClose = vi.fn();
-    applyEncounterOutcome.mockReturnValue({ salvageMessages: [] });
+    mockGSM.applyEncounterOutcome.mockReturnValue({ salvageMessages: [] });
   });
 
   it('renders event text paragraphs', () => {
@@ -115,7 +108,7 @@ describe('NarrativeEventPanel', () => {
     });
     render(<NarrativeEventPanel event={event} onClose={onClose} />);
     fireEvent.click(screen.getByText('Pay'));
-    expect(applyEncounterOutcome).toHaveBeenCalledWith(mockGSM, {
+    expect(mockGSM.applyEncounterOutcome).toHaveBeenCalledWith({
       costs: { credits: 100 },
       rewards: {},
     });
@@ -138,7 +131,7 @@ describe('NarrativeEventPanel', () => {
     });
     render(<NarrativeEventPanel event={event} onClose={onClose} />);
     fireEvent.click(screen.getByText('Collect'));
-    expect(applyEncounterOutcome).toHaveBeenCalledWith(mockGSM, {
+    expect(mockGSM.applyEncounterOutcome).toHaveBeenCalledWith({
       costs: {},
       rewards: { credits: 50 },
     });
@@ -161,11 +154,11 @@ describe('NarrativeEventPanel', () => {
     });
     render(<NarrativeEventPanel event={event} onClose={onClose} />);
     fireEvent.click(screen.getByText('Shrug'));
-    expect(applyEncounterOutcome).not.toHaveBeenCalled();
+    expect(mockGSM.applyEncounterOutcome).not.toHaveBeenCalled();
   });
 
   it('shows notifications for salvage messages', () => {
-    applyEncounterOutcome.mockReturnValue({
+    mockGSM.applyEncounterOutcome.mockReturnValue({
       salvageMessages: ['Found 10 fuel cells', 'Recovered medical supplies'],
     });
     const event = makeEvent({

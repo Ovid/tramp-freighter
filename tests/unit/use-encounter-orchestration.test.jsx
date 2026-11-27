@@ -19,6 +19,7 @@ function createMockGame() {
     resolveCombatChoice: vi.fn(),
     resolveNegotiation: vi.fn(),
     resolveEncounter: vi.fn(),
+    applyEncounterOutcome: vi.fn(() => ({ salvageMessages: [] })),
     getState: vi.fn(() => ({
       ship: {
         fuel: 100,

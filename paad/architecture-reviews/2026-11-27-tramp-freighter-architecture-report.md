@@ -191,6 +191,11 @@ How it is built:
   - `src/hooks/useEncounterOrchestration.js:2-3` (the import), `:102-108, 191-198` (catch and return to ORBIT), `:124` (vestigial `if (game.resolveEncounter)`).
   - `src/features/narrative/NarrativeEventPanel.jsx:36-57` reuses the module without a try/catch and does its own persistence steps.
 - **Found by:** Error Handling & Observability, Structure & Boundaries, Coupling & Dependencies, Integration & Data
+- **Status:** Fixed
+- **Status reason:** Outcome application moved from the features layer into OutcomeManager behind game.applyEncounterOutcome(), called by both the encounter hook and the narrative panel; capabilities route through the facade. Writes keep their existing order, now documented and tested (restricted/hidden cargo before mission failure, rewards after the time tick that can expire mission cargo). Salvage merges into new stack objects instead of mutating the live stack, ship condition costs are applied in one write, and the vestigial resolveEncounter/failMissionsDueToCargoLoss guards are gone. Not made atomic: rethink showed the realistic throw sites are inside the writes and several writers already mark the save dirty, so compute-first would not prevent half-application and would have resurrected expired mission cargo. The hook still imports the display-only transformOutcomeForDisplay from features (backlogged); the narrative panel keeps its own flag/fired/cooldown/save steps by developer choice.
+- **Status date:** 2026-11-27 12:33 UTC
+- **Status commit:** pending
+
 
 ### [F-5] The documented state-slice ownership is not enforced
 - **Category:** 6 Leaky abstractions (also 17 No clear ownership of data, 23 DI misuse)

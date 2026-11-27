@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
+import { OutcomeManager } from '../../src/game/state/managers/outcome.js';
 
 describe('Cargo confiscation – mission failure', () => {
   let mockGSM;
@@ -73,7 +73,7 @@ describe('Cargo confiscation – mission failure', () => {
       rewards: {},
     };
 
-    applyEncounterOutcome(mockGSM, outcome);
+    new OutcomeManager(mockGSM).apply(outcome);
 
     expect(mockGSM.failMissionsDueToCargoLoss).toHaveBeenCalled();
   });
@@ -84,7 +84,7 @@ describe('Cargo confiscation – mission failure', () => {
       rewards: {},
     };
 
-    applyEncounterOutcome(mockGSM, outcome);
+    new OutcomeManager(mockGSM).apply(outcome);
 
     expect(mockGSM.failMissionsDueToCargoLoss).toHaveBeenCalled();
   });

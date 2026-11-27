@@ -3,7 +3,6 @@ import * as fc from 'fast-check';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 
 describe('Salvage Cargo Cap Property Tests (#55/56)', () => {
   it('cargo should never exceed capacity after salvage for any qty/fill combo', () => {
@@ -44,7 +43,7 @@ describe('Salvage Cargo Cap Property Tests (#55/56)', () => {
             description: 'Salvaged parts.',
           };
 
-          applyEncounterOutcome(gsm, outcome);
+          gsm.applyEncounterOutcome(outcome);
 
           const totalCargo = state.ship.cargo.reduce(
             (sum, item) => sum + item.qty,

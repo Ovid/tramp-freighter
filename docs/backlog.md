@@ -330,3 +330,29 @@ Possible fix: point those tests at the managers and delete the two facade
 methods (see F-18 in the 2026-11-27 architecture report).
 
 Found during the F-2 architecture fix (2026-11-27 report).
+
+## Kidnap penalties apply even when abandoning the passenger mission fails
+
+In `src/features/danger/applyEncounterOutcome.js`, `costs.kidnappedPassengerId`
+calls `abandonMission` and then applies the faction and karma penalties
+regardless of its `{success: false}` result (missing or non-abandonable
+mission). Decide whether the penalties should depend on the abandon succeeding.
+
+Found during rethink on the F-4 architecture fix (2026-11-27 report).
+
+## Narrative choices have no error handling
+
+`NarrativeEventPanel.jsx` `handleChoice` has no try/catch. A throw while applying
+effects leaves the panel open and the event not marked fired, and the effects
+partly applied.
+
+Found during rethink on the F-4 architecture fix (2026-11-27 report).
+
+## Encounter hook still imports a display helper from the features layer
+
+`src/hooks/useEncounterOrchestration.js` imports `transformOutcomeForDisplay`
+from `src/features/danger/transformOutcome`. After the F-4 fix this is the only
+`src/hooks` -> `src/features` import. It is display-only, so either move it
+beside the hook or accept the dependency and say so in DEVELOPMENT.md.
+
+Found during the F-4 architecture fix (2026-11-27 report).

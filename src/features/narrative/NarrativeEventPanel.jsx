@@ -2,7 +2,6 @@ import { useState, useCallback, useRef } from 'react';
 import { useGame } from '../../context/GameContext.jsx';
 import { useNotificationContext } from '../../context/NotificationContext.jsx';
 import { useFocusTrap } from '../../hooks/useFocusTrap.js';
-import { applyEncounterOutcome } from '../danger/applyEncounterOutcome.js';
 import '../../../css/panel/narrative-event.css';
 
 /**
@@ -33,7 +32,7 @@ export function NarrativeEventPanel({ event, onClose }) {
             Object.keys(choice.effects.rewards).length > 0);
 
         if (hasEffects) {
-          const result = applyEncounterOutcome(game, choice.effects);
+          const result = game.applyEncounterOutcome(choice.effects);
           if (result.salvageMessages.length > 0 && notificationCtx) {
             result.salvageMessages.forEach((msg) =>
               notificationCtx.showInfo(msg)

@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data.js';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome.js';
 
 describe('Salvage Cargo Cap (#55/56)', () => {
   let gsm;
@@ -30,7 +29,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    const result = applyEncounterOutcome(gsm, outcome);
+    const result = gsm.applyEncounterOutcome(outcome);
 
     const totalCargo = state.ship.cargo.reduce(
       (sum, item) => sum + item.qty,
@@ -60,7 +59,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    const result = applyEncounterOutcome(gsm, outcome);
+    const result = gsm.applyEncounterOutcome(outcome);
 
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(1);
@@ -84,7 +83,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    const result = applyEncounterOutcome(gsm, outcome);
+    const result = gsm.applyEncounterOutcome(outcome);
 
     const totalCargo = state.ship.cargo.reduce(
       (sum, item) => sum + item.qty,
@@ -115,7 +114,7 @@ describe('Salvage Cargo Cap (#55/56)', () => {
       description: 'Salvaged parts.',
     };
 
-    const result = applyEncounterOutcome(gsm, outcome);
+    const result = gsm.applyEncounterOutcome(outcome);
 
     const parts = state.ship.cargo.find((item) => item.good === 'parts');
     expect(parts.qty).toBe(3);

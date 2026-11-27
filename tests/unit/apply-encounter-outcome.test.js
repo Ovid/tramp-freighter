@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data';
 import { WORMHOLE_DATA } from '../../src/game/data/wormhole-data';
-import { applyEncounterOutcome } from '../../src/features/danger/applyEncounterOutcome';
 
 vi.mock('../../src/game/utils/dev-logger.js', () => ({
   devLog: (...args) => console.log(...args),
@@ -31,7 +30,7 @@ describe('applyEncounterOutcome', () => {
         { good: 'fuel_cells', qty: 7, buyPrice: 100 },
       ]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { cargoPercent: 50 },
       });
 
@@ -45,7 +44,7 @@ describe('applyEncounterOutcome', () => {
     it('preserves canonical cargo schema fields', () => {
       gsm.updateCargo([{ good: 'food', qty: 10, buyPrice: 50 }]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { cargoPercent: 30 },
       });
 
@@ -63,7 +62,7 @@ describe('applyEncounterOutcome', () => {
         { good: 'fuel_cells', qty: 10, buyPrice: 100 },
       ]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { cargoPercent: 100 },
       });
 
@@ -79,7 +78,7 @@ describe('applyEncounterOutcome', () => {
         { good: 'fuel_cells', qty: 5, buyPrice: 100 },
       ]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { cargoLoss: true },
       });
 
@@ -91,7 +90,7 @@ describe('applyEncounterOutcome', () => {
     it('stacks reward with existing cargo of same good and buyPrice', () => {
       gsm.updateCargo([{ good: 'food', qty: 5, buyPrice: 50 }]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: {
           cargo: [{ good: 'food', qty: 3, buyPrice: 50 }],
         },
@@ -105,7 +104,7 @@ describe('applyEncounterOutcome', () => {
     it('creates new stack when good or buyPrice differs', () => {
       gsm.updateCargo([{ good: 'food', qty: 5, buyPrice: 50 }]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: {
           cargo: [{ good: 'minerals', qty: 2, buyPrice: 80 }],
         },
@@ -121,7 +120,7 @@ describe('applyEncounterOutcome', () => {
     it('passes through buySystemName for salvaged cargo', () => {
       gsm.updateCargo([]);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: {
           cargo: [
             { good: 'parts', qty: 2, buyPrice: 0, buySystemName: 'Salvaged' },
@@ -139,7 +138,7 @@ describe('applyEncounterOutcome', () => {
     it('applies hull damage clamped to zero', () => {
       const before = gsm.getState().ship.hull;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { hull: 15 },
       });
 
@@ -149,7 +148,7 @@ describe('applyEncounterOutcome', () => {
     it('applies engine damage clamped to zero', () => {
       const before = gsm.getState().ship.engine;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { engine: 20 },
       });
 
@@ -159,7 +158,7 @@ describe('applyEncounterOutcome', () => {
     it('applies life support damage clamped to zero', () => {
       const before = gsm.getState().ship.lifeSupport;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { lifeSupport: 10 },
       });
 
@@ -171,7 +170,7 @@ describe('applyEncounterOutcome', () => {
     it('reduces fuel clamped to zero', () => {
       const before = gsm.getState().ship.fuel;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { fuel: 25 },
       });
 
@@ -185,7 +184,7 @@ describe('applyEncounterOutcome', () => {
       state.player.credits = 30;
       state.player.debt = 5000;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { credits: 200 },
       });
 
@@ -198,7 +197,7 @@ describe('applyEncounterOutcome', () => {
       state.player.credits = 10;
       state.player.debt = 5000;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { credits: 1000, isFine: true },
       });
 
@@ -211,7 +210,7 @@ describe('applyEncounterOutcome', () => {
       state.player.credits = 2000;
       state.player.debt = 5000;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { credits: 500, isFine: true },
       });
 
@@ -222,7 +221,7 @@ describe('applyEncounterOutcome', () => {
     it('adds credit rewards', () => {
       const before = gsm.getState().player.credits;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: { credits: 150 },
       });
 
@@ -234,7 +233,7 @@ describe('applyEncounterOutcome', () => {
     it('advances days elapsed', () => {
       const before = gsm.getState().player.daysElapsed;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { days: 3 },
       });
 
@@ -245,7 +244,7 @@ describe('applyEncounterOutcome', () => {
   describe('fuelMinimum reward', () => {
     it('sets fuel to minimum when current fuel is below', () => {
       gsm.updateFuel(15);
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: { fuelMinimum: 30 },
       });
       expect(gsm.getState().ship.fuel).toBe(30);
@@ -253,7 +252,7 @@ describe('applyEncounterOutcome', () => {
 
     it('does not reduce fuel when current fuel is above minimum', () => {
       gsm.updateFuel(50);
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: { fuelMinimum: 30 },
       });
       expect(gsm.getState().ship.fuel).toBe(50);
@@ -261,7 +260,7 @@ describe('applyEncounterOutcome', () => {
 
     it('handles fuelMinimum at exactly current fuel', () => {
       gsm.updateFuel(30);
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: { fuelMinimum: 30 },
       });
       expect(gsm.getState().ship.fuel).toBe(30);
@@ -273,7 +272,7 @@ describe('applyEncounterOutcome', () => {
       const state = gsm.getState();
       state.ship.hiddenCargo = [{ good: 'water', qty: 3, buyPrice: 10 }];
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { hiddenCargoConfiscated: true },
       });
 
@@ -287,7 +286,7 @@ describe('applyEncounterOutcome', () => {
       const listener = vi.fn();
       gsm.subscribe('hiddenCargoChanged', listener);
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { hiddenCargoConfiscated: true },
       });
 
@@ -298,7 +297,7 @@ describe('applyEncounterOutcome', () => {
       const state = gsm.getState();
       state.ship.hiddenCargo = [{ good: 'water', qty: 3, buyPrice: 10 }];
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         costs: { credits: 100 },
       });
 
@@ -312,7 +311,7 @@ describe('applyEncounterOutcome', () => {
     it('modifies karma', () => {
       const before = gsm.getState().player.karma || 0;
 
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: { karma: -5 },
       });
 
@@ -320,7 +319,7 @@ describe('applyEncounterOutcome', () => {
     });
 
     it('modifies faction reputation', () => {
-      applyEncounterOutcome(gsm, {
+      gsm.applyEncounterOutcome({
         rewards: {
           factionRep: { authorities: 10, outlaws: -5 },
         },

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-describe('applyEncounterOutcome delegates instead of mutating state directly', () => {
+describe('OutcomeManager delegates instead of mutating state directly', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', {
       getItem: vi.fn(),
@@ -11,8 +11,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls clearHiddenCargo instead of mutating state.ship.hiddenCargo', async () => {
-    const { applyEncounterOutcome } =
-      await import('../../src/features/danger/applyEncounterOutcome.js');
+    const { OutcomeManager } =
+      await import('../../src/game/state/managers/outcome.js');
 
     const clearHiddenCargo = vi.fn();
     const mockGSM = {
@@ -27,7 +27,7 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
       emit: vi.fn(),
     };
 
-    applyEncounterOutcome(mockGSM, {
+    new OutcomeManager(mockGSM).apply({
       costs: { hiddenCargoConfiscated: true },
     });
 
@@ -35,8 +35,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls modifyAllPassengerSatisfaction for cost.passengerSatisfaction', async () => {
-    const { applyEncounterOutcome } =
-      await import('../../src/features/danger/applyEncounterOutcome.js');
+    const { OutcomeManager } =
+      await import('../../src/game/state/managers/outcome.js');
 
     const modifyAllPassengerSatisfaction = vi.fn();
     const mockGSM = {
@@ -52,7 +52,7 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
       emit: vi.fn(),
     };
 
-    applyEncounterOutcome(mockGSM, {
+    new OutcomeManager(mockGSM).apply({
       costs: { passengerSatisfaction: 10 },
     });
 
@@ -60,8 +60,8 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
   });
 
   it('calls modifyAllPassengerSatisfaction for rewards.passengerSatisfaction', async () => {
-    const { applyEncounterOutcome } =
-      await import('../../src/features/danger/applyEncounterOutcome.js');
+    const { OutcomeManager } =
+      await import('../../src/game/state/managers/outcome.js');
 
     const modifyAllPassengerSatisfaction = vi.fn();
     const mockGSM = {
@@ -77,7 +77,7 @@ describe('applyEncounterOutcome delegates instead of mutating state directly', (
       emit: vi.fn(),
     };
 
-    applyEncounterOutcome(mockGSM, {
+    new OutcomeManager(mockGSM).apply({
       rewards: { passengerSatisfaction: 15 },
     });
 
