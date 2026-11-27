@@ -235,7 +235,7 @@ How it is built:
 - **Status:** Partially fixed
 - **Status reason:** Repair pricing now lives only in RepairManager: getRepairAllCost (one round-up over the discounted total), a single-charge repairAll, and canAffordStandardRepair, which both the Emergency Patch offer and applyEmergencyPatch use. The panel shows manager prices through useShipActions, the facade's getRepairCost passes the discount through, and the duplicate cost and validation helpers in repairUtils.js are deleted. This fixes a real defect the report missed: with an NPC discount, Repair All could charge more than it showed and reject a player who could afford the discounted total. The cited refuel evidence was wrong (costs are always integers), so refuel was left alone. Remaining: FinancePanel still re-derives the early-repayment fee; it matches debt.js today.
 - **Status date:** 2026-11-27 17:05 UTC
-- **Status commit:** 31e9190
+- **Status commit:** fceb628
 
 ### [F-7] Jump execution lives in NavigationSystem, outside the manager layer
 - **Category:** 13 Inconsistent boundaries (also 3 Tight coupling, 26)

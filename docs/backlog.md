@@ -318,3 +318,15 @@ from `src/features/danger/transformOutcome`. After the F-4 fix this is the only
 beside the hook or accept the dependency and say so in DEVELOPMENT.md.
 
 Found during the F-4 architecture fix (2026-11-27 report).
+
+## Service-panel repair discount test never checks anything
+
+`tests/integration/service-panel-discounts.integration.test.jsx` calls
+`game.setNPCReputation`, which does not exist on GameCoordinator, and its
+RepairPanel cases look for a repair NPC at system 1 and `return` early when none
+is found. The only repair NPC is at Procyon (system 19), so those cases pass
+without asserting. Repair discounts are now covered by
+`repair-panel-charge-matches-display.integration.test.jsx`; this file should be
+fixed or the hollow cases removed.
+
+Found during the F-6 architecture fix (2026-11-27 report).

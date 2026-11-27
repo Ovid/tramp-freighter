@@ -172,3 +172,29 @@ path were checked.
 - When a fix direction is implied ("return copies"), trace where mutation
   actually flows before endorsing it.
 - "Facade bypassed" needs the facade method named for each call site.
+
+## 2026-11-27 — F-6 fix options (repair pricing) and agentic-architecture skill review
+
+**Verdict:** Wrong reason (F-6 option 1 survives) + Lucky (remaining premises).
+
+**What went wrong:**
+- Said option 2 "leaves the duplicate formulas"; false. The manager's
+  `getRepairCost` already takes a discount (only the facade drops it), so
+  option 2 can delete the duplicates too. The real difference is one charge vs
+  three (up to ₡2).
+- Called "all-or-nothing" a behaviour change; partial Repair All failure is
+  unreachable once validation passes. The real symptom is a false
+  "Insufficient credits" when credits sit between the discounted and
+  undiscounted totals.
+- "Manager owns all repair pricing" missed a third price copy:
+  `canAffordRepairAboveThreshold` in repairUtils.js.
+- Skill review: 3 of 5 earlier rethink entries were caused by fix-architecture's
+  own fix options, not by the architecture report.
+
+**Guidance for future sessions:**
+- Before presenting fix options, grep each one's claimed differentiator. If
+  "option B can't do X" is the case for A, check that B really can't.
+- Don't list a behaviour change without showing the old behaviour is reachable:
+  name the input that triggers it today.
+- When an option claims to own "all" of something, grep every copy of the
+  formula (including helpers that use the constant) before naming its scope.
