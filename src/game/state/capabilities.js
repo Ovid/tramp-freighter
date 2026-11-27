@@ -486,13 +486,33 @@
  * @property {function(): Object|undefined} getStats
  * @property {function(): Object|undefined} getDockedSystems
  *   Returns: state.world.narrativeEvents.dockedSystems
+ * @property {function(): Object} getPriceKnowledge
+ *   Returns: state.world.priceKnowledge
  * @property {function(number, Object, number, string): void} updatePriceKnowledge
  *   Delegates to TradingManager
+ *
+ * @property {function(): Object} getShip
+ *   Returns: state.ship (read-only; jump wear goes through updateShipCondition)
+ * @property {function(): Object} calculateShipCapabilities
+ * @property {function(number, string, string[]): number} applyQuirkModifiers
+ * @property {function(...*): Object} validateJump
+ *   Delegates to NavigationSystem.validateJump; looked up at call time
+ *   because navigationSystem may be attached after construction
+ * @property {function(number): void} updateFuel
+ * @property {function(number): void} updateTime
+ * @property {function(number, number, number): void} updateShipCondition
+ * @property {function(): void} beginJump
+ *   Suppresses time-triggered encounter checks until endJump, so a jump's
+ *   time is checked once, at the destination
+ * @property {function(): void} endJump
+ * @property {function(number): void} completeJump
+ *   Call once location and wear are applied; runs the arrival checks
  *
  * @property {function(): void} checkAchievements
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit
  * @property {Array} starData
+ * @property {boolean} [isTestEnvironment]
  */
 
 /**

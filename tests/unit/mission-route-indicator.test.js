@@ -25,7 +25,7 @@ describe('Mission Route Indicator', () => {
     vi.clearAllMocks();
   });
 
-  describe('calculateRouteIndicator', () => {
+  describe('NavigationSystem.getRouteIndicator', () => {
     it('returns hops and travel days for a direct 1-hop route', () => {
       // Sol (0) -> Alpha Centauri A (1): 1 hop, ~4.4 LY, jump time = 3 days
       getShortestPath.mockReturnValue({

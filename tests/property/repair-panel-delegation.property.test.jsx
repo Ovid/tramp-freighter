@@ -157,7 +157,7 @@ describe('Property: Repair panel delegates to GameCoordinator', () => {
     );
   });
 
-  it('should display repair costs from calculateRepairCost', () => {
+  it('should display repair costs from getRepairCost', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
         cleanup();

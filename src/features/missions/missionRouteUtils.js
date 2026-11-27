@@ -3,7 +3,7 @@ import { MISSION_CONFIG } from '@game/constants.js';
 /**
  * Format route indicator data into a human-readable string.
  *
- * @param {{ hops: number, totalDays: number } | null} routeData - From calculateRouteIndicator
+ * @param {{ hops: number, totalDays: number } | null} routeData - From game.getRouteIndicator
  * @returns {string} Formatted route string, or empty string if no data
  */
 export function formatRouteIndicator(routeData) {
@@ -23,7 +23,7 @@ export function formatRouteIndicator(routeData) {
  * travel time. Returns a warning object for display, or null when the
  * deadline is comfortably reachable.
  *
- * @param {number} totalDays - Estimated travel days from calculateRouteIndicator
+ * @param {number} totalDays - Estimated travel days from game.getRouteIndicator
  * @param {number} deadline - Mission deadline in days
  * @param {number} [threshold] - Ratio above which the deadline is considered tight
  * @returns {{ level: string, text: string } | null}
