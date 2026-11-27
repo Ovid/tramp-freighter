@@ -341,6 +341,30 @@ describe('CombatManager coverage', () => {
     });
   });
 
+  describe('successive rolls in one encounter', () => {
+    const managerOnDay = (day, quirks = []) =>
+      new CombatManager({
+        ...capabilities,
+        getDaysElapsed: () => day,
+        getShipQuirks: () => quirks,
+      });
+
+    // A failed flee proves the roll was >= the evasive chance, which is
+    // higher than every other option's chance. Reusing that roll would make
+    // every follow-up option certain to fail.
+    it('return fire can succeed after a failed flee', () => {
+      let followUpSuccesses = 0;
+      for (let day = 0; day < 200; day++) {
+        const m = managerOnDay(day);
+        const flee = m.resolveCombatChoice({ strengthModifier: 0 }, 'evasive');
+        if (flee.success) continue;
+        if (m.resolveCombatChoice({ strengthModifier: 0 }, 'return_fire').success)
+          followUpSuccesses++;
+      }
+      expect(followUpSuccesses).toBeGreaterThan(0);
+    });
+  });
+
   describe('lucky_ship negation in combat', () => {
     it('can negate evasive failure', () => {
       // Use lucky_ship with very low rng to trigger negation

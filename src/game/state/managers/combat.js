@@ -25,12 +25,7 @@ export class CombatManager extends BaseManager {
 
     const stateView = this._buildStateView();
 
-    const seed = buildEncounterSeed(
-      this.capabilities.getDaysElapsed(),
-      this.capabilities.getCurrentSystem(),
-      'combat'
-    );
-    const rng = new SeededRandom(seed).next();
+    const rng = this._nextRoll();
 
     let result;
     switch (choice) {
@@ -70,6 +65,25 @@ export class CombatManager extends BaseManager {
       returnFire: this.calculateReturnFireOdds(encounter, gameState),
       distressCall: this.calculateDistressCallOdds(encounter, gameState),
     };
+  }
+
+  /**
+   * Next random number for this day and system. Nothing between two choices
+   * in one encounter changes the day or system, so a fresh generator per
+   * call would hand every choice the same number. Keeping the generator and
+   * advancing it gives each roll its own number while staying reproducible.
+   */
+  _nextRoll() {
+    const seed = buildEncounterSeed(
+      this.capabilities.getDaysElapsed(),
+      this.capabilities.getCurrentSystem(),
+      'combat'
+    );
+    if (this._rollSeed !== seed) {
+      this._rollSeed = seed;
+      this._roller = new SeededRandom(seed);
+    }
+    return this._roller.next();
   }
 
   _buildStateView() {
