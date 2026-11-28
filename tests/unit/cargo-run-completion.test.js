@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createDefaultMissionState } from '@game/state/state-validators.js';
 
 describe('Cargo Run Mission Completion', () => {
   let manager;
@@ -20,6 +21,7 @@ describe('Cargo Run Mission Completion', () => {
         hiddenCargo: [],
       },
       missions: {
+        ...createDefaultMissionState(),
         active: [
           {
             id: 'cargo_run_123',

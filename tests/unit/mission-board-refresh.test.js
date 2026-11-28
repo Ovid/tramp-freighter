@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createDefaultMissionState } from '@game/state/state-validators.js';
 
 describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
   let manager;
@@ -7,13 +8,7 @@ describe('MissionManager.refreshMissionBoard – passes dangerZone', () => {
   beforeEach(() => {
     state = {
       player: { daysElapsed: 5, currentSystem: 0 },
-      missions: {
-        active: [],
-        board: [],
-        boardLastRefresh: -1,
-        completed: [],
-        failed: [],
-      },
+      missions: { ...createDefaultMissionState(), boardLastRefresh: -1 },
     };
 
     const capabilities = {

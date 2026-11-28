@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createDefaultMissionState } from '@game/state/state-validators.js';
 
 describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () => {
   let manager;
@@ -8,7 +9,7 @@ describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () 
     state = {
       player: { daysElapsed: 25 },
       ship: { cargo: [], hiddenCargo: [] },
-      missions: { active: [], board: [], completed: [], failed: [] },
+      missions: createDefaultMissionState(),
     };
 
     const capabilities = {

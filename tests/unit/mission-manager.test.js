@@ -518,7 +518,6 @@ describe('MissionManager', () => {
         },
       ];
       gsm.state.missions.completed = [];
-      gsm.state.missions.completionHistory = undefined;
       gsm.missionManager.completeMission('m1');
       expect(gsm.state.missions.completionHistory).toHaveLength(1);
       expect(gsm.state.missions.completionHistory[0].from).toBe(5);
@@ -1154,11 +1153,6 @@ describe('MissionManager', () => {
   });
 
   describe('dismissMissionFailureNotice', () => {
-    it('does nothing when no pending notices', () => {
-      gsm.state.missions.pendingFailureNotices = undefined;
-      gsm.missionManager.dismissMissionFailureNotice('m1');
-    });
-
     it('does nothing when notice not found', () => {
       gsm.state.missions.pendingFailureNotices = [{ id: 'other' }];
       gsm.missionManager.dismissMissionFailureNotice('m1');
@@ -1190,14 +1184,6 @@ describe('MissionManager', () => {
       gsm.state.missions.boardLastRefresh = currentDay;
       const board = gsm.missionManager.refreshMissionBoard();
       expect(board).toEqual([{ id: 'cached', type: 'delivery' }]);
-    });
-
-    it('initializes completionHistory if missing', () => {
-      delete gsm.state.missions.completionHistory;
-      gsm.state.missions.board = [];
-      gsm.state.missions.boardLastRefresh = -1;
-      gsm.missionManager.refreshMissionBoard();
-      expect(gsm.state.missions.completionHistory).toBeDefined();
     });
 
     it('prunes stale completion history entries outside saturation window', () => {

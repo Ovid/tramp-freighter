@@ -84,6 +84,19 @@ describe('default state sources agree', () => {
     expect(received.npcs).not.toBe(game.getState().npcs);
   });
 
+  it('addStateDefaults fills mission fields an older save lacks and keeps the rest', () => {
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    game.initNewGame();
+    const saved = JSON.parse(JSON.stringify(game.getState()));
+    saved.missions.completed = ['m1'];
+    delete saved.missions.completionHistory;
+    delete saved.missions.pendingFailureNotices;
+
+    const missions = addStateDefaults(saved, STAR_DATA).missions;
+
+    expect(missions).toEqual({ ...newGameMissions(), completed: ['m1'] });
+  });
+
   it('the v4.1 to v5 migration gives the new-game missions shape', () => {
     const result = migrateFromV4_1ToV5({ meta: { version: '4.1.0' } });
 

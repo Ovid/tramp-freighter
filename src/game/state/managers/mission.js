@@ -191,9 +191,6 @@ export class MissionManager extends BaseManager {
       mission.requirements &&
       mission.requirements.destination !== undefined
     ) {
-      if (!missions.completionHistory) {
-        missions.completionHistory = [];
-      }
       missions.completionHistory.push({
         from: mission.giverSystem,
         to: mission.requirements.destination,
@@ -388,9 +385,6 @@ export class MissionManager extends BaseManager {
       missions.failed.push(mission.id);
 
       // Queue a notice for display on next station dock
-      if (!missions.pendingFailureNotices) {
-        missions.pendingFailureNotices = [];
-      }
       missions.pendingFailureNotices.push({
         id: mission.id,
         title: mission.title,
@@ -444,9 +438,6 @@ export class MissionManager extends BaseManager {
     }
 
     // Prune stale completion history
-    if (!missions.completionHistory) {
-      missions.completionHistory = [];
-    }
     const windowStart = currentDay - MISSION_CONFIG.SATURATION_WINDOW_DAYS;
     missions.completionHistory = missions.completionHistory
       .filter((entry) => entry.day > windowStart)
@@ -609,7 +600,6 @@ export class MissionManager extends BaseManager {
 
   dismissMissionFailureNotice(missionId) {
     const missions = this.capabilities.getOwnState();
-    if (!missions.pendingFailureNotices) return;
     const notices = missions.pendingFailureNotices;
     if (!notices.some((n) => n.id === missionId)) return;
     missions.pendingFailureNotices = notices.filter((n) => n.id !== missionId);

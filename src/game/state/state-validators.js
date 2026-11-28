@@ -953,13 +953,9 @@ export function addStateDefaults(state, systemData) {
     };
   }
 
-  if (!state.missions) {
-    state.missions = createDefaultMissionState();
-  }
-
-  if (!state.missions.pendingFailureNotices) {
-    state.missions.pendingFailureNotices = [];
-  }
+  // Merging fills any mission field added after the save was written, so
+  // readers never need their own missing-field guards.
+  state.missions = { ...createDefaultMissionState(), ...state.missions };
 
   // Initialize stats tracking if missing (pre-endgame saves)
   if (!state.stats) {

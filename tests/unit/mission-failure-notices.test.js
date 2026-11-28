@@ -87,23 +87,4 @@ describe('checkMissionDeadlines: pendingFailureNotices', () => {
     expect(notices).toHaveLength(1);
     expect(notices[0].destination).toBeNull();
   });
-
-  it('handles saves without pendingFailureNotices (backwards compat)', () => {
-    const state = gsm.getState();
-    // Simulate old save: delete the field
-    delete state.missions.pendingFailureNotices;
-
-    const mission = {
-      id: 'compat_mission',
-      type: 'delivery',
-      title: 'Compat Test',
-      requirements: { destination: 4, deadline: 1 },
-      rewards: { credits: 100 },
-      penalties: {},
-    };
-    gsm.acceptMission(mission);
-    gsm.updateTime(2);
-
-    expect(gsm.getState().missions.pendingFailureNotices).toHaveLength(1);
-  });
 });
