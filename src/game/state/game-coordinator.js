@@ -37,11 +37,7 @@ import { InformationBroker } from '../game-information-broker.js';
 import {
   isVersionCompatible,
   validateStateStructure,
-  migrateFromV1ToV2,
-  migrateFromV2ToV2_1,
-  migrateFromV2_1ToV4,
-  migrateFromV4ToV4_1,
-  migrateFromV4_1ToV5,
+  applyMigrations,
   addStateDefaults,
 } from './state-validators.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
@@ -711,21 +707,7 @@ export class GameCoordinator {
    * @private
    */
   _applyMigrations(state) {
-    const MIGRATIONS = [
-      ['1.0.0', (s) => migrateFromV1ToV2(s, this.starData)],
-      ['2.0.0', migrateFromV2ToV2_1],
-      ['2.1.0', migrateFromV2_1ToV4],
-      ['4.0.0', migrateFromV4ToV4_1],
-      ['4.1.0', migrateFromV4_1ToV5],
-    ];
-
-    let migrated = state;
-    for (const [version, migrateFn] of MIGRATIONS) {
-      if (migrated.meta.version === version) {
-        migrated = migrateFn(migrated);
-      }
-    }
-    return migrated;
+    return applyMigrations(state, this.starData);
   }
 
   /**
@@ -770,6 +752,9 @@ export class GameCoordinator {
       this.shipManager.getFuelCapacity()
     );
     this.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.emit(EVENT_NAMES.SHIP_NAME_CHANGED, ship.name);
+    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...(state.npcs || {}) });
     this.emit(EVENT_NAMES.KARMA_CHANGED, player.karma || 0);
     this.emit(EVENT_NAMES.FACTION_REP_CHANGED, player.factions || {});
     if (player.finance) {

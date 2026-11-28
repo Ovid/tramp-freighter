@@ -155,37 +155,66 @@ function normalizeCargoStack(cargoStack, currentSystemId, systemData) {
   }
 }
 
+// Each step upgrades a save from the version on its left; the last step
+// writes SAVE_FORMAT_VERSION. Compatibility is derived from this table, so
+// adding a step is the only edit a new save version needs.
+const MIGRATIONS = [
+  ['1.0.0', migrateFromV1ToV2],
+  ['2.0.0', migrateFromV2ToV2_1],
+  ['2.1.0', migrateFromV2_1ToV4],
+  ['4.0.0', migrateFromV4ToV4_1],
+  ['4.1.0', migrateFromV4_1ToV5],
+];
+
+export const MIGRATABLE_VERSIONS = MIGRATIONS.map(([version]) => version);
+
 /**
- * Check if save version is compatible with current game version
- *
- * Supports migration from v1.0.0 to v4.0.0, v2.0.0 to v4.0.0, and v2.1.0 to v4.0.0.
- * Returns true if the save version matches exactly or can be migrated.
+ * Check if a save can be loaded: it is the current version or one the
+ * migration chain upgrades.
  *
  * @param {string} saveVersion - Version from save file
  * @returns {boolean} True if compatible
  */
 export function isVersionCompatible(saveVersion) {
-  if (!saveVersion) return false;
+  return (
+    saveVersion === SAVE_FORMAT_VERSION ||
+    MIGRATABLE_VERSIONS.includes(saveVersion)
+  );
+}
 
-  // Exact version match
-  if (saveVersion === SAVE_FORMAT_VERSION) return true;
+/**
+ * Run every migration step from the save's version up to the current one.
+ *
+ * @param {Object} state - Raw saved state
+ * @param {Array} starData - Star system data (needed by the v1 step)
+ * @returns {Object} Migrated state
+ */
+export function applyMigrations(state, starData) {
+  let migrated = state;
+  for (const [version, migrateFn] of MIGRATIONS) {
+    if (migrated.meta.version === version) {
+      migrated = migrateFn(migrated, starData);
+    }
+  }
+  return migrated;
+}
 
-  // Support migration from v1.0.0 to v5.0.0
-  if (saveVersion === '1.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
-
-  // Support migration from v2.0.0 to v5.0.0
-  if (saveVersion === '2.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
-
-  // Support migration from v2.1.0 to v5.0.0
-  if (saveVersion === '2.1.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
-
-  // Support migration from v4.0.0 to v5.0.0
-  if (saveVersion === '4.0.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
-
-  // Support migration from v4.1.0 to v5.0.0
-  if (saveVersion === '4.1.0' && SAVE_FORMAT_VERSION === '5.0.0') return true;
-
-  return false;
+/**
+ * The mission state a new game starts with. New games, defaulted saves and
+ * migrated saves all build missions from here so their shapes cannot drift.
+ *
+ * @returns {Object} Fresh mission state
+ */
+export function createDefaultMissionState() {
+  return {
+    active: [],
+    completed: [],
+    failed: [],
+    board: [],
+    boardLastRefresh: 0,
+    completionHistory: [],
+    pendingFailureNotices: [],
+  };
 }
 
 /**
@@ -916,13 +945,7 @@ export function addStateDefaults(state, systemData) {
   }
 
   if (!state.missions) {
-    state.missions = {
-      active: [],
-      completed: [],
-      failed: [],
-      board: [],
-      boardLastRefresh: 0,
-    };
+    state.missions = createDefaultMissionState();
   }
 
   if (!state.missions.pendingFailureNotices) {
@@ -982,7 +1005,7 @@ export function addStateDefaults(state, systemData) {
  * @param {Object} state - v4.0.0 state
  * @returns {Object} Migrated v4.1.0 state
  */
-export function migrateFromV4ToV4_1(state) {
+function migrateFromV4ToV4_1(state) {
   devLog('Migrating save from v4.0.0 to v4.1.0');
 
   // Add NPC benefits fields to existing NPC state entries
@@ -1033,13 +1056,7 @@ export function migrateFromV4_1ToV5(state) {
   devLog('Migrating save from v4.1.0 to v5.0.0');
 
   if (!state.missions) {
-    state.missions = {
-      active: [],
-      completed: [],
-      failed: [],
-      board: [],
-      boardLastRefresh: 0,
-    };
+    state.missions = createDefaultMissionState();
   }
 
   state.meta.version = SAVE_FORMAT_VERSION;

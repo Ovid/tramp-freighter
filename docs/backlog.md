@@ -306,3 +306,18 @@ degradation was meant to happen there.
 Possible fix: correct the doc, unless degradation on idle days is intended.
 
 Found during rethink on `paad/code-reviews/ovid-architecture-2026-11-27-18-12-55-86f198a.md`.
+
+## Two synced events are never emitted, so the negotiation intel offer never appears
+
+`CURRENT_SYSTEM_CHANGED` and `INTELLIGENCE_CHANGED` have entries in
+`EVENT_STATE_MAP` (`src/game/constants.js`), but nothing in `src` emits them.
+`InspectionPanel.jsx:36` reads `CURRENT_SYSTEM_CHANGED`, so it gets the value
+at mount and never updates after that. Nothing writes `state.world.intelligence`
+either, so `NegotiationPanel.jsx:51` (`hasIntelligence`) is always false and
+the "intel offer" option can never be shown.
+
+Possible fix: have InspectionPanel read `LOCATION_CHANGED` and drop
+`CURRENT_SYSTEM_CHANGED`. For intel, either give the option a real data
+source or remove it and the event.
+
+Found during rethink on the F-10 architecture fix (2026-11-27 report).

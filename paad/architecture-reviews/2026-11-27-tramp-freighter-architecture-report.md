@@ -304,9 +304,10 @@ How it is built:
   - Re-emitted events: `src/game/state/game-coordinator.js:678-727` (`_emitAllStateEvents`) leaves out SHIP_NAME_CHANGED, DIALOGUE_CHANGED, NPCS_CHANGED, INTELLIGENCE_CHANGED, CURRENT_SYSTEM_CHANGED and HULL/ENGINE/LIFE_SUPPORT_CHANGED.
   - Version chain: `state-validators.js:167-189` ("GAME_VERSION === '5.0.0'") against MIGRATIONS at `game-coordinator.js:635-641`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies, Integration & Data
-- **Status:** Skipped
-- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): the missing re-emits cause no stale UI, because all game UI mounts after load and reads its initial value fresh; HULL/ENGINE/LIFE_SUPPORT are not in EVENT_STATE_MAP (SHIP_CONDITION_CHANGED covers them); every completionHistory reader guards; and the version chain agrees with MIGRATIONS. The duplication is real but costs nothing today (effectively Low). Revisit before adding saved fields or changing the save format.
-- **Status date:** 2026-11-27 16:20 UTC
+- **Status:** Fixed
+- **Status reason:** New games, addStateDefaults and the v4.1→v5 migration build missions from one createDefaultMissionState() in state-validators.js, so defaulted and migrated saves now get completionHistory and pendingFailureNotices too (the EVENT_STATE_MAP fallback stays, since constants.js cannot import state-validators.js). The migration table moved to state-validators.js as applyMigrations(); isVersionCompatible is derived from it, so adding a step is the only edit a new save version needs. _emitAllStateEvents now also re-emits SHIP_NAME, DIALOGUE and NPCS (as copies), and a test fails when any EVENT_STATE_MAP event is not re-emitted. CURRENT_SYSTEM_CHANGED and INTELLIGENCE_CHANGED are named exceptions because nothing emits them at all (logged in docs/backlog.md). Previously Skipped 2026-11-27 after a premise check; fixed on the developer's request.
+- **Status date:** 2026-11-28 13:10 UTC
+- **Status commit:** 64e465b
 
 ### [F-11] Two save paths with different semantics, and a docstring that contradicts the code
 - **Category:** 24 Inconsistent API contracts (also 22)
