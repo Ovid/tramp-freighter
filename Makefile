@@ -1,4 +1,4 @@
-.PHONY: all build test cover lint lint-css format clean open dev preview knip deploy help
+.PHONY: all build test cover lint lint-css format clean open dev preview knip deploy loc help
 
 all: lint format build test ## Lint, format, build, and test
 
@@ -48,6 +48,15 @@ endif
 	@mkdir -p $(DEPLOY_DIR)
 	cp -r dist/* $(DEPLOY_DIR)/
 	@echo "Deployed to $(DEPLOY_DIR) with base path $(BASE_PATH)"
+
+# git ls-files keeps node_modules, dist and coverage out; column 5 of cloc's CSV SUM row is code lines.
+LOC_MAIN = src css scripts index.html '*.config.js' '*.config.mjs' shared-config.js
+LOC_TEST = tests
+
+loc: ## Count lines of code (main, tests, total) in our own tracked files
+	@main=$$(git ls-files $(LOC_MAIN) | cloc --list-file=- --quiet --csv | awk -F, '$$2=="SUM"{print $$5}'); \
+	test=$$(git ls-files $(LOC_TEST) | cloc --list-file=- --quiet --csv | awk -F, '$$2=="SUM"{print $$5}'); \
+	printf "  %-6s %7d\n" Main "$$main" Tests "$$test" Total "$$((main + test))"
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-10s %s\n", $$1, $$2}'
