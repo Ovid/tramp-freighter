@@ -1,27 +1,25 @@
-import { useMemo } from 'react';
 import { useGame } from '../../context/GameContext';
+import { useGameEvent } from '../../hooks/useGameEvent';
 import { STAR_DATA } from '../../game/data/star-data';
 import { getNPCsAtSystem } from '../../game/game-npcs';
-import { ENDGAME_CONFIG } from '../../game/constants';
+import { ENDGAME_CONFIG, EVENT_NAMES } from '../../game/constants';
 
 export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
   const game = useGame();
   const systemId = ENDGAME_CONFIG.DELTA_PAVONIS_ID;
   const system = STAR_DATA.find((s) => s.id === systemId);
 
+  // Subscribed only to re-render tier badges when rep changes
+  useGameEvent(EVENT_NAMES.NPCS_CHANGED);
+
   const npcsAtSystem = getNPCsAtSystem(systemId, { post_credits: true });
 
-  const npcDisplayData = useMemo(() => {
-    return npcsAtSystem.map((npc) => {
-      const tier = game.getRepTier(game.getNPCRep(npc.id));
-      return {
-        id: npc.id,
-        name: npc.name,
-        role: npc.role,
-        tierName: tier.name,
-      };
-    });
-  }, [npcsAtSystem, game]);
+  const npcDisplayData = npcsAtSystem.map((npc) => ({
+    id: npc.id,
+    name: npc.name,
+    role: npc.role,
+    tierName: game.getRepTier(game.getNPCRep(npc.id)).name,
+  }));
 
   return (
     <div id="station-interface" className="visible" data-panel>

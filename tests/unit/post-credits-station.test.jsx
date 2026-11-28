@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, act } from '@testing-library/react';
 import { PostCreditsStation } from '../../src/features/endgame/PostCreditsStation.jsx';
 import { GameProvider } from '../../src/context/GameContext.jsx';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
@@ -47,6 +47,16 @@ describe('PostCreditsStation', () => {
       </GameProvider>
     );
 
+    expect(screen.getByText('Family')).toBeInTheDocument();
+  });
+
+  it('updates the tier badge when rep changes while open', () => {
+    render(
+      <GameProvider game={game}>
+        <PostCreditsStation onOpenPanel={() => {}} onReturnToTitle={() => {}} />
+      </GameProvider>
+    );
+    act(() => game.setNpcRep('yumi_delta_pavonis', 95));
     expect(screen.getByText('Family')).toBeInTheDocument();
   });
 });
