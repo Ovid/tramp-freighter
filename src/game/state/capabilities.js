@@ -19,7 +19,7 @@
  * |--------------------|----------------------------------------------------------------------|
  * | ShipManager        | ship.hull, ship.engine, ship.lifeSupport, ship.quirks, ship.upgrades |
  * |                    | ship.cargoCapacity, ship.hiddenCargo, ship.name                      |
- * | StateManager       | ship.fuel, ship.cargo, player.credits (mutation primitives)          |
+ * | StateManager       | ship.fuel, ship.cargo, player.credits, stats.* (mutation primitives) |
  * | NPCManager         | npcs.*                                                               |
  * | TradingManager     | world.priceKnowledge, world.marketConditions,                        |
  * |                    | world.currentSystemPrices                                            |
@@ -32,7 +32,7 @@
  * | EventsManager      | world.activeEvents, player.daysElapsed                               |
  * | EventEngineManager | world.narrativeEvents.* (flags, fired, cooldowns)                    |
  * | DialogueManager    | dialogue.*                                                           |
- * | Coordinator        | meta.*, preferences.*, stats.*                                       |
+ * | Coordinator        | meta.*, preferences.*                                                |
  *
  * SHARED TOP-LEVEL KEYS:
  * - state.player is fragmented: credits (StateManager), karma/factions
@@ -220,10 +220,11 @@
  *
  * @property {function(): Object} getOwnState
  *   Returns: state.ship (mutable reference)
- * @property {function(number): void} updateFuel
  *   ShipManager owns: hull, engine, lifeSupport, quirks, upgrades,
  *   cargoCapacity, hiddenCargo, hiddenCargoCapacity, name
  *   StateManager owns: fuel, cargo (do NOT mutate directly)
+ * @property {function(number): void} updateFuel
+ *   Delegates to StateManager
  *
  * @property {function(): number} getCredits
  * @property {function(): number} getCargoRemaining
@@ -492,7 +493,8 @@
  * @property {function(): number} getDaysElapsed
  * @property {function(): Array} getActiveEvents
  * @property {function(): Object} getMarketConditions
- * @property {function(): Object|undefined} getStats
+ * @property {function(string, number): void} updateStats
+ *   Delegates to StateManager
  * @property {function(): Object|undefined} getDockedSystems
  *   Returns: state.world.narrativeEvents.dockedSystems
  * @property {function(): Object} getPriceKnowledge
@@ -604,6 +606,8 @@
  * @property {function(): Object} getPlayer
  * @property {function(): Object} getShip
  * @property {function(): Array|undefined} getActiveMissions
+ * @property {function(): Object|undefined} getStats
+ *   Returns: state.stats, which updateStats writes through
  * @property {function(): Object} getFullState
  *   Returns: full state for coordinator delegation
  * @property {function(): number} getFuelCapacity
