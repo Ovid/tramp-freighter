@@ -156,15 +156,17 @@ Found while fixing the SystemPanel accessibility audit.
 
 `state.dialogue` is saved and restored as-is, so a save written while a
 conversation was open loads with `isActive: true` and no panel showing it.
-Only the NPC-recovery path in `src/game/state/managers/save-load.js` resets it.
+No load path resets it; the NPC-recovery path in
+`src/game/state/managers/save-load.js` that used to was deleted with F-8.
 `clearDialogueState` in `src/game/state/managers/dialogue.js` also skips
 `markDirty()`, so a cleared dialogue isn't saved until something else dirties
 the state. `DialoguePanel` now tolerates the stale state (see `fb5f280`), so
 nothing visible breaks today, but anything else reading `dialogue.isActive`
 after a load would see a conversation that isn't happening.
 
-Possible fix: reset `dialogue` to its inactive defaults on every load, the
-same way the recovery path does.
+Possible fix: reset `dialogue` to its inactive defaults
+(`currentNpcId`/`currentNodeId`/`display` null, `isActive` false) on every
+load, in `restoreState` or `addStateDefaults`.
 
 Found while debugging NPC dialogue not opening under StrictMode on `ovid/images`.
 
