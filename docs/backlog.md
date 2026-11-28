@@ -347,14 +347,3 @@ Possible fix: an `NPCManager` method such as `claimRepGain(npcId, key)` that
 returns whether the key was new, called through the dialogue API.
 
 Found during the F-5 dialogue-API fix (2026-11-27 architecture report).
-
-## Dev admin hidden-cargo list goes stale
-
-`DevAdminPanel` (`src/features/dev-admin/DevAdminPanel.jsx`) reads
-`game.getHiddenCargo()` during render but does not subscribe to
-`HIDDEN_CARGO_CHANGED`. Adding hidden cargo emits only that event, so the
-panel's hidden-cargo list is not re-rendered.
-
-Possible fix: `const hiddenCargo = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED) ?? [];`
-
-Found during agentic-review of `ovid/architecture` (paad backlog id `c79b2f70`).

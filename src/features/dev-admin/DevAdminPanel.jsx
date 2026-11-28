@@ -40,6 +40,7 @@ export function DevAdminPanel({ onClose }) {
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const hiddenCargoEvent = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
   const npcs = useGameEvent(EVENT_NAMES.NPCS_CHANGED);
 
   // NPC reputation: selected NPC and input fields keyed by npcId
@@ -73,7 +74,7 @@ export function DevAdminPanel({ onClose }) {
   const currentQuirks = quirks || game.getShip()?.quirks || [];
   const currentUpgrades = upgrades || game.getShip()?.upgrades || [];
   const currentCargo = cargo || game.getShip()?.cargo || [];
-  const hiddenCargo = game.getHiddenCargo() || [];
+  const hiddenCargo = hiddenCargoEvent || game.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
 
   // Available quirks and upgrades (excluding already installed)
