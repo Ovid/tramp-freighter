@@ -222,7 +222,7 @@ How it is built:
 - **Status:** Partially fixed
 - **Status reason:** The cited bypasses now go through the slice owners. InformationBroker.purchaseIntelligence is pure (returns cost and priceEntry), and InfoBrokerManager debits via updateCredits and writes the entry via setPriceKnowledgeEntry; its coordinatorRef is replaced by a read-only getGameState. All stats writes (3 copied closures, navigation jumpsCompleted, danger charitableActs, info-broker rumorsPurchased) go through StateManager.updateStats. The ShipManager fuel clamp on upgrade removal uses updateFuel. App.jsx resets Yumi through game.resetNPCInteractions, which now also emits NPCS_CHANGED. The capabilities.js header no longer claims isolation. Left as is by agreement: getState() still returns the live root; cargo still has several writers (ship.js splices, mission.js and outcome.js pushes); DialogueManager keeps coordinatorRef, because it builds the dialogue context API (S-9).
 - **Status date:** 2026-11-28 14:05 UTC
-- **Status commit:** PENDING
+- **Status commit:** aec9731
 
 ### [F-6] Repair, refuel and finance rules are duplicated between UI code and managers
 - **Category:** 9 Shotgun surgery (also 25)
@@ -333,7 +333,7 @@ How it is built:
 - **Status:** Partially fixed
 - **Status reason:** The markDirty wording in CLAUDE.md and DEVELOPMENT.md was already corrected before this session. The capabilities.js header was rewritten during the F-5 fix. Still open: the "before creating the UIManager" comment in constants.js.
 - **Status date:** 2026-11-28 14:05 UTC
-- **Status commit:** PENDING
+- **Status commit:** aec9731
 
 ### [F-13] A getter with side effects is called during render
 - **Category:** 12 Hidden side effects
