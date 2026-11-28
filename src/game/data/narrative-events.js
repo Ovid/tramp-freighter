@@ -256,7 +256,7 @@ export const NARRATIVE_EVENTS = [
     content: {
       text: [
         'A mechanic notices your fuel gauge as you dock.',
-        '"Running on fumes, huh? I got some fuel canisters that fell off a transport. Half price."',
+        '"Running on fumes, huh? I can hook you up off the books. Half price, no questions."',
       ],
       speaker: null,
       art: 'narrative/mechanic_fuel',

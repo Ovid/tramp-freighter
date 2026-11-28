@@ -180,20 +180,20 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **Pronouns:** they/them
 - **Used by:** `dock_cheap_fuel`
 - **Canon:** "A mechanic notices your fuel gauge as you dock. 'Running on
-  fumes, huh? I got some fuel canisters that fell off a transport. Half
-  price.'"
+  fumes, huh? I can hook you up off the books. Half price, no questions.'"
 - **Look:** Brazilian heritage, early 30s, any gender. Curly dark hair under a
   backwards cap and a thin moustache or a gold tooth. An oil-stained jacket
   with the sleeves pushed up. Deliberately shadier than Rusty Rodriguez: younger,
   slicker, less honest.
-  **Signature detail:** a dented fuel canister held up into frame like a
-  product on display.
+  **Signature detail:** the nozzle of a fuel hose from a dock reel, held up
+  into frame like a product on display.
 - **Expression:** a salesman's wink and grin. Definitely stolen.
 - **Prompt:** A shady Brazilian mechanic in their early 30s with curly dark
   hair under a backwards cap and a gold tooth, wearing an oil-stained jacket
-  with the sleeves pushed up, holding a dented fuel canister up beside their
-  face like a product on display. A salesman's wink and a crooked grin. A
-  dim, cluttered corner of a refuelling dock behind them.
+  with the sleeves pushed up, holding the nozzle of a fuel hose from a
+  wall-mounted dock reel up beside their face like a product on display. A
+  salesman's wink and a crooked grin. A dim, cluttered corner of a
+  refuelling dock behind them.
 
 ### Dock Tech, Barnard's Star
 
