@@ -2,6 +2,7 @@ import {
   NARRATIVE_EVENT_CONFIG,
   CONDITION_TYPES,
   ENDGAME_CONFIG,
+  getFuelPricePerPercent,
 } from '../constants.js';
 import { getReachableSystems } from '../utils/wormhole-graph.js';
 
@@ -11,6 +12,8 @@ const {
   NARRATIVE_PRIORITY_DEFAULT,
   NARRATIVE_PRIORITY_LOW,
   RUMOR_MAX_HOPS,
+  CHEAP_FUEL_FILL_TO,
+  CHEAP_FUEL_PRICE_MULTIPLIER,
 } = NARRATIVE_EVENT_CONFIG;
 
 /**
@@ -253,6 +256,32 @@ export const NARRATIVE_EVENTS = [
     once: false,
     cooldown: 5,
     priority: NARRATIVE_PRIORITY_DEFAULT,
+    // A flat price overcharged near the trigger threshold, so price the actual
+    // top-up at half the local station rate to keep "half price" honest.
+    generateContent(state, starData) {
+      const price = Math.ceil(
+        (CHEAP_FUEL_FILL_TO - state.ship.fuel) *
+          getFuelPricePerPercent(state.player.currentSystem, starData) *
+          CHEAP_FUEL_PRICE_MULTIPLIER
+      );
+      return {
+        choices: [
+          {
+            text: `"Deal." (₡${price})`,
+            next: null,
+            effects: {
+              costs: { credits: price },
+              rewards: { fuelMinimum: CHEAP_FUEL_FILL_TO },
+            },
+          },
+          {
+            text: '"No thanks, I like living dangerously."',
+            next: null,
+            effects: { costs: {}, rewards: {} },
+          },
+        ],
+      };
+    },
     content: {
       text: [
         'A mechanic notices your fuel gauge as you dock.',
@@ -265,7 +294,10 @@ export const NARRATIVE_EVENTS = [
         {
           text: '"Deal."',
           next: null,
-          effects: { costs: { credits: 50 }, rewards: { fuelMinimum: 30 } },
+          effects: {
+            costs: { credits: 50 },
+            rewards: { fuelMinimum: CHEAP_FUEL_FILL_TO },
+          },
         },
         {
           text: '"No thanks, I like living dangerously."',

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { NARRATIVE_EVENTS } from '../../src/game/data/narrative-events.js';
+import { STAR_DATA } from '../../src/game/data/star-data.js';
 
 describe('Narrative Event Data', () => {
   it('should export a non-empty array', () => {
@@ -63,6 +64,23 @@ describe('Narrative Event Data', () => {
         (c) => c.effects.costs.credits > 0
       );
       expect(dealChoice.effects.rewards.fuelMinimum).toBeGreaterThan(0);
+    });
+
+    it('Deal costs half the local station price for the top-up, shown on the button', () => {
+      // Ross 154 is a mid-range system: 3 credits per percent at the station.
+      const ross154 = STAR_DATA.find((s) => s.name === 'Ross 154');
+      const state = {
+        player: { currentSystem: ross154.id },
+        ship: { fuel: 19 },
+      };
+
+      const { choices } = cheapFuel.generateContent(state, STAR_DATA);
+      const deal = choices.find((c) => c.effects.costs.credits > 0);
+
+      // 11% at 3/% is 33 at the station; half is 16.5, rounded up.
+      expect(deal.effects.costs.credits).toBe(17);
+      expect(deal.effects.rewards.fuelMinimum).toBe(30);
+      expect(deal.text).toBe('"Deal." (₡17)');
     });
   });
 
