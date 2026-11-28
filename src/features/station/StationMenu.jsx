@@ -59,11 +59,7 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   // and provides the NPC display data without direct GameCoordinator method calls
   const npcDisplayData = useMemo(() => {
     return npcsAtSystem.map((npc) => {
-      // Access NPC state through GameCoordinator (this is acceptable in useMemo)
-      // since it's computed once per location change, not on every render
-      const npcState = game.getNPCState(npc.id);
-      const currentRep = npcState.rep;
-      const tier = game.getRepTier(currentRep);
+      const tier = game.getRepTier(game.getNPCRep(npc.id));
 
       return {
         id: npc.id,

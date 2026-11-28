@@ -335,6 +335,9 @@ How it is built:
 - **Explanation:** `getNPCState` creates a default record and calls `markDirty()`, which schedules a save timer. It is called inside `useMemo` during render, so rendering a component can schedule a save.
 - **Evidence:** `src/game/state/managers/npc.js:74-98` (`getNPCState` → `this.capabilities.markDirty()`). Called from `src/features/station/StationMenu.jsx:64` and `src/features/endgame/PostCreditsStation.jsx:16`.
 - **Found by:** Error Handling & Observability
+- **Status:** Fixed
+- **Status reason:** New side-effect-free NPCManager.getNPCRep (and facade game.getNPCRep) returns the stored rep, or the NPC's initialRep, without creating a record. StationMenu and PostCreditsStation, the only render-time callers, use it, so rendering no longer writes NPC state or schedules a save. getNPCState is unchanged for its write-path callers. Behaviour check: an NPC first seen at a station now gets its record on first real interaction instead of on render. Nothing reads lastInteraction for logic, and the epilogue's trusted-NPC count can't change, because the highest initialRep is 10 (the threshold is 60). Decided by Claude under a delegated session (developer unavailable).
+- **Status date:** 2026-11-28 00:45 UTC
 
 ### [F-14] Magic numbers in components and managers, and rounding done in JSX
 - **Category:** 28 Magic numbers/strings everywhere

@@ -13,8 +13,7 @@ export function PostCreditsStation({ onOpenPanel, onReturnToTitle }) {
 
   const npcDisplayData = useMemo(() => {
     return npcsAtSystem.map((npc) => {
-      const npcState = game.getNPCState(npc.id);
-      const tier = game.getRepTier(npcState.rep);
+      const tier = game.getRepTier(game.getNPCRep(npc.id));
       return {
         id: npc.id,
         name: npc.name,

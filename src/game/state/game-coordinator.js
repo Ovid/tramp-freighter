@@ -1030,6 +1030,10 @@ export class GameCoordinator {
     return this.npcManager.getNPCState(npcId);
   }
 
+  getNPCRep(npcId) {
+    return this.npcManager.getNPCRep(npcId);
+  }
+
   modifyRep(npcId, amount, reason) {
     this.npcManager.modifyRep(npcId, amount, reason);
   }

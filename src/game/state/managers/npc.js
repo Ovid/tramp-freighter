@@ -98,6 +98,21 @@ export class NPCManager extends BaseManager {
   }
 
   /**
+   * Read an NPC's reputation without creating their record.
+   *
+   * Safe to call during render, unlike getNPCState, which writes a default
+   * record and schedules a save.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {number} Stored reputation, or the NPC's initial reputation
+   */
+  getNPCRep(npcId) {
+    const npcData = this.validateAndGetNPCData(npcId);
+    const stored = this.capabilities.getOwnState()[npcId];
+    return stored ? stored.rep : npcData.initialRep;
+  }
+
+  /**
    * Modify NPC reputation with trust modifier and quirk support
    *
    * Applies reputation change with NPC personality trust modifier and
