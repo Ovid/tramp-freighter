@@ -44,8 +44,11 @@
  *   (DangerManager)
  * - state.ship is split: fuel/cargo (StateManager), everything else (ShipManager)
  *
- * Each manager's getter returns ONLY its specific paths, not the entire
- * player/world/ship object.
+ * Getters hand out live references, so this split is a convention, not an
+ * isolation boundary: a manager can still mutate what a getter returns, and
+ * some getters (ShipManager's getOwnState is all of state.ship) cover more
+ * than the manager owns. Writes to another manager's slice go through that
+ * manager's setter capability (updateCredits, updateFuel, updateStats, ...).
  */
 
 // ========================================================================
@@ -217,6 +220,7 @@
  *
  * @property {function(): Object} getOwnState
  *   Returns: state.ship (mutable reference)
+ * @property {function(number): void} updateFuel
  *   ShipManager owns: hull, engine, lifeSupport, quirks, upgrades,
  *   cargoCapacity, hiddenCargo, hiddenCargoCapacity, name
  *   StateManager owns: fuel, cargo (do NOT mutate directly)
@@ -266,7 +270,7 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipCargo
  * @property {function(): Array} getShipUpgrades
- * @property {function(): Object|undefined} getStats
+ * @property {function(string, number): void} updateStats
  *
  * @property {function(Array): void} updateCargo
  *   For removeRestrictedCargo
@@ -327,6 +331,8 @@
 /**
  * @typedef {Object} InfoBrokerCapabilities
  *
+ * @property {function(): Object} getGameState
+ *   Returns: the live state root, for InformationBroker's read-only helpers
  * @property {function(): Object} getPriceKnowledge
  *   Returns: state.world.priceKnowledge
  * @property {function(): Array} getActiveEvents
@@ -338,11 +344,9 @@
  * @property {function(string, *): void} emit
  * @property {Array} starData
  * @property {Object} navigationSystem
- * @property {Object} coordinatorRef
- *   The coordinator instance, passed through to InformationBroker static methods
- *   (purchaseIntelligence, generateRumor). Those methods directly mutate
- *   state.player.credits and state.world.priceKnowledge. This is a documented
- *   coupling that will be addressed if InformationBroker is refactored separately.
+ * @property {function(number): void} updateCredits
+ * @property {function(number, Object): void} setPriceKnowledgeEntry
+ * @property {function(string, number): void} updateStats
  */
 
 // ========================================================================
@@ -362,7 +366,6 @@
  * @property {function(): Array} getShipCargo
  * @property {function(): number} getCargoRemaining
  * @property {function(): number} getDaysElapsed
- * @property {function(): Object|undefined} getStats
  * @property {function(number): Object} getDangerZone
  * @property {function(): Array} getActiveEvents
  *
@@ -389,7 +392,6 @@
  * @property {function(): Array} getShipCargo
  * @property {function(): Array} getShipHiddenCargo
  * @property {function(): number} getCargoRemaining
- * @property {function(): Object|undefined} getStats
  * @property {function(): Array} getVisitedSystems
  * @property {function(number): Object} getDangerZone
  * @property {function(string): number} getFactionRep

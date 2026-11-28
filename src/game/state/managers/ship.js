@@ -267,8 +267,7 @@ export class ShipManager extends BaseManager {
       );
       // Clamp fuel to new capacity so it never exceeds the max
       if (ship.fuel > capabilities.fuelCapacity) {
-        ship.fuel = capabilities.fuelCapacity;
-        this.capabilities.emit(EVENT_NAMES.FUEL_CHANGED, ship.fuel);
+        this.capabilities.updateFuel(capabilities.fuelCapacity);
       }
     }
 

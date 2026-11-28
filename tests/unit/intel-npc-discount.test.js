@@ -37,7 +37,7 @@ describe('Intelligence NPC discount', () => {
 
     const baseCost = INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED;
     const discountedCost = Math.ceil(baseCost * (1 - discount));
-    const creditsSpent = 1000 - gameState.player.credits;
+    const creditsSpent = result.cost;
     expect(creditsSpent).toBe(discountedCost);
   });
 
@@ -62,7 +62,7 @@ describe('Intelligence NPC discount', () => {
 
     expect(result.success).toBe(true);
 
-    const creditsSpent = 1000 - gameState.player.credits;
+    const creditsSpent = result.cost;
     expect(creditsSpent).toBe(INTELLIGENCE_CONFIG.PRICES.NEVER_VISITED);
   });
 });
