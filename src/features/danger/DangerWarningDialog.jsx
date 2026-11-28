@@ -152,7 +152,7 @@ export function DangerWarningDialog({
 
             {/* Risk Factors */}
             {(cargo?.length > 0 ||
-              (shipCondition?.engine &&
+              (shipCondition?.engine != null &&
                 shipCondition.engine < POOR_ENGINE_THRESHOLD) ||
               upgrades?.includes('advanced_sensors') ||
               (factions?.authorities && factions.authorities !== 0) ||

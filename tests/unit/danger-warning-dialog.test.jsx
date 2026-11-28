@@ -168,6 +168,16 @@ describe('DangerWarningDialog', () => {
       ).toBeInTheDocument();
     });
 
+    // The section-level guard once used a truthy check, so 0 hid everything
+    it('shows the engine risk factor at 0% engine with no other factors', () => {
+      game.updateShipCondition(100, 0, 100);
+      game.updateCargo([]);
+      renderDangerWarningDialog();
+      expect(
+        screen.getByText('Poor engine condition increases pirate risk')
+      ).toBeInTheDocument();
+    });
+
     it('hides the engine risk factor at 50% engine', () => {
       game.updateShipCondition(100, 50, 100);
       renderDangerWarningDialog();
