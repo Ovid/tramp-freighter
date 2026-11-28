@@ -321,3 +321,16 @@ Possible fix: have InspectionPanel read `LOCATION_CHANGED` and drop
 source or remove it and the event.
 
 Found during rethink on the F-10 architecture fix (2026-11-27 report).
+
+## Test capability builders are copied instead of shared
+
+`buildDebtCapabilities` is defined separately in `tests/unit/debt-manager`,
+`finance-boundary-tests` and `tests/property/cole-debt` tests, and
+`makeCapabilities(overrides)` is redefined in `base-manager`,
+`base-manager-seeded-random-gaps` and `navigation-manager-event-compatibility`
+tests. Each copy drifts on its own when manager wiring changes.
+
+Possible fix: move each into one shared helper under `tests/`, or test those
+managers through `createTestGame()`.
+
+Found during rethink on the F-5 cargo-writer fix (2026-11-27 report).

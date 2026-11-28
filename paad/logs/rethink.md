@@ -272,3 +272,26 @@ Lucky (most other premises held but were checked only after proposing).
   (`useGameEvent`, `subscribe`, string literals) across all of `src`.
 - "No behaviour change" means today *and* at the next obvious change
   (a version bump, a new field); say which.
+
+## 2026-11-28 — Test-wiring options after the F-5a cargo fix (fix-architecture, ovid/architecture)
+
+**What went wrong:**
+- Offered "use a real game" as costing "only setup, not assertions" without
+  reading the tests. Two tests in `cargo-run-completion.test.js` assert on
+  mocks (lines 103, 134), and the credits test only expects 700 because
+  `applyTradeWithholding` is mocked; a new game starts with 10,000 debt, so
+  real withholding changes the number.
+- Said the mocks "must stay in sync" with the real wiring. They don't mirror
+  it now (none has `isTanakaQuestActive`), and they only need what the
+  exercised path calls. A missing capability fails loudly with a TypeError,
+  not through silent drift; the exception is a capability called with `?.()`.
+- Gave "about 20–25 closures" without counting (the real figure is 24 keys).
+- Checked for a shared fixture with one narrow grep.
+
+**Guidance for future sessions:**
+- Before saying a test rewrite "keeps the assertions", grep the files for
+  `toHaveBeenCalled` and for mocks whose fixed return values decide an
+  expected number (withholding, odds, random rolls).
+- When arguing that copies drift, say how drift would show up: a loud
+  TypeError, or silent `?.()` and `undefined`. That decides how much it costs.
+- Count before giving a number. "Roughly N" is a claim too.
