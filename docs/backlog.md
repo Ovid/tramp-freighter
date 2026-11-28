@@ -348,18 +348,6 @@ returns whether the key was new, called through the dialogue API.
 
 Found during the F-5 dialogue-API fix (2026-11-27 architecture report).
 
-## removeFromCargoStack edits the stack it is given
-
-`TradingSystem.removeFromCargoStack` (`src/game/game-trading.js`) copies the
-cargo array but runs `stack.qty -= quantity` on the original stack, so any hold
-passed to it is edited in place. Only tests call it; `TradingManager.sellGood`
-has its own non-mutating version of the same logic.
-
-Possible fix: return a new stack (`{ ...stack, qty }`) and call it from
-`sellGood`, or delete it and its tests.
-
-Found during agentic-review of `ovid/architecture` (paad backlog id `d46ce9df`).
-
 ## Dev admin hidden-cargo list goes stale
 
 `DevAdminPanel` (`src/features/dev-admin/DevAdminPanel.jsx`) reads

@@ -116,12 +116,8 @@ export class TradingManager extends BaseManager {
     this.capabilities.updateStats('creditsEarned', totalRevenue);
     this.capabilities.checkAchievements();
 
-    // A new hold, not an edited one: subscribers keep the hold they were given
-    const remaining = stack.qty - quantity;
     this.capabilities.updateCargo(
-      remaining > 0
-        ? cargo.map((s, i) => (i === stackIndex ? { ...s, qty: remaining } : s))
-        : cargo.filter((_, i) => i !== stackIndex)
+      TradingSystem.removeFromCargoStack(cargo, stackIndex, quantity)
     );
 
     // Update market conditions: positive quantity creates surplus (lowers prices)

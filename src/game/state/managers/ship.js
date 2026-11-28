@@ -703,6 +703,9 @@ export class ShipManager extends BaseManager {
   /**
    * Add cargo to a cargo array with proper stacking
    *
+   * Edits cargoArray and its stacks in place, so pass a copy of a hold, never
+   * the hold in state: subscribers keep the hold they were announced.
+   *
    * @param {Array} cargoArray - Target cargo array
    * @param {Object} sourceStack - Source cargo stack
    * @param {number} qty - Quantity to add

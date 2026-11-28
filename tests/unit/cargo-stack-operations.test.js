@@ -206,5 +206,13 @@ describe('TradingSystem.removeFromCargoStack', () => {
 
       expect(cargo).toHaveLength(originalLength);
     });
+
+    it('does not change the stack it decrements', () => {
+      const cargo = [{ good: 'ore', qty: 10, buyPrice: 100 }];
+
+      TradingSystem.removeFromCargoStack(cargo, 0, 3);
+
+      expect(cargo[0].qty).toBe(10);
+    });
   });
 });
