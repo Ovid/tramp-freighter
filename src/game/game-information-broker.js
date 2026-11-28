@@ -42,15 +42,16 @@ export class InformationBroker {
   /**
    * Purchase market intelligence for a system
    *
-   * Deducts credits and updates price knowledge with current prices.
-   * Intelligence data is sometimes unreliable - prices may be manipulated
-   * to show false profit opportunities.
+   * Reads the state but changes nothing: the caller applies the returned
+   * cost and price entry through the slice owners. Intelligence data is
+   * sometimes unreliable - prices may be manipulated to show false profit
+   * opportunities.
    *
-   * @param {Object} gameState - Current game state
+   * @param {Object} gameState - Current game state (read only)
    * @param {number} systemId - Target system ID
    * @param {Array} starData - Star system data
    * @param {number} discount - Discount fraction (0-1), e.g. 0.15 for 15% off
-   * @returns {Object} { success: boolean, reason: string }
+   * @returns {Object} { success, reason, cost?, priceEntry? }
    */
   static purchaseIntelligence(gameState, systemId, starData, discount = 0) {
     const priceKnowledge = gameState.world.priceKnowledge || {};
@@ -108,17 +109,16 @@ export class InformationBroker {
       currentPrices[goodType] = price;
     }
 
-    // Deduct credits
-    gameState.player.credits -= cost;
-
-    // Update price knowledge
-    gameState.world.priceKnowledge[systemId] = {
-      lastVisit: 0, // Intelligence is "current"
-      prices: currentPrices,
-      source: INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER,
+    return {
+      success: true,
+      reason: null,
+      cost,
+      priceEntry: {
+        lastVisit: 0, // Intelligence is "current"
+        prices: currentPrices,
+        source: INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER,
+      },
     };
-
-    return { success: true, reason: null };
   }
 
   /**

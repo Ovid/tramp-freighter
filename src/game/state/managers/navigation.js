@@ -145,10 +145,7 @@ export class NavigationManager extends BaseManager {
     // Store price snapshot for this system
     this.capabilities.setCurrentSystemPrices(snapshotPrices);
 
-    const stats = this.capabilities.getStats();
-    if (stats) {
-      stats.jumpsCompleted++;
-    }
+    this.capabilities.updateStats('jumpsCompleted', 1);
 
     this.capabilities.emit(EVENT_NAMES.LOCATION_CHANGED, newSystemId);
     this.capabilities.emit(EVENT_NAMES.JUMP_COMPLETED, newSystemId);

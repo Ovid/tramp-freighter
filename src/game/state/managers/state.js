@@ -95,6 +95,18 @@ export class StateManager extends BaseManager {
   }
 
   /**
+   * Add to a lifetime stat counter. Older saves without stats are left alone.
+   * @param {string} key - Stat name
+   * @param {number} delta - Amount to add
+   */
+  updateStats(key, delta) {
+    const stats = this.capabilities.getStats();
+    if (stats) {
+      stats[key] = (stats[key] || 0) + delta;
+    }
+  }
+
+  /**
    * Update player debt and emit event
    * @param {number} newDebt - New debt amount
    */

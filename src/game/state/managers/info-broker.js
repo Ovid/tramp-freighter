@@ -1,6 +1,5 @@
 import { InformationBroker } from '../../game-information-broker.js';
 import { BaseManager } from './base-manager.js';
-import { EVENT_NAMES } from '../../constants.js';
 
 /**
  * Information Broker Manager - Handles intelligence trading system
@@ -37,20 +36,24 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {Object} { success: boolean, reason: string }
    */
   purchaseIntelligence(systemId, discount = 0) {
-    const state = this.capabilities.coordinatorRef.getState();
+    const state = this.capabilities.getGameState();
 
-    const result = InformationBroker.purchaseIntelligence(
-      state,
-      systemId,
-      this.starData,
-      discount
-    );
+    const { cost, priceEntry, ...result } =
+      InformationBroker.purchaseIntelligence(
+        state,
+        systemId,
+        this.starData,
+        discount
+      );
 
     if (result.success) {
-      this.capabilities.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
-      this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
-        ...state.world.priceKnowledge,
-      });
+      this.capabilities.updateCredits(state.player.credits - cost);
+      this.capabilities.updatePriceKnowledge(
+        systemId,
+        priceEntry.prices,
+        priceEntry.lastVisit,
+        priceEntry.source
+      );
       this.capabilities.markDirty();
     }
 
@@ -63,14 +66,14 @@ export class InfoBrokerManager extends BaseManager {
    * @returns {string} Rumor text
    */
   generateRumor() {
-    const state = this.capabilities.coordinatorRef.getState();
+    const state = this.capabilities.getGameState();
     const purchaseCount = state.stats.rumorsPurchased || 0;
     const rumor = InformationBroker.generateRumor(
       state,
       this.starData,
       purchaseCount
     );
-    state.stats.rumorsPurchased = purchaseCount + 1;
+    this.capabilities.updateStats('rumorsPurchased', 1);
     this.capabilities.markDirty();
     return rumor;
   }

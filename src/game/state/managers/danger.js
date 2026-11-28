@@ -106,9 +106,8 @@ export class DangerManager extends BaseManager {
       Math.min(KARMA_CONFIG.MAX, currentKarma + amount)
     );
     this.capabilities.setKarma(newKarma);
-    const stats = this.capabilities.getStats();
-    if (stats && amount > 0) {
-      stats.charitableActs++;
+    if (amount > 0) {
+      this.capabilities.updateStats('charitableActs', 1);
     }
     this.log(
       `Karma changed by ${amount} (${reason}): ${currentKarma} -> ${newKarma}`

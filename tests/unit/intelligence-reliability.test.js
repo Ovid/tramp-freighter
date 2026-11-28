@@ -36,8 +36,11 @@ describe('Intelligence Reliability', () => {
       };
 
       // Purchase intelligence
-      InformationBroker.purchaseIntelligence(testGameState, 1, starData);
-      const purchasedData = testGameState.world.priceKnowledge[1];
+      const purchasedData = InformationBroker.purchaseIntelligence(
+        testGameState,
+        1,
+        starData
+      ).priceEntry;
 
       // Calculate actual prices
       const system = starData[1];
@@ -99,8 +102,11 @@ describe('Intelligence Reliability', () => {
         },
       };
 
-      InformationBroker.purchaseIntelligence(testGameState, 1, starData);
-      const purchasedData = testGameState.world.priceKnowledge[1];
+      const purchasedData = InformationBroker.purchaseIntelligence(
+        testGameState,
+        1,
+        starData
+      ).priceEntry;
 
       const system = starData[1];
       for (const goodType of Object.keys(purchasedData.prices)) {
@@ -147,11 +153,16 @@ describe('Intelligence Reliability', () => {
       world: { priceKnowledge: {}, activeEvents: [] },
     };
 
-    InformationBroker.purchaseIntelligence(gameState1, 1, starData);
-    InformationBroker.purchaseIntelligence(gameState2, 1, starData);
-
-    const prices1 = gameState1.world.priceKnowledge[1].prices;
-    const prices2 = gameState2.world.priceKnowledge[1].prices;
+    const prices1 = InformationBroker.purchaseIntelligence(
+      gameState1,
+      1,
+      starData
+    ).priceEntry.prices;
+    const prices2 = InformationBroker.purchaseIntelligence(
+      gameState2,
+      1,
+      starData
+    ).priceEntry.prices;
 
     // Prices should be identical
     for (const goodType of Object.keys(prices1)) {
@@ -170,11 +181,16 @@ describe('Intelligence Reliability', () => {
       world: { priceKnowledge: {}, activeEvents: [] },
     };
 
-    InformationBroker.purchaseIntelligence(gameState1, 1, starData);
-    InformationBroker.purchaseIntelligence(gameState2, 1, starData);
-
-    const prices1 = gameState1.world.priceKnowledge[1].prices;
-    const prices2 = gameState2.world.priceKnowledge[1].prices;
+    const prices1 = InformationBroker.purchaseIntelligence(
+      gameState1,
+      1,
+      starData
+    ).priceEntry.prices;
+    const prices2 = InformationBroker.purchaseIntelligence(
+      gameState2,
+      1,
+      starData
+    ).priceEntry.prices;
 
     // At least some prices should be different due to different manipulation seeds
     let hasDifference = false;
@@ -200,11 +216,16 @@ describe('Intelligence Reliability', () => {
       world: { priceKnowledge: {}, activeEvents: [] },
     };
 
-    InformationBroker.purchaseIntelligence(gameState1, 1, starData2);
-    InformationBroker.purchaseIntelligence(gameState1, 2, starData2);
-
-    const prices1 = gameState1.world.priceKnowledge[1].prices;
-    const prices2 = gameState1.world.priceKnowledge[2].prices;
+    const prices1 = InformationBroker.purchaseIntelligence(
+      gameState1,
+      1,
+      starData2
+    ).priceEntry.prices;
+    const prices2 = InformationBroker.purchaseIntelligence(
+      gameState1,
+      2,
+      starData2
+    ).priceEntry.prices;
 
     // Systems should have different manipulation patterns
     // (though actual prices may differ anyway due to different spectral types)
@@ -221,8 +242,11 @@ describe('Intelligence Reliability', () => {
         world: { priceKnowledge: {}, activeEvents: [] },
       };
 
-      InformationBroker.purchaseIntelligence(testGameState, 1, starData);
-      const purchasedData = testGameState.world.priceKnowledge[1];
+      const purchasedData = InformationBroker.purchaseIntelligence(
+        testGameState,
+        1,
+        starData
+      ).priceEntry;
 
       const system = starData[1];
       let accurateCount = 0;

@@ -11,3 +11,7 @@ and give file:line for each:
 - Every claim of scope such as "owns all X". Grep for every copy of the
   formula or rule, including helpers that use the same constants.
 Mark any claim you could not verify as unverified. Don't present it as fact.
+
+Do not assume that flaws are not worth fixing. Even if there is no detectable
+impact, a flaw in the code guides future agentic coding patterns and the flaws
+compound over time. Clean code is important.

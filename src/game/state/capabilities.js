@@ -19,7 +19,7 @@
  * |--------------------|----------------------------------------------------------------------|
  * | ShipManager        | ship.hull, ship.engine, ship.lifeSupport, ship.quirks, ship.upgrades |
  * |                    | ship.cargoCapacity, ship.hiddenCargo, ship.name                      |
- * | StateManager       | ship.fuel, ship.cargo, player.credits (mutation primitives)          |
+ * | StateManager       | ship.fuel, ship.cargo, player.credits, stats.* (mutation primitives) |
  * | NPCManager         | npcs.*                                                               |
  * | TradingManager     | world.priceKnowledge, world.marketConditions,                        |
  * |                    | world.currentSystemPrices                                            |
@@ -32,7 +32,7 @@
  * | EventsManager      | world.activeEvents, player.daysElapsed                               |
  * | EventEngineManager | world.narrativeEvents.* (flags, fired, cooldowns)                    |
  * | DialogueManager    | dialogue.*                                                           |
- * | Coordinator        | meta.*, preferences.*, stats.*                                       |
+ * | Coordinator        | meta.*, preferences.*                                                |
  *
  * SHARED TOP-LEVEL KEYS:
  * - state.player is fragmented: credits (StateManager), karma/factions
@@ -44,8 +44,11 @@
  *   (DangerManager)
  * - state.ship is split: fuel/cargo (StateManager), everything else (ShipManager)
  *
- * Each manager's getter returns ONLY its specific paths, not the entire
- * player/world/ship object.
+ * Getters hand out live references, so this split is a convention, not an
+ * isolation boundary: a manager can still mutate what a getter returns, and
+ * some getters (ShipManager's getOwnState is all of state.ship) cover more
+ * than the manager owns. Writes to another manager's slice go through that
+ * manager's setter capability (updateCredits, updateFuel, updateStats, ...).
  */
 
 // ========================================================================
@@ -220,6 +223,8 @@
  *   ShipManager owns: hull, engine, lifeSupport, quirks, upgrades,
  *   cargoCapacity, hiddenCargo, hiddenCargoCapacity, name
  *   StateManager owns: fuel, cargo (do NOT mutate directly)
+ * @property {function(number): void} updateFuel
+ *   Delegates to StateManager
  *
  * @property {function(): number} getCredits
  * @property {function(): number} getCargoRemaining
@@ -266,7 +271,7 @@
  * @property {function(): number} getCurrentSystem
  * @property {function(): Array} getShipCargo
  * @property {function(): Array} getShipUpgrades
- * @property {function(): Object|undefined} getStats
+ * @property {function(string, number): void} updateStats
  *
  * @property {function(Array): void} updateCargo
  *   For removeRestrictedCargo
@@ -327,6 +332,8 @@
 /**
  * @typedef {Object} InfoBrokerCapabilities
  *
+ * @property {function(): Object} getGameState
+ *   Returns: the live state root, for InformationBroker's read-only helpers
  * @property {function(): Object} getPriceKnowledge
  *   Returns: state.world.priceKnowledge
  * @property {function(): Array} getActiveEvents
@@ -338,11 +345,10 @@
  * @property {function(string, *): void} emit
  * @property {Array} starData
  * @property {Object} navigationSystem
- * @property {Object} coordinatorRef
- *   The coordinator instance, passed through to InformationBroker static methods
- *   (purchaseIntelligence, generateRumor). Those methods directly mutate
- *   state.player.credits and state.world.priceKnowledge. This is a documented
- *   coupling that will be addressed if InformationBroker is refactored separately.
+ * @property {function(number): void} updateCredits
+ * @property {function(number, Object, number, string): void} updatePriceKnowledge
+ *   Delegates to TradingManager
+ * @property {function(string, number): void} updateStats
  */
 
 // ========================================================================
@@ -362,7 +368,6 @@
  * @property {function(): Array} getShipCargo
  * @property {function(): number} getCargoRemaining
  * @property {function(): number} getDaysElapsed
- * @property {function(): Object|undefined} getStats
  * @property {function(number): Object} getDangerZone
  * @property {function(): Array} getActiveEvents
  *
@@ -389,7 +394,6 @@
  * @property {function(): Array} getShipCargo
  * @property {function(): Array} getShipHiddenCargo
  * @property {function(): number} getCargoRemaining
- * @property {function(): Object|undefined} getStats
  * @property {function(): Array} getVisitedSystems
  * @property {function(number): Object} getDangerZone
  * @property {function(string): number} getFactionRep
@@ -489,7 +493,8 @@
  * @property {function(): number} getDaysElapsed
  * @property {function(): Array} getActiveEvents
  * @property {function(): Object} getMarketConditions
- * @property {function(): Object|undefined} getStats
+ * @property {function(string, number): void} updateStats
+ *   Delegates to StateManager
  * @property {function(): Object|undefined} getDockedSystems
  *   Returns: state.world.narrativeEvents.dockedSystems
  * @property {function(): Object} getPriceKnowledge
@@ -601,6 +606,8 @@
  * @property {function(): Object} getPlayer
  * @property {function(): Object} getShip
  * @property {function(): Array|undefined} getActiveMissions
+ * @property {function(): Object|undefined} getStats
+ *   Returns: state.stats, which updateStats writes through
  * @property {function(): Object} getFullState
  *   Returns: full state for coordinator delegation
  * @property {function(): number} getFuelCapacity

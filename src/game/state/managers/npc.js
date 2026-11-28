@@ -113,6 +113,19 @@ export class NPCManager extends BaseManager {
   }
 
   /**
+   * Reset an NPC's interaction count so count-gated dialogue starts over.
+   *
+   * @param {string} npcId - NPC identifier
+   */
+  resetInteractions(npcId) {
+    this.getNPCState(npcId).interactions = 0;
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
+    this.capabilities.markDirty();
+  }
+
+  /**
    * Read an NPC's stored record without creating one.
    *
    * @param {string} npcId - NPC identifier

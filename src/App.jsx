@@ -230,9 +230,7 @@ export default function App({ devMode = false }) {
       if (isPostCredits) {
         // Reset Yumi's interaction counter so the full dialogue progression
         // is available when returning from the title screen
-        const yumiState = game.getNPCState('yumi_delta_pavonis');
-        yumiState.interactions = 0;
-        game.markDirty();
+        game.resetNPCInteractions('yumi_delta_pavonis');
       }
       setPostCredits(isPostCredits);
       // Transition to game
@@ -368,9 +366,7 @@ export default function App({ devMode = false }) {
     game.setNarrativeFlag('post_credits');
     // Reset Yumi's interaction counter so the full dialogue progression
     // (rounds 0→1→2→loop) is available from the start
-    const yumiState = game.getNPCState('yumi_delta_pavonis');
-    yumiState.interactions = 0;
-    game.markDirty();
+    game.resetNPCInteractions('yumi_delta_pavonis');
     setPostCredits(true);
     setViewMode(VIEW_MODES.STATION);
   }, [game]);

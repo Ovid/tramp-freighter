@@ -13,6 +13,7 @@ import {
 import { TradingSystem } from '../../game-trading.js';
 import { validateAllDialogueTrees } from '../../data/dialogue-trees.js';
 import { SeededRandom } from '../../utils/seeded-random.js';
+import { createDefaultMissionState } from '../state-validators.js';
 
 /**
  * InitializationManager - Handles game initialization and setup
@@ -238,15 +239,7 @@ export class InitializationManager {
    * @returns {Object} Mission state object
    */
   initializeMissionState() {
-    return {
-      active: [],
-      completed: [],
-      failed: [],
-      board: [],
-      boardLastRefresh: 0,
-      completionHistory: [],
-      pendingFailureNotices: [],
-    };
+    return createDefaultMissionState();
   }
 
   /**

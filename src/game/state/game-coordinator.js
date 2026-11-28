@@ -37,11 +37,7 @@ import { InformationBroker } from '../game-information-broker.js';
 import {
   isVersionCompatible,
   validateStateStructure,
-  migrateFromV1ToV2,
-  migrateFromV2ToV2_1,
-  migrateFromV2_1ToV4,
-  migrateFromV4ToV4_1,
-  migrateFromV4_1ToV5,
+  applyMigrations,
   addStateDefaults,
 } from './state-validators.js';
 import { NARRATIVE_EVENTS } from '../data/narrative-events.js';
@@ -107,6 +103,7 @@ export class GameCoordinator {
       getPlayer: () => this.state.player,
       getShip: () => this.state.ship,
       getActiveMissions: () => this.state.missions?.active,
+      getStats: () => this.state.stats,
       getFullState: () => this.state,
       getFuelCapacity: () => this.shipManager.getFuelCapacity(),
       emit: (...args) => this.emit(...args),
@@ -134,7 +131,6 @@ export class GameCoordinator {
       getShipCargo: () => this.state.ship.cargo,
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       getDaysElapsed: () => this.state.player.daysElapsed,
-      getStats: () => this.state.stats,
       getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
       getActiveEvents: () => this.state.world.activeEvents,
       updateCredits: (value) => this.stateManager.updateCredits(value),
@@ -142,11 +138,7 @@ export class GameCoordinator {
       applyTradeWithholding: (totalRevenue) =>
         this.debtManager.applyWithholding(totalRevenue),
       checkAchievements: () => this.achievementsManager.checkAchievements(),
-      updateStats: (key, delta) => {
-        if (this.state.stats) {
-          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
-        }
-      },
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
       starData: this.starData,
@@ -154,6 +146,7 @@ export class GameCoordinator {
     });
     this.shipManager = new ShipManager({
       getOwnState: () => this.state.ship,
+      updateFuel: (value) => this.stateManager.updateFuel(value),
       getCredits: () => this.state.player.credits,
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       updateCredits: (value) => this.stateManager.updateCredits(value),
@@ -192,7 +185,7 @@ export class GameCoordinator {
       getDaysElapsed: () => this.state.player.daysElapsed,
       getActiveEvents: () => this.state.world.activeEvents,
       getMarketConditions: () => this.state.world.marketConditions,
-      getStats: () => this.state.stats,
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
       getDockedSystems: () => this.state.world.narrativeEvents?.dockedSystems,
       getPriceKnowledge: () => this.state.world.priceKnowledge,
       updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
@@ -293,7 +286,17 @@ export class GameCoordinator {
       isTestEnvironment: this.isTestEnvironment,
     });
     this.infoBrokerManager = new InfoBrokerManager({
+      getGameState: () => this.state,
       getPriceKnowledge: () => this.state.world.priceKnowledge,
+      updateCredits: (value) => this.stateManager.updateCredits(value),
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
+      updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
+        this.tradingManager.updatePriceKnowledge(
+          systemId,
+          prices,
+          lastVisit,
+          source
+        ),
       getActiveEvents: () => this.state.world.activeEvents,
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipUpgrades: () => this.state.ship.upgrades,
@@ -301,7 +304,6 @@ export class GameCoordinator {
       emit: (...args) => this.emit(...args),
       starData: this.starData,
       navigationSystem: this.navigationSystem,
-      coordinatorRef: this,
       isTestEnvironment: this.isTestEnvironment,
     });
     this.dangerManager = new DangerManager({
@@ -314,7 +316,7 @@ export class GameCoordinator {
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipCargo: () => this.state.ship.cargo,
       getShipUpgrades: () => this.state.ship.upgrades,
-      getStats: () => this.state.stats,
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
       updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
       checkAchievements: () => this.achievementsManager.checkAchievements(),
       markDirty: () => this.markDirty(),
@@ -392,7 +394,6 @@ export class GameCoordinator {
       getShipCargo: () => this.state.ship.cargo,
       getShipHiddenCargo: () => this.state.ship.hiddenCargo,
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
-      getStats: () => this.state.stats,
       getVisitedSystems: () => this.state.world.visitedSystems,
       getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
       getFactionRep: (faction) => this.dangerManager.getFactionRep(faction),
@@ -408,11 +409,7 @@ export class GameCoordinator {
       modifyColeRep: (delta) => this.debtManager.modifyColeRep(delta),
       removeCargoForMission: (goodType, qty) =>
         this.shipManager.removeCargoForMission(goodType, qty),
-      updateStats: (key, delta) => {
-        if (this.state.stats) {
-          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
-        }
-      },
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
       isTanakaQuestActive: () => this.questManager.isTanakaQuestActive(),
       markDirty: () => this.markDirty(),
       emit: (...args) => this.emit(...args),
@@ -461,11 +458,7 @@ export class GameCoordinator {
           ]);
         }
       },
-      updateStats: (key, delta) => {
-        if (this.state.stats) {
-          this.state.stats[key] = (this.state.stats[key] || 0) + delta;
-        }
-      },
+      updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
       markDirty: this.markDirty.bind(this),
       emit: this.emit.bind(this),
       subscribe: this.subscribe.bind(this),
@@ -711,21 +704,7 @@ export class GameCoordinator {
    * @private
    */
   _applyMigrations(state) {
-    const MIGRATIONS = [
-      ['1.0.0', (s) => migrateFromV1ToV2(s, this.starData)],
-      ['2.0.0', migrateFromV2ToV2_1],
-      ['2.1.0', migrateFromV2_1ToV4],
-      ['4.0.0', migrateFromV4ToV4_1],
-      ['4.1.0', migrateFromV4_1ToV5],
-    ];
-
-    let migrated = state;
-    for (const [version, migrateFn] of MIGRATIONS) {
-      if (migrated.meta.version === version) {
-        migrated = migrateFn(migrated);
-      }
-    }
-    return migrated;
+    return applyMigrations(state, this.starData);
   }
 
   /**
@@ -770,6 +749,9 @@ export class GameCoordinator {
       this.shipManager.getFuelCapacity()
     );
     this.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.emit(EVENT_NAMES.SHIP_NAME_CHANGED, ship.name);
+    this.emit(EVENT_NAMES.DIALOGUE_CHANGED, { ...state.dialogue });
+    this.emit(EVENT_NAMES.NPCS_CHANGED, { ...(state.npcs || {}) });
     this.emit(EVENT_NAMES.KARMA_CHANGED, player.karma || 0);
     this.emit(EVENT_NAMES.FACTION_REP_CHANGED, player.factions || {});
     if (player.finance) {
@@ -1047,6 +1029,10 @@ export class GameCoordinator {
 
   getNPCRep(npcId) {
     return this.npcManager.getNPCRep(npcId);
+  }
+
+  resetNPCInteractions(npcId) {
+    return this.npcManager.resetInteractions(npcId);
   }
 
   modifyRep(npcId, amount, reason) {

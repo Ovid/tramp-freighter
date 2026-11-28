@@ -21,7 +21,10 @@ function makeCapabilities(mockState, overrides = {}) {
     getDaysElapsed: () => mockState.player.daysElapsed,
     getActiveEvents: () => mockState.world.activeEvents,
     getMarketConditions: () => mockState.world.marketConditions,
-    getStats: () => mockState.stats,
+    updateStats: (key, delta) => {
+      if (mockState.stats)
+        mockState.stats[key] = (mockState.stats[key] || 0) + delta;
+    },
     getDockedSystems: () => mockState.world.narrativeEvents?.dockedSystems,
     getPriceKnowledge: () => mockState.world.priceKnowledge || {},
     updatePriceKnowledge: vi.fn(),

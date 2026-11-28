@@ -219,9 +219,10 @@ How it is built:
     - That gives `src/game/game-information-broker.js:112` the live state, and it runs "gameState.player.credits -= cost".
     - `info-broker.js:44` then emits CREDITS_CHANGED by hand.
 - **Found by:** Coupling & Dependencies, Integration & Data, Structure & Boundaries
-- **Status:** Skipped
-- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): every cited bypass re-does the emit and markDirty, and updateCredits adds no validation, so no observable defect was found; impact is structural only (effectively Low). The implied fix (copy or freeze getState) is mis-aimed, because writes leak through live getOwnState/getShipCargo/getStats capability getters. A future fix should route writes through setters instead.
-- **Status date:** 2026-11-27 16:20 UTC
+- **Status:** Partially fixed
+- **Status reason:** The cited bypasses now go through the slice owners. InformationBroker.purchaseIntelligence is pure (returns cost and priceEntry), and InfoBrokerManager debits via updateCredits and writes the entry via setPriceKnowledgeEntry; its coordinatorRef is replaced by a read-only getGameState. All stats writes (3 copied closures, navigation jumpsCompleted, danger charitableActs, info-broker rumorsPurchased) go through StateManager.updateStats. The ShipManager fuel clamp on upgrade removal uses updateFuel. App.jsx resets Yumi through game.resetNPCInteractions, which now also emits NPCS_CHANGED. The capabilities.js header no longer claims isolation. Left as is by agreement: getState() still returns the live root; cargo still has several writers (ship.js splices, mission.js and outcome.js pushes); DialogueManager keeps coordinatorRef, because it builds the dialogue context API (S-9).
+- **Status date:** 2026-11-28 14:05 UTC
+- **Status commit:** aec9731
 
 ### [F-6] Repair, refuel and finance rules are duplicated between UI code and managers
 - **Category:** 9 Shotgun surgery (also 25)
@@ -304,9 +305,10 @@ How it is built:
   - Re-emitted events: `src/game/state/game-coordinator.js:678-727` (`_emitAllStateEvents`) leaves out SHIP_NAME_CHANGED, DIALOGUE_CHANGED, NPCS_CHANGED, INTELLIGENCE_CHANGED, CURRENT_SYSTEM_CHANGED and HULL/ENGINE/LIFE_SUPPORT_CHANGED.
   - Version chain: `state-validators.js:167-189` ("GAME_VERSION === '5.0.0'") against MIGRATIONS at `game-coordinator.js:635-641`.
 - **Found by:** Structure & Boundaries, Coupling & Dependencies, Integration & Data
-- **Status:** Skipped
-- **Status reason:** Deferred after a premise check (rethink, 2026-11-27): the missing re-emits cause no stale UI, because all game UI mounts after load and reads its initial value fresh; HULL/ENGINE/LIFE_SUPPORT are not in EVENT_STATE_MAP (SHIP_CONDITION_CHANGED covers them); every completionHistory reader guards; and the version chain agrees with MIGRATIONS. The duplication is real but costs nothing today (effectively Low). Revisit before adding saved fields or changing the save format.
-- **Status date:** 2026-11-27 16:20 UTC
+- **Status:** Fixed
+- **Status reason:** New games, addStateDefaults and the v4.1→v5 migration build missions from one createDefaultMissionState() in state-validators.js, so defaulted and migrated saves now get completionHistory and pendingFailureNotices too (the EVENT_STATE_MAP fallback stays, since constants.js cannot import state-validators.js). The migration table moved to state-validators.js as applyMigrations(); isVersionCompatible is derived from it. Each step stamps its own literal version, and applyMigrations throws if the chain does not reach SAVE_FORMAT_VERSION, so a new save version needs its step plus the constant bump, and forgetting the step fails loudly (corrected after review I1). _emitAllStateEvents now also re-emits SHIP_NAME, DIALOGUE and NPCS (as copies), and a test fails when any EVENT_STATE_MAP event is not re-emitted. CURRENT_SYSTEM_CHANGED and INTELLIGENCE_CHANGED are named exceptions because nothing emits them at all (logged in docs/backlog.md). Previously Skipped 2026-11-27 after a premise check; fixed on the developer's request.
+- **Status date:** 2026-11-28 13:10 UTC
+- **Status commit:** 34e80fd
 
 ### [F-11] Two save paths with different semantics, and a docstring that contradicts the code
 - **Category:** 24 Inconsistent API contracts (also 22)
@@ -328,6 +330,10 @@ How it is built:
   - `src/game/state/capabilities.js:47-48` is contradicted by `game-coordinator.js:154`.
   - `src/game/constants.js:586`: "before creating the UIManager".
 - **Found by:** Coupling & Dependencies
+- **Status:** Partially fixed
+- **Status reason:** The markDirty wording in CLAUDE.md and DEVELOPMENT.md was already corrected before this session. The capabilities.js header was rewritten during the F-5 fix. Still open: the "before creating the UIManager" comment in constants.js.
+- **Status date:** 2026-11-28 14:05 UTC
+- **Status commit:** aec9731
 
 ### [F-13] A getter with side effects is called during render
 - **Category:** 12 Hidden side effects

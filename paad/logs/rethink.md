@@ -243,3 +243,32 @@ was missing a step (it would break the art test it relies on).
 - Grep `docs/backlog.md` for the symbol before treating a finding as new. It
   often records why a path is unreachable.
 - Before removing a default, look for tests that assert the default exists.
+
+## 2026-11-28 — F-10 fix proposal (fix-architecture, ovid/architecture)
+
+**Verdict:** Wrong reason (part 2, and a missed test caller in part 3) +
+Lucky (most other premises held but were checked only after proposing).
+
+**What went wrong:**
+- Proposed "add the 5 missing re-emits" by diffing `_emitAllStateEvents`
+  against `EVENT_STATE_MAP`, without checking whether anything ever emits
+  those events. `CURRENT_SYSTEM_CHANGED` and `INTELLIGENCE_CHANGED` are never
+  emitted anywhere in `src`, and nothing writes `world.intelligence`. Adding
+  them to the load re-emit, plus a test that every map key is re-emitted,
+  would make two dead events look alive.
+- Claimed `_applyMigrations` had no callers besides `restoreState`;
+  `tests/unit/migration-registry.test.js:39,49` call it directly.
+- Grepped only `src/game` and only the `subscribe(EVENT_NAMES.` form when
+  claiming the new emits have no side effects.
+- Said part 3 had "no behaviour change" without noting that, on a future
+  version bump, derived compatibility keeps accepting old saves where the
+  hard-coded guard rejected them.
+
+**Guidance for future sessions:**
+- Before adding an event to a "sync everything" list, grep for a runtime
+  `emit(EVENT_NAMES.X` of it. A map entry is not proof the event is live.
+- When claiming "no other callers", grep `tests/` as well as `src/`.
+- When claiming an emit has no side effects, grep every subscriber form
+  (`useGameEvent`, `subscribe`, string literals) across all of `src`.
+- "No behaviour change" means today *and* at the next obvious change
+  (a version bump, a new field); say which.

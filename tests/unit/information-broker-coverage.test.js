@@ -108,10 +108,12 @@ describe('InformationBroker coverage', () => {
           marketConditions: {},
         },
       };
-      InformationBroker.purchaseIntelligence(gameState, 1, starData);
-      expect(gameState.world.priceKnowledge[1].source).toBe(
-        'intelligence_broker'
+      const { priceEntry } = InformationBroker.purchaseIntelligence(
+        gameState,
+        1,
+        starData
       );
+      expect(priceEntry.source).toBe('intelligence_broker');
     });
 
     it('sets lastVisit to 0 after purchase', () => {
@@ -123,8 +125,12 @@ describe('InformationBroker coverage', () => {
           marketConditions: {},
         },
       };
-      InformationBroker.purchaseIntelligence(gameState, 1, starData);
-      expect(gameState.world.priceKnowledge[1].lastVisit).toBe(0);
+      const { priceEntry } = InformationBroker.purchaseIntelligence(
+        gameState,
+        1,
+        starData
+      );
+      expect(priceEntry.lastVisit).toBe(0);
     });
 
     it('uses stale visit price for old knowledge', () => {
@@ -138,9 +144,11 @@ describe('InformationBroker coverage', () => {
           marketConditions: {},
         },
       };
-      const creditsBefore = gameState.player.credits;
-      InformationBroker.purchaseIntelligence(gameState, 1, starData);
-      const spent = creditsBefore - gameState.player.credits;
+      const { cost: spent } = InformationBroker.purchaseIntelligence(
+        gameState,
+        1,
+        starData
+      );
       expect(spent).toBe(INTELLIGENCE_CONFIG.PRICES.STALE_VISIT);
     });
   });
