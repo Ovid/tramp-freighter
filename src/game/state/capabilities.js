@@ -305,7 +305,13 @@
  * @property {function(): number} getCredits
  * @property {function(): number} getDaysElapsed
  * @property {function(string): Object} getNPCState
- *   Returns: state.npcs[npcId] for free repair checks
+ *   Returns: state.npcs[npcId], creating it if missing. Write path only
+ *   (applyFreeRepair); never call during render.
+ * @property {function(string): number} getNPCRep
+ *   Returns stored rep, or the NPC's initialRep, without creating a record.
+ *   Safe during render (canGetFreeRepair).
+ * @property {function(string): (Object|null)} getStoredNPCState
+ *   Returns state.npcs[npcId], or null, without creating a record.
  * @property {function(string): Object} validateAndGetNPCData
  *   Returns NPC static data (from ALL_NPCS)
  * @property {function(number): Object} getRepTier
