@@ -275,7 +275,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** Encounter and dialogue failures now reach the player. A failed encounter resolution is dismissed with an error toast (one helper replaces the two catch blocks). A dialogue that fails to start closes with a message instead of hanging on "Loading dialogue...". A failed choice closes with a message. A dialogue action that throws now returns a warning through selectDialogueChoice, which the panel shows while the conversation continues, replacing the console.warn. The panel's unreachable catch blocks are gone. Not done, deliberately: the save-load "NPC" error-text branch and the half-restore in restoreState. A premise check found no reachable trigger for either, and F-1 already keeps the player on the title screen when a load fails. Completed 2026-11-28 at the developer's request: the "NPC" error-text recovery (handleLoadError, attemptNPCRecovery) is deleted, so any throw during load is reported on the title screen like every other rejected save, and relationships are never wiped because of an error message. restoreState now puts the previous state back and re-emits its events if a step after installing the new state throws, then rethrows so loadGame reports it. The 8 tests of the deleted branch went with it; new tests pin the rollback and the "NPC" message case. The two matching docs/backlog.md entries are removed and DEVELOPMENT.md is updated.
 - **Status date:** 2026-11-28 10:40 UTC
-- **Status commit:** 2df8c47
+- **Status commit:** 2df8c47, cca67a6
 
 ### [F-9] The coordinator facade is bypassed even where facade methods exist
 - **Category:** 2 God object (facade variant; also 6)
