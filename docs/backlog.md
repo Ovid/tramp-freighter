@@ -334,3 +334,16 @@ Possible fix: move each into one shared helper under `tests/`, or test those
 managers through `createTestGame()`.
 
 Found during rethink on the F-5 cargo-writer fix (2026-11-27 report).
+
+## The dialogue engine writes NPC state itself
+
+`selectChoice` in `src/game/game-dialogue.js` (`shouldAwardRepGain`, around
+lines 333-339) pushes into `npcState.repGainsClaimed` on the live record that
+`getNPCState` returns. That makes the dialogue engine one more writer of the
+NPC slice outside `NPCManager`, the same kind of problem as architecture flaw
+F-5.
+
+Possible fix: an `NPCManager` method such as `claimRepGain(npcId, key)` that
+returns whether the key was new, called through the dialogue API.
+
+Found during the F-5 dialogue-API fix (2026-11-27 architecture report).

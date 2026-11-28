@@ -13,7 +13,7 @@ import { NPCManager } from './managers/npc.js';
 import { NavigationManager } from './managers/navigation.js';
 import { RefuelManager } from './managers/refuel.js';
 import { RepairManager } from './managers/repair.js';
-import { DialogueManager } from './managers/dialogue.js';
+import { DialogueManager, DIALOGUE_API } from './managers/dialogue.js';
 import { EventsManager } from './managers/events.js';
 import { InfoBrokerManager } from './managers/info-broker.js';
 import { EventSystemManager } from './managers/event-system.js';
@@ -248,7 +248,9 @@ export class GameCoordinator {
     this.dialogueManager = new DialogueManager({
       getOwnState: () => this.state.dialogue,
       emit: this.emit.bind(this),
-      coordinatorRef: this,
+      dialogueApi: Object.fromEntries(
+        DIALOGUE_API.map((name) => [name, this[name].bind(this)])
+      ),
       isTestEnvironment: this.isTestEnvironment,
     });
     this.eventsManager = new EventsManager({

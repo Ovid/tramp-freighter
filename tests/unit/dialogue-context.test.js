@@ -3,15 +3,13 @@ import { buildDialogueContext } from '../../src/game/game-dialogue.js';
 
 describe('buildDialogueContext', () => {
   const mockGSM = {
-    getState: () => ({
-      player: { daysElapsed: 42, credits: 1000, debt: 5000 },
-      ship: {
-        cargo: [{ type: 'food', quantity: 5 }],
-        hull: 85,
-        engine: 90,
-      },
-      world: { visitedSystems: [0, 1, 4] },
+    getPlayer: () => ({ daysElapsed: 42, credits: 1000, debt: 5000 }),
+    getShip: () => ({
+      cargo: [{ type: 'food', quantity: 5 }],
+      hull: 85,
+      engine: 90,
     }),
+    getVisitedSystems: () => [0, 1, 4],
     getKarma: () => 15,
     getHeatTier: () => 'low',
     getNPCState: (_id) => ({
