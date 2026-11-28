@@ -91,31 +91,6 @@ describe('SaveLoadManager coverage gaps', () => {
     });
   });
 
-  describe('handleLoadError', () => {
-    it('returns null for non-NPC errors', () => {
-      const error = new Error('Generic load failure');
-      const result = gsm.saveLoadManager.handleLoadError(error);
-      expect(result).toBeNull();
-    });
-
-    it('attempts NPC recovery for NPC-related errors', () => {
-      const spy = vi
-        .spyOn(gsm.saveLoadManager, 'attemptNPCRecovery')
-        .mockReturnValue(null);
-      const error = new Error('NPC data is corrupted');
-      gsm.saveLoadManager.handleLoadError(error);
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('attemptNPCRecovery', () => {
-    it('returns null when recovery fails completely', () => {
-      // attemptNPCRecovery calls loadGameFromStorage which will return null
-      const result = gsm.saveLoadManager.attemptNPCRecovery();
-      expect(result).toBeNull();
-    });
-  });
-
   describe('clearSave', () => {
     it('delegates to clearSaveFromStorage', () => {
       const result = gsm.saveLoadManager.clearSave();

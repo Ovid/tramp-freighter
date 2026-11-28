@@ -82,6 +82,16 @@ describe('Load error reporting', () => {
     expect(game.getLoadError()).toBe('Save data could not be loaded');
   });
 
+  it('reports a restore that throws with "NPC" in its message like any other', () => {
+    store[SAVE_KEY] = JSON.stringify(validState());
+    const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);
+    vi.spyOn(game, 'restoreState').mockImplementationOnce(() => {
+      throw new Error('Cannot read NPC portrait');
+    });
+    expect(game.loadGame()).toBeNull();
+    expect(game.getLoadError()).toBe('Save data could not be loaded');
+  });
+
   it('returns no state when restore throws', () => {
     store[SAVE_KEY] = JSON.stringify(validState());
     const game = new GameCoordinator(STAR_DATA, WORMHOLE_DATA);

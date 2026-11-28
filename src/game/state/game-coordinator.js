@@ -674,15 +674,24 @@ export class GameCoordinator {
 
     migratedState = addStateDefaults(migratedState, this.starData);
 
+    // The steps below need this.state installed, so a throw must put the
+    // previous state back rather than leave a half-restored coordinator.
+    const previousState = this.state;
     this.state = migratedState;
 
-    this._registerEventEngine();
+    try {
+      this._registerEventEngine();
 
-    this._emitAllStateEvents(migratedState);
+      this._emitAllStateEvents(migratedState);
 
-    // Catch up achievements that already meet thresholds (e.g. saves from
-    // before the achievements system, or new achievements added in updates).
-    this.achievementsManager.checkAchievements();
+      // Catch up achievements that already meet thresholds (e.g. saves from
+      // before the achievements system, or new achievements added in updates).
+      this.achievementsManager.checkAchievements();
+    } catch (error) {
+      this.state = previousState;
+      if (previousState) this._emitAllStateEvents(previousState);
+      throw error;
+    }
 
     devLog('State restored successfully');
 

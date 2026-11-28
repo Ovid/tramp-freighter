@@ -16,6 +16,26 @@ describe('GameCoordinator.restoreState', () => {
     vi.restoreAllMocks();
   });
 
+  it('keeps the previous state when a post-install step throws', () => {
+    manager.initNewGame();
+    const previous = manager.getState();
+    const incoming = JSON.parse(JSON.stringify(previous));
+    incoming.player.credits = previous.player.credits + 1234;
+    vi.spyOn(
+      manager.achievementsManager,
+      'checkAchievements'
+    ).mockImplementation(() => {
+      throw new Error('boom');
+    });
+    const credits = [];
+    manager.subscribe('creditsChanged', (c) => credits.push(c));
+
+    expect(() => manager.restoreState(incoming)).toThrow('boom');
+    expect(manager.getState()).toBe(previous);
+    // Subscribers that saw the incoming values are told the previous ones again
+    expect(credits.at(-1)).toBe(previous.player.credits);
+  });
+
   it('restores valid current-version state and returns success', () => {
     // Generate valid state from a separate manager to avoid direct .state mutation
     const sourceManager = new GameCoordinator(

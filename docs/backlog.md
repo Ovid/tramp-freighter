@@ -250,26 +250,6 @@ the argument required, or throw when it is missing.
 
 Found during the 2026-11-27 CLAUDE.md pushback review.
 
-## NPC-recovery branch in `handleLoadError` is unreachable
-
-`SaveLoadManager.handleLoadError` (`src/game/state/managers/save-load.js`)
-only attempts `attemptNPCRecovery` when the error message contains "NPC".
-Nothing reachable from `restoreState` throws such an error, so the branch is
-dead. If it ever did succeed, `checkAchievements` could mark dirty and write
-the NPC-wiped state while the player is still on the title screen.
-
-Found during the 2026-11-27 rethink of the F-1 fix options.
-
-## A restore that throws after assigning state leaves partial state on Continue
-
-`restoreState` assigns `this.state` before `_registerEventEngine`,
-`_emitAllStateEvents` and `checkAchievements`. If any of those throws,
-`loadGame` returns null but the coordinator keeps the half-restored state. At
-boot `initNewGame` papers over this; a second load on Continue does not. No
-concrete triggering input is known.
-
-Found during the 2026-11-27 rethink of the F-1 fix options (see also F-8).
-
 ## Save-failure toasts are invisible on the title and ship-naming screens
 
 `<NotificationContainer />` is only mounted inside the in-game view branch of

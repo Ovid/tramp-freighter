@@ -143,64 +143,11 @@ export class SaveLoadManager extends BaseManager {
       this._loadError = result.reason;
       return null;
     } catch (error) {
-      const recovered = this.handleLoadError(error);
-      // The player sees this text; the raw error was logged above.
-      if (!recovered) {
-        this._loadError = 'Save data could not be loaded';
-      }
-      return recovered;
+      this.log('Failed to load game:', error);
+      // The player sees this text, not the raw engine error
+      this._loadError = 'Save data could not be loaded';
+      return null;
     }
-  }
-
-  /**
-   * Handle load errors with recovery mechanisms
-   *
-   * @param {Error} error - The error that occurred during loading
-   * @returns {Object|null} Recovered state or null if recovery failed
-   * @private
-   */
-  handleLoadError(error) {
-    this.log('Failed to load game:', error);
-
-    // If NPC data is corrupted, try to recover by initializing empty NPC state
-    if (error.message && error.message.includes('NPC')) {
-      this.log('NPC data corrupted, continuing with fresh NPC relationships');
-      return this.attemptNPCRecovery();
-    }
-
-    return null;
-  }
-
-  /**
-   * Attempt to recover from NPC data corruption
-   *
-   * @returns {Object|null} Recovered state or null if recovery failed
-   * @private
-   */
-  attemptNPCRecovery() {
-    try {
-      let recoveredState = loadGameFromStorage();
-      if (recoveredState) {
-        recoveredState.npcs = {};
-        if (recoveredState.dialogue) {
-          recoveredState.dialogue = {
-            currentNpcId: null,
-            currentNodeId: null,
-            isActive: false,
-            display: null,
-          };
-        }
-
-        const result = this.capabilities.restoreState(recoveredState);
-        if (result.success) {
-          return result.state;
-        }
-      }
-    } catch {
-      this.log('Recovery failed, starting new game');
-    }
-
-    return null;
   }
 
   /**
