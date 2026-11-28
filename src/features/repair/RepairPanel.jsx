@@ -14,6 +14,7 @@ import {
   UI_CONFIG,
   REPAIR_CONFIG,
   EVENT_NAMES,
+  NPC_BENEFITS_CONFIG,
 } from '../../game/constants';
 import { getNPCsAtSystem } from '../../game/game-npcs';
 
@@ -466,7 +467,10 @@ export function RepairPanel({ onClose }) {
 
                 // Get tier name for display
                 const tierName =
-                  availability.maxHullPercent === 25 ? 'Family' : 'Trusted';
+                  availability.maxHullPercent ===
+                  NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family
+                    ? 'Family'
+                    : 'Trusted';
 
                 return (
                   <div key={npc.id} className="free-repair-option">

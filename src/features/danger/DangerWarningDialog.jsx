@@ -3,7 +3,10 @@ import { useGameEvent } from '../../hooks/useGameEvent';
 import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { EVENT_NAMES } from '../../game/constants.js';
+import { EVENT_NAMES, DANGER_CONFIG } from '../../game/constants.js';
+
+const POOR_ENGINE_THRESHOLD =
+  DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD;
 import '../../../css/panel/danger-warning.css';
 
 /**
@@ -149,7 +152,8 @@ export function DangerWarningDialog({
 
             {/* Risk Factors */}
             {(cargo?.length > 0 ||
-              (shipCondition?.engine && shipCondition.engine < 50) ||
+              (shipCondition?.engine &&
+                shipCondition.engine < POOR_ENGINE_THRESHOLD) ||
               upgrades?.includes('advanced_sensors') ||
               (factions?.authorities && factions.authorities !== 0) ||
               (factions?.outlaws && factions.outlaws !== 0)) && (
@@ -167,7 +171,7 @@ export function DangerWarningDialog({
                     </div>
                   )}
                   {shipCondition?.engine != null &&
-                    shipCondition.engine < 50 && (
+                    shipCondition.engine < POOR_ENGINE_THRESHOLD && (
                       <div className="factor warning">
                         <span className="factor-icon" aria-hidden="true">
                           ⚠️
