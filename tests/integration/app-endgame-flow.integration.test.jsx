@@ -149,6 +149,33 @@ describe('Endgame Flow Integration', () => {
     expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
   }
 
+  it('resets Yumi interaction counter when the credits finish', async () => {
+    render(
+      <GameProvider game={game}>
+        <App devMode={true} />
+      </GameProvider>
+    );
+
+    await navigateToOrbit();
+    game.getNPCState('yumi_delta_pavonis').interactions = 5;
+
+    game.emit(EVENT_NAMES.PAVONIS_RUN_TRIGGERED, true);
+    await waitFor(() => {
+      expect(screen.getByTestId('pavonis-run')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Complete Run'));
+    await waitFor(() => {
+      expect(screen.getByTestId('epilogue')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Credits Done'));
+    await waitFor(() => {
+      expect(screen.getByTestId('post-credits-station')).toBeInTheDocument();
+    });
+
+    expect(game.getNPCState('yumi_delta_pavonis').interactions).toBe(0);
+  });
+
   it('should complete the full Pavonis Run → Epilogue → PostCreditsStation → Title flow', async () => {
     render(
       <GameProvider game={game}>
