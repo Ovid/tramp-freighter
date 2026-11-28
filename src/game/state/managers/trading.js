@@ -300,10 +300,9 @@ export class TradingManager extends BaseManager {
       source: source,
     };
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**
@@ -323,10 +322,9 @@ export class TradingManager extends BaseManager {
       ownState.priceKnowledge[systemId].lastVisit += days;
     }
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**
@@ -377,10 +375,9 @@ export class TradingManager extends BaseManager {
       }
     }
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**

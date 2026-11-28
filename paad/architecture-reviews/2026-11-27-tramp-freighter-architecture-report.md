@@ -407,6 +407,10 @@ How it is built:
 - **Explanation:** Some emitters send fresh copies and others mutate the array in place and emit the same reference. `useGameEvent` stores the payload with `setState`, so React sees an unchanged value and skips the update. Whether a screen updates then depends on some other event firing in the same action. The quest path for the same event copies the array.
 - **Evidence:** `src/game/state/managers/ship.js:199` ("ship.upgrades.push(upgradeId)") then `emit(UPGRADES_CHANGED, ship.upgrades)` at 223, 275 and 480. `src/game/state/managers/trading.js:304, 327, 381` (live `priceKnowledge`). `src/hooks/useGameEvent.js:39-41`. The copy: `game-coordinator.js:443-445` (`[...this.state.ship.upgrades]`).
 - **Found by:** Integration & Data
+- **Status:** Fixed
+- **Status reason:** Every emitter that mutates a slice in place now emits a copy: UPGRADES_CHANGED (ship.js, 3 sites), QUIRKS_CHANGED (ship.js addQuirk/removeQuirk, not in the original evidence) and PRICE_KNOWLEDGE_CHANGED (trading.js, 3 sites, plus info-broker.js purchaseIntelligence, also not in the original evidence). A hook-level test pins that each one hands useGameEvent subscribers a new value. Load-time re-emits in _emitAllStateEvents were left as they are, since they send a freshly loaded state, not one mutated in place. Decided by Claude under a delegated session (developer unavailable): only one sound approach; fixing it in useGameEvent instead would mask the problem for every event.
+- **Status date:** 2026-11-28 00:36 UTC
+- **Status commit:** 9ea4108
 
 ### [F-20] Result shapes drift at the edges, and the bridge hook has a subscribe gap
 - **Category:** 24 Inconsistent API contracts

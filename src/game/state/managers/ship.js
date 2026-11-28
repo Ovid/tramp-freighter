@@ -127,7 +127,7 @@ export class ShipManager extends BaseManager {
     }
 
     ship.quirks.push(quirkId);
-    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, [...ship.quirks]);
     this.capabilities.markDirty();
 
     return { success: true, reason: '' };
@@ -151,7 +151,7 @@ export class ShipManager extends BaseManager {
     }
 
     ship.quirks.splice(index, 1);
-    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, ship.quirks);
+    this.capabilities.emit(EVENT_NAMES.QUIRKS_CHANGED, [...ship.quirks]);
     this.capabilities.markDirty();
 
     return { success: true, reason: '' };
@@ -220,7 +220,7 @@ export class ShipManager extends BaseManager {
       );
     }
 
-    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, [...ship.upgrades]);
     this.capabilities.markDirty();
 
     return { success: true, reason: '' };
@@ -272,7 +272,7 @@ export class ShipManager extends BaseManager {
       }
     }
 
-    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, [...ship.upgrades]);
     this.capabilities.markDirty();
 
     return { success: true, reason: '' };
@@ -477,7 +477,7 @@ export class ShipManager extends BaseManager {
     }
 
     // Emit upgrade change event
-    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, ship.upgrades);
+    this.capabilities.emit(EVENT_NAMES.UPGRADES_CHANGED, [...ship.upgrades]);
 
     // Persist immediately - upgrade purchases modify credits and ship state
     this.capabilities.markDirty();
