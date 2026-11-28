@@ -211,26 +211,6 @@ fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
 
-## Refuel charges credits before a check that can throw
-
-`refuel()` in `src/game/state/managers/refuel.js` calls `updateCredits` before
-the "CRITICAL BUG" guard that throws if fuel would decrease. If the guard ever
-fires, the player has paid and got no fuel. `buyGood` in `trading.js`
-similarly debits before an unguarded `currentSystemObj.name` lookup.
-
-Found during the 2026-11-27 architecture review (F-21).
-
-## UPGRADES_CHANGED emits the live upgrades array
-
-`ShipManager` pushes to `ship.upgrades` in place and then emits the same array
-(`ship.js` install, remove and purchase paths). `useGameEvent` stores it with
-`setState`, and React's `Object.is` check treats it as unchanged, so
-subscribers update only if another event fires in the same action (dev-admin
-install and remove have none). The quest path in `game-coordinator.js` copies
-the array. `trading.js` does the same with `priceKnowledge`.
-
-Found during the 2026-11-27 architecture review (F-19).
-
 ## `saveGame()` docstring contradicts its return value
 
 `saveGame()` in `src/game/state/managers/save-load.js` is documented as
