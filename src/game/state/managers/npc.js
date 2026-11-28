@@ -475,6 +475,9 @@ export class NPCManager extends BaseManager {
     // Set lastFavorDay to current day
     npcState.lastFavorDay = daysElapsed;
 
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
     this.capabilities.markDirty();
 
     return {
@@ -616,6 +619,9 @@ export class NPCManager extends BaseManager {
             `Loan default penalty for ${npcId}: ${oldRep} -> ${npcState.rep} (loan default, tier reduction)`
           );
 
+          this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+            ...this.capabilities.getOwnState(),
+          });
           this.capabilities.markDirty();
         }
       }
