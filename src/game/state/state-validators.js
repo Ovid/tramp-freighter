@@ -155,9 +155,11 @@ function normalizeCargoStack(cargoStack, currentSystemId, systemData) {
   }
 }
 
-// Each step upgrades a save from the version on its left; the last step
-// writes SAVE_FORMAT_VERSION. Compatibility is derived from this table, so
-// adding a step is the only edit a new save version needs.
+// Each step upgrades a save from the version on its left and stamps the
+// literal version it produces. Stamping SAVE_FORMAT_VERSION instead would make
+// a later step keyed on that version never run. A new save version needs a
+// new step here plus the SAVE_FORMAT_VERSION bump; compatibility is derived
+// from this table, and applyMigrations throws if the chain falls short.
 const MIGRATIONS = [
   ['1.0.0', migrateFromV1ToV2],
   ['2.0.0', migrateFromV2ToV2_1],
@@ -195,6 +197,13 @@ export function applyMigrations(state, starData) {
     if (migrated.meta.version === version) {
       migrated = migrateFn(migrated, starData);
     }
+  }
+  // A version bump without its migration step would otherwise load an old
+  // save as current, missing the new fields.
+  if (migrated.meta.version !== SAVE_FORMAT_VERSION) {
+    throw new Error(
+      `Migration chain stopped at ${migrated.meta.version}, expected ${SAVE_FORMAT_VERSION}`
+    );
   }
   return migrated;
 }
@@ -1059,7 +1068,7 @@ export function migrateFromV4_1ToV5(state) {
     state.missions = createDefaultMissionState();
   }
 
-  state.meta.version = SAVE_FORMAT_VERSION;
+  state.meta.version = '5.0.0';
 
   devLog('Migration complete');
 
