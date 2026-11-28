@@ -4,10 +4,10 @@ import { useDangerZone } from '../../hooks/useDangerZone';
 import { useEncounterProbabilities } from '../../hooks/useEncounterProbabilities';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { EVENT_NAMES, DANGER_CONFIG } from '../../game/constants.js';
+import '../../../css/panel/danger-warning.css';
 
 const POOR_ENGINE_THRESHOLD =
   DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD;
-import '../../../css/panel/danger-warning.css';
 
 /**
  * DangerWarningDialog - React component for danger zone warnings
