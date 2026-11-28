@@ -376,15 +376,11 @@ export class RepairManager extends BaseManager {
       };
     }
 
-    // Reaching Trusted takes earned rep, so the record already exists here
-    const npcState = this.capabilities.getNPCState(npcId);
-
     // Check once-per-visit limitation (lastFreeRepairDay is not current day)
+    const lastFreeRepairDay =
+      this.capabilities.getStoredNPCState(npcId)?.lastFreeRepairDay ?? null;
     const currentDay = this.capabilities.getDaysElapsed();
-    if (
-      npcState.lastFreeRepairDay !== null &&
-      npcState.lastFreeRepairDay === currentDay
-    ) {
+    if (lastFreeRepairDay !== null && lastFreeRepairDay === currentDay) {
       return {
         available: false,
         maxHullPercent: 0,

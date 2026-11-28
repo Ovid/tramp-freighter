@@ -35,6 +35,8 @@ export function RepairPanel({ onClose }) {
   const shipCondition = useGameEvent(EVENT_NAMES.SHIP_CONDITION_CHANGED);
   const credits = useGameEvent(EVENT_NAMES.CREDITS_CHANGED);
   const currentSystemId = useGameEvent(EVENT_NAMES.LOCATION_CHANGED);
+  // Subscribed only to re-render free repair tiers when rep changes
+  useGameEvent(EVENT_NAMES.NPCS_CHANGED);
   const {
     repair,
     repairAll,

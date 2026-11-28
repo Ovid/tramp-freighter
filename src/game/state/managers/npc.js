@@ -108,8 +108,18 @@ export class NPCManager extends BaseManager {
    */
   getNPCRep(npcId) {
     const npcData = this.validateAndGetNPCData(npcId);
-    const stored = this.capabilities.getOwnState()[npcId];
+    const stored = this.getStoredNPCState(npcId);
     return stored ? stored.rep : npcData.initialRep;
+  }
+
+  /**
+   * Read an NPC's stored record without creating one.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object|null} The stored record, or null if the NPC has none yet
+   */
+  getStoredNPCState(npcId) {
+    return this.capabilities.getOwnState()[npcId] ?? null;
   }
 
   /**
