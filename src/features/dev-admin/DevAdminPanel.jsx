@@ -285,12 +285,11 @@ export function DevAdminPanel({ onClose }) {
         buyDate: daysElapsed,
       };
 
-      // New holds, not edited ones: the ship's owners write them
+      // The ship's own stacking rule, on a copy: the owners write the new hold
       const addTo = (hold) => {
-        const i = hold.findIndex((c) => c.good === selectedCommodity);
-        return i >= 0
-          ? hold.map((c, j) => (j === i ? { ...c, qty: c.qty + qty } : c))
-          : [...hold, newCargoItem];
+        const next = hold.map((c) => ({ ...c }));
+        game.addToCargoArray(next, newCargoItem, qty);
+        return next;
       };
       if (useHiddenCargo && hasSmugglersPanel) {
         game.updateHiddenCargo(addTo(ship.hiddenCargo || []));
@@ -768,8 +767,11 @@ export function DevAdminPanel({ onClose }) {
             min="1"
             max="50"
             style={{ width: '60px' }}
+            aria-label="Cargo quantity"
           />
-          <button onClick={handleAddCargo}>Add</button>
+          <button onClick={handleAddCargo} aria-label="Add cargo">
+            Add
+          </button>
         </div>
         {hasSmugglersPanel && (
           <div className="dev-admin-checkbox">

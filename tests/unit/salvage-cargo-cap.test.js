@@ -42,6 +42,34 @@ describe('Salvage Cargo Cap (#55/56)', () => {
     expect(result.salvageMessages).toContain('Could only fit 2 of 5 units.');
   });
 
+  it('keeps salvage apart from a mission stack of the same good and price', () => {
+    gsm.updateCargo([
+      { good: 'parts', qty: 4, buyPrice: 0, missionId: 'run_1' },
+    ]);
+
+    gsm.applyEncounterOutcome({
+      success: true,
+      costs: {},
+      rewards: {
+        cargo: [
+          { good: 'parts', qty: 3, buyPrice: 0, buySystemName: 'Salvaged' },
+        ],
+      },
+      description: 'Salvaged parts.',
+    });
+
+    expect(
+      gsm.getShip().cargo.map(({ good, qty, missionId }) => ({
+        good,
+        qty,
+        missionId,
+      }))
+    ).toEqual([
+      { good: 'parts', qty: 4, missionId: 'run_1' },
+      { good: 'parts', qty: 3, missionId: undefined },
+    ]);
+  });
+
   it('should show partial salvage message when only 1 of multiple fits', () => {
     const state = gsm.getState();
     state.ship.cargo = [

@@ -53,6 +53,31 @@ describe('DevAdminPanel', () => {
     });
   });
 
+  describe('Add cargo', () => {
+    it('keeps added cargo apart from a mission stack of the same good', () => {
+      game.updateCargo([
+        { good: 'grain', qty: 4, buyPrice: 0, missionId: 'run_1' },
+      ]);
+
+      const wrapper = createWrapper(game);
+      const { getByRole } = render(<DevAdminPanel onClose={() => {}} />, {
+        wrapper,
+      });
+      fireEvent.click(getByRole('button', { name: 'Add cargo' }));
+
+      expect(
+        game.getShip().cargo.map(({ good, qty, missionId }) => ({
+          good,
+          qty,
+          missionId,
+        }))
+      ).toEqual([
+        { good: 'grain', qty: 4, missionId: 'run_1' },
+        { good: 'grain', qty: 5, missionId: undefined },
+      ]);
+    });
+  });
+
   describe('NPC Reputation section', () => {
     it('should render NPCs in a dropdown selector instead of listing all', () => {
       const wrapper = createWrapper(game);
