@@ -352,7 +352,7 @@ How it is built:
     - `src/game/state/managers/quest-manager.js:323`: `tanakaState.stage !== 2`.
   - Rounding in JSX: `{Math.round(x)}%` in `SystemPanel.jsx:310, 413`, `RefuelPanel.jsx:154, 195`, `CombatPanel.jsx:160, 171`.
 - **Found by:** Error Handling & Observability
-- **Status:** Partially fixed
+- **Status:** Fixed
 - **Status reason:** The three components that hard-coded constant values now read the constants. RepairPanel's tier label uses NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family. MissionCompleteNotifier's labels use PASSENGER_CONFIG.SATISFACTION_THRESHOLDS. DangerWarningDialog's engine risk factor uses DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD, the threshold danger.js applies. A grep found no other copies. Boundary tests pin each label. Deliberately left: (1) quest-manager.js `stage !== 2`, since quest stage numbers are stage identifiers used as literals in about 12 places (game-coordinator.js, the dialogue files), and replacing one would make the code less consistent; (2) `Math.round` in JSX, which turns fractions into percentages for display; the resolvers need the fractions, and the displayed value is already an integer, so nothing shown is a raw float. Revisit (2) only if the project wants percent-valued display getters. Decided by Claude under a delegated session (developer unavailable).
 - **Status date:** 2026-11-28 01:00 UTC
 - **Status commit:** 82303f6
@@ -439,7 +439,7 @@ How it is built:
 - **Explanation:** Refuel takes the credits before a safety check that can throw, and buying takes the credits before an unguarded lookup. `advanceQuest` adds one to the stage with no check of which stage the caller expected, so calling it twice skips a stage.
 - **Evidence:** `src/game/state/managers/refuel.js:141` (`updateCredits(...)`) runs before the "CRITICAL BUG" throw at 152-157. `src/game/state/managers/trading.js:44-50` (debit, then `currentSystemObj.name`). `src/game/state/managers/quest-manager.js:45-72` ("const nextStage = questState.stage + 1"), called from seven sites in `tanaka-dialogue.js`.
 - **Found by:** Integration & Data
-- **Status:** Partially fixed
+- **Status:** Fixed
 - **Status reason:** Refuel and buyGood now take credits only after every step that can throw: refuel after the fuel-reduction guard, buyGood after the system lookup and the new cargo are computed, right beside the cargo write. The order of emitted events is unchanged. Tests pin both cases: credits survive the throw. advanceQuest was left alone after a premise check: every call site is an offer-node choice that the player can only reach at the matching stage, and a repeat click lands on the next node's choices, so no input advances twice. A stage guard would mean editing 7 content call sites for a path that can't be reached. Neither debit throw is known to be reachable in play either; the reorder was taken because it costs nothing. Decided by Claude under a delegated session (developer unavailable).
 - **Status date:** 2026-11-28 00:52 UTC
 - **Status commit:** ca60519
