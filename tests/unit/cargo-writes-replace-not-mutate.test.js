@@ -7,16 +7,21 @@ import { EVENT_NAMES } from '@game/constants.js';
 describe('Cargo writes replace the hold instead of editing it', () => {
   let game;
   let announced;
+  let hiddenAnnounced;
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     game = createTestGame();
     game.getShip().upgrades = ['smuggler_panels'];
     announced = [];
+    hiddenAnnounced = 0;
     const keep = (hold) =>
       announced.push({ hold, copy: structuredClone(hold) });
     game.subscribe(EVENT_NAMES.CARGO_CHANGED, keep);
-    game.subscribe(EVENT_NAMES.HIDDEN_CARGO_CHANGED, keep);
+    game.subscribe(EVENT_NAMES.HIDDEN_CARGO_CHANGED, (hold) => {
+      hiddenAnnounced++;
+      keep(hold);
+    });
   });
 
   afterEach(() => {
@@ -35,12 +40,13 @@ describe('Cargo writes replace the hold instead of editing it', () => {
     });
     game.updateCargo([stack('grain', 10), stack('ore', 5), stack('ore', 5)]);
 
-    game.sellGood(0, 2, 20);
-    game.moveToHiddenCargo(0, 3);
-    game.moveToHiddenCargo(0, 1);
-    game.moveToRegularCargo(0, 2);
-    game.removeCargoForMission('ore', 6);
-    game.acceptMission({
+    // Each step must succeed, or the writer it exercises is never reached
+    expect(game.sellGood(0, 2, 20).success).toBe(true);
+    expect(game.moveToHiddenCargo(0, 3).success).toBe(true);
+    expect(game.moveToHiddenCargo(0, 1).success).toBe(true);
+    expect(game.moveToRegularCargo(0, 2).success).toBe(true);
+    expect(game.removeCargoForMission('ore', 6).success).toBe(true);
+    const accepted = game.acceptMission({
       id: 'run',
       type: 'delivery',
       title: 'Run',
@@ -52,11 +58,16 @@ describe('Cargo writes replace the hold instead of editing it', () => {
       rewards: { credits: 1 },
       penalties: { failure: {} },
     });
+    expect(accepted.success).toBe(true);
     const freight = game
       .getShip()
       .cargo.findIndex((s) => s.missionId === 'run');
-    game.moveToHiddenCargo(freight, 1);
-    game.completeMission('run');
+    expect(freight).toBeGreaterThanOrEqual(0);
+    expect(game.moveToHiddenCargo(freight, 1).success).toBe(true);
+    const hiddenBeforeCompletion = hiddenAnnounced;
+    expect(game.completeMission('run').success).toBe(true);
+    // Completion removed the freight from the hidden hold too
+    expect(hiddenAnnounced).toBe(hiddenBeforeCompletion + 1);
 
     expect(announced.length).toBeGreaterThan(8);
     for (const { hold, copy } of announced) {
