@@ -72,4 +72,9 @@ New and modified components need basic accessibility: `aria-label` on icon-only 
 - Comments explain WHY, not WHAT. Never mention task numbers in comments.
 - Import order: external libraries → internal modules → components → utilities → data/constants → styles
 
+# Behavior
+
 IMPORTANT: after reading this file, you MUST say "CLAUDE.md read and understood. Ready to assist with code tasks."
+
+When you discuss a change, never tell me how long it will take, such as "half
+a day" or "a few hours." 
