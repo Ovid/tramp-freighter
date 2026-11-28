@@ -355,6 +355,7 @@ How it is built:
 - **Status:** Partially fixed
 - **Status reason:** The three components that hard-coded constant values now read the constants. RepairPanel's tier label uses NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family. MissionCompleteNotifier's labels use PASSENGER_CONFIG.SATISFACTION_THRESHOLDS. DangerWarningDialog's engine risk factor uses DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD, the threshold danger.js applies. A grep found no other copies. Boundary tests pin each label. Deliberately left: (1) quest-manager.js `stage !== 2`, since quest stage numbers are stage identifiers used as literals in about 12 places (game-coordinator.js, the dialogue files), and replacing one would make the code less consistent; (2) `Math.round` in JSX, which turns fractions into percentages for display; the resolvers need the fractions, and the displayed value is already an integer, so nothing shown is a raw float. Revisit (2) only if the project wants percent-valued display getters. Decided by Claude under a delegated session (developer unavailable).
 - **Status date:** 2026-11-28 01:00 UTC
+- **Status commit:** 82303f6
 
 ### [F-15] No observability plan, and logging conventions are inconsistent
 - **Category:** 21 No observability plan (also 34)
