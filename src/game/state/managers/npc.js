@@ -304,9 +304,6 @@ export class NPCManager extends BaseManager {
     // Validate NPC ID and get NPC data
     const npcData = this.validateAndGetNPCData(npcId);
 
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.getNPCState(npcId);
-
     // Check if NPC's discountService matches serviceType
     if (!npcData.discountService || npcData.discountService !== serviceType) {
       return {
@@ -315,8 +312,8 @@ export class NPCManager extends BaseManager {
       };
     }
 
-    // Get reputation tier
-    const repTier = this.getRepTier(npcState.rep);
+    // Panels call this during render, so read without creating a record
+    const repTier = this.getRepTier(this.getNPCRep(npcId));
 
     // Get discount percentage based on tier
     const discountPercentage =

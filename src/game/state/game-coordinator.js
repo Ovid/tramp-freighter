@@ -240,6 +240,7 @@ export class GameCoordinator {
       getCredits: () => this.state.player.credits,
       getDaysElapsed: () => this.state.player.daysElapsed,
       getNPCState: (npcId) => this.npcManager.getNPCState(npcId),
+      getNPCRep: (npcId) => this.npcManager.getNPCRep(npcId),
       validateAndGetNPCData: (npcId) =>
         this.npcManager.validateAndGetNPCData(npcId),
       getRepTier: (rep) => this.npcManager.getRepTier(rep),
