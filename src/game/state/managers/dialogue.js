@@ -19,7 +19,7 @@ import { EVENT_NAMES } from '../../constants.js';
 /**
  * Every game call the dialogue engine (game-dialogue.js) makes, including
  * storeCargo and retrieveCargo, which it looks up by name for picker choices.
- * The coordinator binds exactly these, so the engine never holds the whole
+ * The coordinator exposes exactly these, so the engine never holds the whole
  * game; a name the coordinator lacks fails when the game is built.
  */
 export const DIALOGUE_API = [

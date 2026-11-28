@@ -248,8 +248,15 @@ export class GameCoordinator {
     this.dialogueManager = new DialogueManager({
       getOwnState: () => this.state.dialogue,
       emit: this.emit.bind(this),
+      // Looked up at call time, so a method replaced later (a test spy) is
+      // the one called; a name the game lacks still fails here, at startup
       dialogueApi: Object.fromEntries(
-        DIALOGUE_API.map((name) => [name, this[name].bind(this)])
+        DIALOGUE_API.map((name) => {
+          if (typeof this[name] !== 'function') {
+            throw new Error(`DIALOGUE_API names ${name}, which the game lacks`);
+          }
+          return [name, (...args) => this[name](...args)];
+        })
       ),
       isTestEnvironment: this.isTestEnvironment,
     });

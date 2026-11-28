@@ -211,7 +211,7 @@
  *
  * @property {Object} dialogueApi
  *   The coordinator methods named in DIALOGUE_API (managers/dialogue.js),
- *   bound to the coordinator and passed to the dialogue engine
+ *   each looked up on the coordinator when called, passed to the dialogue engine
  *   (showDialogue, selectChoice) in place of the coordinator itself.
  */
 
