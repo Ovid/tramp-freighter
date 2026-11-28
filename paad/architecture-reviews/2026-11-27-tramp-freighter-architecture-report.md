@@ -438,6 +438,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** Refuel and buyGood now take credits only after every step that can throw: refuel after the fuel-reduction guard, buyGood after the system lookup and the new cargo are computed, right beside the cargo write. The order of emitted events is unchanged. Tests pin both cases: credits survive the throw. advanceQuest was left alone after a premise check: every call site is an offer-node choice that the player can only reach at the matching stage, and a repeat click lands on the next node's choices, so no input advances twice. A stage guard would mean editing 7 content call sites for a path that can't be reached. Neither debit throw is known to be reachable in play either; the reorder was taken because it costs nothing. Decided by Claude under a delegated session (developer unavailable).
 - **Status date:** 2026-11-28 00:52 UTC
+- **Status commit:** ca60519
 
 ### [F-22] Gaps in the local persistence lifecycle
 - **Category:** 17 No clear ownership of data
