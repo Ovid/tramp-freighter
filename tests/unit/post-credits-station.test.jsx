@@ -26,4 +26,27 @@ describe('PostCreditsStation', () => {
     expect(button.tagName).toBe('BUTTON');
     expect(button.classList.contains('station-btn')).toBe(true);
   });
+
+  it('shows the initial-rep tier for an NPC with no stored state', () => {
+    delete game.getState().npcs.yumi_delta_pavonis;
+    render(
+      <GameProvider game={game}>
+        <PostCreditsStation onOpenPanel={() => {}} onReturnToTitle={() => {}} />
+      </GameProvider>
+    );
+
+    expect(screen.getByText('Yumi Tanaka')).toBeInTheDocument();
+    expect(screen.getByText('Warm')).toBeInTheDocument();
+  });
+
+  it('shows the tier of an NPC with stored reputation', () => {
+    game.getNPCState('yumi_delta_pavonis').rep = 95;
+    render(
+      <GameProvider game={game}>
+        <PostCreditsStation onOpenPanel={() => {}} onReturnToTitle={() => {}} />
+      </GameProvider>
+    );
+
+    expect(screen.getByText('Family')).toBeInTheDocument();
+  });
 });

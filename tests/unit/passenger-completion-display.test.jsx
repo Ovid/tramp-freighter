@@ -76,6 +76,37 @@ describe('MissionCompleteNotifier passenger display', () => {
     expect(screen.getByText(/Very Satisfied/)).toBeDefined();
   });
 
+  it.each([
+    [80, 'Very Satisfied'],
+    [79, 'Satisfied'],
+    [60, 'Satisfied'],
+    [59, 'Neutral'],
+    [40, 'Neutral'],
+    [39, 'Dissatisfied'],
+    [20, 'Dissatisfied'],
+    [19, 'Very Dissatisfied'],
+  ])('labels satisfaction %i as "%s"', (satisfaction, label) => {
+    const mission = {
+      ...passengerMission,
+      passenger: { ...passengerMission.passenger, satisfaction },
+    };
+    useGameAction.mockReturnValue({
+      completeMission: vi.fn(() => ({ success: true })),
+      getCompletableMissions: vi.fn(() => [mission]),
+      calculateTradeWithholding: vi.fn((amount) => ({
+        withheld: 0,
+        playerReceives: amount,
+      })),
+    });
+
+    render(<MissionCompleteNotifier />);
+    const text = document
+      .querySelector('.passenger-satisfaction')
+      .textContent.replace(/\s+/g, ' ')
+      .trim();
+    expect(text).toBe(`Satisfaction: ${satisfaction}% (${label})`);
+  });
+
   it('should not show passenger info for cargo missions', () => {
     useGameAction.mockReturnValue({
       completeMission: vi.fn(() => ({ success: true })),

@@ -323,6 +323,21 @@ describe('TradingManager coverage', () => {
       expect(gsm.state.player.credits).toBe(500);
     });
 
+    it('records the bought stack with price and origin on success', () => {
+      gsm.state.player.credits = 1000;
+      gsm.state.ship.cargo = [];
+      gsm.tradingManager.capabilities.getCargoRemaining = () => 100;
+      gsm.tradingManager.buyGood('ore', 5, 100);
+      expect(gsm.state.ship.cargo).toEqual([
+        expect.objectContaining({
+          good: 'ore',
+          qty: 5,
+          buyPrice: 100,
+          buySystem: gsm.state.player.currentSystem,
+        }),
+      ]);
+    });
+
     it('updates market conditions with negative quantity (deficit)', () => {
       gsm.state.player.credits = 10000;
       gsm.state.ship.cargo = [];
