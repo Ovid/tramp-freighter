@@ -1,82 +1,50 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createTestGame } from '../test-utils.js';
 import { createDefaultMissionState } from '@game/state/state-validators.js';
 
 describe('Cargo Run Mission Completion', () => {
+  let game;
   let manager;
   let state;
-  let capabilities;
 
   beforeEach(() => {
-    state = {
-      player: { credits: 500, daysElapsed: 10, currentSystem: 5 },
-      ship: {
-        cargo: [
-          {
+    game = createTestGame();
+    state = game.state;
+    manager = game.missionManager;
+    // No lien, so the full reward is paid
+    Object.assign(state.player, {
+      credits: 500,
+      debt: 0,
+      daysElapsed: 10,
+      currentSystem: 5,
+    });
+    state.ship.cargo = [
+      {
+        good: 'registered_freight',
+        qty: 10,
+        buyPrice: 0,
+        missionId: 'cargo_run_123',
+      },
+    ];
+    state.ship.hiddenCargo = [];
+    state.missions = {
+      ...createDefaultMissionState(),
+      active: [
+        {
+          id: 'cargo_run_123',
+          type: 'delivery',
+          requirements: { destination: 5, deadline: 20 },
+          deadlineDay: 20,
+          missionCargo: {
             good: 'registered_freight',
-            qty: 10,
-            buyPrice: 0,
-            missionId: 'cargo_run_123',
+            quantity: 10,
+            isIllegal: false,
           },
-        ],
-        hiddenCargo: [],
-      },
-      missions: {
-        ...createDefaultMissionState(),
-        active: [
-          {
-            id: 'cargo_run_123',
-            type: 'delivery',
-            requirements: { destination: 5, deadline: 20 },
-            deadlineDay: 20,
-            missionCargo: {
-              good: 'registered_freight',
-              quantity: 10,
-              isIllegal: false,
-            },
-            rewards: { credits: 200, faction: { traders: 2 } },
-            penalties: { failure: { faction: { traders: -2 } } },
-          },
-        ],
-        completed: [],
-        failed: [],
-        board: [],
-      },
-      stats: { creditsEarned: 0 },
+          rewards: { credits: 200, faction: { traders: 2 } },
+          penalties: { failure: { faction: { traders: -2 } } },
+        },
+      ],
     };
-
-    capabilities = {
-      getOwnState: () => state.missions,
-      getDaysElapsed: () => state.player.daysElapsed,
-      getCurrentSystem: () => state.player.currentSystem,
-      getCredits: () => state.player.credits,
-      getShipCargo: () => state.ship.cargo,
-      getShipHiddenCargo: () => state.ship.hiddenCargo,
-      getCargoRemaining: vi.fn(() => 100),
-      getStats: () => state.stats,
-      getVisitedSystems: () => [],
-      getDangerZone: vi.fn(() => 'safe'),
-      getFactionRep: vi.fn(() => 0),
-      updateCredits: vi.fn((value) => {
-        state.player.credits = value;
-      }),
-      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
-      modifyFactionRep: vi.fn(),
-      modifyRep: vi.fn(),
-      modifyKarma: vi.fn(),
-      modifyColeRep: vi.fn(),
-      removeCargoForMission: vi.fn(() => ({ success: true })),
-      updateStats: vi.fn(),
-      markDirty: vi.fn(),
-      emit: vi.fn(),
-      starData: [],
-      wormholeData: [],
-      isTestEnvironment: true,
-    };
-
-    const {
-      MissionManager,
-    } = require('../../src/game/state/managers/mission.js');
-    manager = new MissionManager(capabilities);
   });
 
   afterEach(() => {
@@ -99,12 +67,9 @@ describe('Cargo Run Mission Completion', () => {
   });
 
   it('should award faction rep on completion', () => {
+    const before = game.getFactionRep('traders');
     manager.completeMission('cargo_run_123');
-    expect(capabilities.modifyFactionRep).toHaveBeenCalledWith(
-      'traders',
-      2,
-      'mission'
-    );
+    expect(game.getFactionRep('traders')).toBe(before + 2);
   });
 
   it('should fail if mission cargo is not in hold', () => {
@@ -128,9 +93,10 @@ describe('Cargo Run Mission Completion', () => {
 
   it('should not require old-style cargo field for new cargo runs', () => {
     // Ensure we don't check mission.requirements.cargo for new-style missions
+    const removeByGood = vi.spyOn(game.shipManager, 'removeCargoForMission');
     const result = manager.completeMission('cargo_run_123');
     expect(result.success).toBe(true);
     // removeCargoForMission should NOT be called for new-style missions
-    expect(capabilities.removeCargoForMission).not.toHaveBeenCalled();
+    expect(removeByGood).not.toHaveBeenCalled();
   });
 });

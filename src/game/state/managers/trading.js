@@ -116,13 +116,13 @@ export class TradingManager extends BaseManager {
     this.capabilities.updateStats('creditsEarned', totalRevenue);
     this.capabilities.checkAchievements();
 
-    // Remove quantity from stack; remove stack if empty
-    // Create a new array reference so React detects the change via Object.is
-    stack.qty -= quantity;
-    if (stack.qty <= 0) {
-      cargo.splice(stackIndex, 1);
-    }
-    this.capabilities.updateCargo([...cargo]);
+    // A new hold, not an edited one: subscribers keep the hold they were given
+    const remaining = stack.qty - quantity;
+    this.capabilities.updateCargo(
+      remaining > 0
+        ? cargo.map((s, i) => (i === stackIndex ? { ...s, qty: remaining } : s))
+        : cargo.filter((_, i) => i !== stackIndex)
+    );
 
     // Update market conditions: positive quantity creates surplus (lowers prices)
     // Feature: deterministic-economy, Requirements 4.1, 4.2

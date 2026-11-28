@@ -1,47 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createTestGame } from '../test-utils.js';
 import { createDefaultMissionState } from '@game/state/state-validators.js';
 
 describe('MissionManager.checkMissionDeadlines – cargo run cargo removal', () => {
+  let game;
   let manager;
   let state;
 
-  beforeEach(async () => {
-    state = {
-      player: { daysElapsed: 25 },
-      ship: { cargo: [], hiddenCargo: [] },
-      missions: createDefaultMissionState(),
-    };
-
-    const capabilities = {
-      getOwnState: () => state.missions,
-      getDaysElapsed: () => state.player.daysElapsed,
-      getCurrentSystem: () => 0,
-      getCredits: () => 0,
-      getShipCargo: () => state.ship.cargo,
-      getShipHiddenCargo: () => state.ship.hiddenCargo,
-      getCargoRemaining: vi.fn(() => 100),
-      getStats: () => ({}),
-      getVisitedSystems: () => [],
-      getDangerZone: vi.fn(() => 'safe'),
-      getFactionRep: vi.fn(() => 0),
-      updateCredits: vi.fn(),
-      applyTradeWithholding: vi.fn(() => ({ withheld: 0 })),
-      modifyFactionRep: vi.fn(),
-      modifyRep: vi.fn(),
-      modifyKarma: vi.fn(),
-      modifyColeRep: vi.fn(),
-      removeCargoForMission: vi.fn(),
-      updateStats: vi.fn(),
-      markDirty: vi.fn(),
-      emit: vi.fn(),
-      starData: [],
-      wormholeData: [],
-      isTestEnvironment: true,
-    };
-
-    const { MissionManager } =
-      await import('../../src/game/state/managers/mission.js');
-    manager = new MissionManager(capabilities);
+  beforeEach(() => {
+    game = createTestGame();
+    state = game.state;
+    manager = game.missionManager;
+    state.player.daysElapsed = 25;
+    state.ship.cargo = [];
+    state.ship.hiddenCargo = [];
+    state.missions = createDefaultMissionState();
   });
 
   afterEach(() => {

@@ -571,10 +571,34 @@ export class ShipManager extends BaseManager {
   }
 
   clearHiddenCargo() {
+    this.updateHiddenCargo([]);
+  }
+
+  /**
+   * The one writer of the hidden hold. Callers pass a new array; the one in
+   * state is never edited, so an announced hold stays as it was announced.
+   *
+   * @param {Array} newHiddenCargo - Replacement hidden hold
+   */
+  updateHiddenCargo(newHiddenCargo) {
     this.validateState();
-    const ship = this.capabilities.getOwnState();
-    ship.hiddenCargo = [];
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, ship.hiddenCargo);
+    this.capabilities.getOwnState().hiddenCargo = newHiddenCargo;
+    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, newHiddenCargo);
+  }
+
+  // Works on copies of both holds and their stacks, so neither the holds in
+  // state nor any announced hold is edited.
+  _transfer(fromHold, toHold, index, qty) {
+    const from = fromHold.map((s) => ({ ...s }));
+    const to = toHold.map((s) => ({ ...s }));
+    const moved = from[index];
+    moved.qty -= qty;
+    if (moved.qty <= 0) {
+      from.splice(index, 1);
+    }
+    // Stacks with matching good, buyPrice and missionId
+    this.addToCargoArray(to, moved, qty);
+    return { from, to };
   }
 
   /**
@@ -616,20 +640,14 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Not enough hidden cargo space' };
     }
 
-    // Remove from regular cargo
-    cargoStack.qty -= qty;
-    if (cargoStack.qty <= 0) {
-      ship.cargo.splice(cargoIndex, 1);
-    }
-
-    // Add to hidden cargo (stacks with matching good, buyPrice and missionId)
-    this.addToCargoArray(ship.hiddenCargo, cargoStack, qty);
-
-    // Emit cargo change events (new references for React re-renders)
-    this.capabilities.updateCargo([...ship.cargo]);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
-      ...ship.hiddenCargo,
-    ]);
+    const { from, to } = this._transfer(
+      ship.cargo,
+      ship.hiddenCargo,
+      cargoIndex,
+      qty
+    );
+    this.capabilities.updateCargo(from);
+    this.updateHiddenCargo(to);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
@@ -667,20 +685,14 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: 'Not enough regular cargo space' };
     }
 
-    // Remove from hidden cargo
-    hiddenStack.qty -= qty;
-    if (hiddenStack.qty <= 0) {
-      ship.hiddenCargo.splice(hiddenIndex, 1);
-    }
-
-    // Add to regular cargo (stacks with matching good, buyPrice and missionId)
-    this.addToCargoArray(ship.cargo, hiddenStack, qty);
-
-    // Emit cargo change events (new references for React re-renders)
-    this.capabilities.updateCargo([...ship.cargo]);
-    this.capabilities.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, [
-      ...ship.hiddenCargo,
-    ]);
+    const { from, to } = this._transfer(
+      ship.hiddenCargo,
+      ship.cargo,
+      hiddenIndex,
+      qty
+    );
+    this.updateHiddenCargo(from);
+    this.capabilities.updateCargo(to);
 
     // Persist immediately - cargo changes should be saved
     this.capabilities.markDirty();
@@ -725,19 +737,20 @@ export class ShipManager extends BaseManager {
       return { success: false, reason: `Not enough ${goodType}.` };
     }
 
+    const cargo = ship.cargo.map((s) => ({ ...s }));
     let remaining = quantity;
-    for (let i = ship.cargo.length - 1; i >= 0 && remaining > 0; i--) {
-      if (ship.cargo[i].good === goodType) {
-        const removeFromStack = Math.min(ship.cargo[i].qty, remaining);
-        ship.cargo[i].qty -= removeFromStack;
+    for (let i = cargo.length - 1; i >= 0 && remaining > 0; i--) {
+      if (cargo[i].good === goodType) {
+        const removeFromStack = Math.min(cargo[i].qty, remaining);
+        cargo[i].qty -= removeFromStack;
         remaining -= removeFromStack;
-        if (ship.cargo[i].qty <= 0) {
-          ship.cargo.splice(i, 1);
+        if (cargo[i].qty <= 0) {
+          cargo.splice(i, 1);
         }
       }
     }
 
-    this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...ship.cargo]);
+    this.capabilities.updateCargo(cargo);
     this.capabilities.markDirty();
     return { success: true };
   }

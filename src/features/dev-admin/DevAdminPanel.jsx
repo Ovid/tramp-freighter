@@ -285,31 +285,17 @@ export function DevAdminPanel({ onClose }) {
         buyDate: daysElapsed,
       };
 
+      // New holds, not edited ones: the ship's owners write them
+      const addTo = (hold) => {
+        const i = hold.findIndex((c) => c.good === selectedCommodity);
+        return i >= 0
+          ? hold.map((c, j) => (j === i ? { ...c, qty: c.qty + qty } : c))
+          : [...hold, newCargoItem];
+      };
       if (useHiddenCargo && hasSmugglersPanel) {
-        // Add to hidden cargo
-        const updatedHidden = [...(ship.hiddenCargo || [])];
-        const existingIndex = updatedHidden.findIndex(
-          (c) => c.good === selectedCommodity
-        );
-        if (existingIndex >= 0) {
-          updatedHidden[existingIndex].qty += qty;
-        } else {
-          updatedHidden.push(newCargoItem);
-        }
-        ship.hiddenCargo = updatedHidden;
-        game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, updatedHidden);
+        game.updateHiddenCargo(addTo(ship.hiddenCargo || []));
       } else {
-        // Add to regular cargo
-        const newCargo = [...ship.cargo];
-        const existingIndex = newCargo.findIndex(
-          (c) => c.good === selectedCommodity
-        );
-        if (existingIndex >= 0) {
-          newCargo[existingIndex].qty += qty;
-        } else {
-          newCargo.push(newCargoItem);
-        }
-        game.updateCargo(newCargo);
+        game.updateCargo(addTo(ship.cargo));
       }
       game.markDirty();
     }
@@ -317,9 +303,7 @@ export function DevAdminPanel({ onClose }) {
 
   const handleClearCargo = () => {
     game.updateCargo([]);
-    const ship = game.getShip();
-    ship.hiddenCargo = [];
-    game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    game.clearHiddenCargo();
     game.markDirty();
   };
 

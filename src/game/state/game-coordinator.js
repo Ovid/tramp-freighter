@@ -393,6 +393,9 @@ export class GameCoordinator {
       getCredits: () => this.state.player.credits,
       getShipCargo: () => this.state.ship.cargo,
       getShipHiddenCargo: () => this.state.ship.hiddenCargo,
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      updateHiddenCargo: (newHidden) =>
+        this.shipManager.updateHiddenCargo(newHidden),
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       getVisitedSystems: () => this.state.world.visitedSystems,
       getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
@@ -1447,6 +1450,10 @@ export class GameCoordinator {
 
   clearHiddenCargo() {
     return this.shipManager.clearHiddenCargo();
+  }
+
+  updateHiddenCargo(newHiddenCargo) {
+    return this.shipManager.updateHiddenCargo(newHiddenCargo);
   }
 
   // ========================================================================
