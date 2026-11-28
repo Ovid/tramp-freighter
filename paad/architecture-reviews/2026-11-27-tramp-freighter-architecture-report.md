@@ -410,7 +410,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** Every emitter that mutates a slice in place now emits a copy: UPGRADES_CHANGED (ship.js, 3 sites), QUIRKS_CHANGED (ship.js addQuirk/removeQuirk, not in the original evidence) and PRICE_KNOWLEDGE_CHANGED (trading.js, 3 sites, plus info-broker.js purchaseIntelligence, also not in the original evidence). A hook-level test pins that each one hands useGameEvent subscribers a new value. Load-time re-emits in _emitAllStateEvents were left as they are, since they send a freshly loaded state, not one mutated in place. Decided by Claude under a delegated session (developer unavailable): only one sound approach; fixing it in useGameEvent instead would mask the problem for every event.
 - **Status date:** 2026-11-28 00:36 UTC
-- **Status commit:** 9ea4108
+- **Status commit:** a178f00
 
 ### [F-20] Result shapes drift at the edges, and the bridge hook has a subscribe gap
 - **Category:** 24 Inconsistent API contracts
