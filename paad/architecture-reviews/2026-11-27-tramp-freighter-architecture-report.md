@@ -307,7 +307,7 @@ How it is built:
 - **Status:** Fixed
 - **Status reason:** New games, addStateDefaults and the v4.1→v5 migration build missions from one createDefaultMissionState() in state-validators.js, so defaulted and migrated saves now get completionHistory and pendingFailureNotices too (the EVENT_STATE_MAP fallback stays, since constants.js cannot import state-validators.js). The migration table moved to state-validators.js as applyMigrations(); isVersionCompatible is derived from it, so adding a step is the only edit a new save version needs. _emitAllStateEvents now also re-emits SHIP_NAME, DIALOGUE and NPCS (as copies), and a test fails when any EVENT_STATE_MAP event is not re-emitted. CURRENT_SYSTEM_CHANGED and INTELLIGENCE_CHANGED are named exceptions because nothing emits them at all (logged in docs/backlog.md). Previously Skipped 2026-11-27 after a premise check; fixed on the developer's request.
 - **Status date:** 2026-11-28 13:10 UTC
-- **Status commit:** 64e465b
+- **Status commit:** 34e80fd
 
 ### [F-11] Two save paths with different semantics, and a docstring that contradicts the code
 - **Category:** 24 Inconsistent API contracts (also 22)
