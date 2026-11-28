@@ -222,7 +222,7 @@ How it is built:
 - **Status:** Partially fixed
 - **Status reason:** The cited bypasses now go through the slice owners. InformationBroker.purchaseIntelligence is pure (returns cost and priceEntry), and InfoBrokerManager debits via updateCredits and writes the entry via setPriceKnowledgeEntry; its coordinatorRef is replaced by a read-only getGameState. All stats writes (3 copied closures, navigation jumpsCompleted, danger charitableActs, info-broker rumorsPurchased) go through StateManager.updateStats. The ShipManager fuel clamp on upgrade removal uses updateFuel. App.jsx resets Yumi through game.resetNPCInteractions, which now also emits NPCS_CHANGED. The capabilities.js header no longer claims isolation. Session 2 (cargo): every write to ship.cargo goes through StateManager.updateCargo with a new array, and every write to ship.hiddenCargo goes through the new ShipManager.updateHiddenCargo. That covers TradingManager.sellGood, ShipManager's move/remove methods, MissionManager.acceptMission/removeMissionCargo and DevAdminPanel. No writer edits a hold or a stack in place, so an announced hold never changes after it is announced. Still open: getState() and two raw getState capabilities return the live root; DialogueManager keeps coordinatorRef.
 - **Status date:** 2026-11-28 14:48 UTC
-- **Status commit:** (pending)
+- **Status commit:** 0edcccb
 
 ### [F-6] Repair, refuel and finance rules are duplicated between UI code and managers
 - **Category:** 9 Shotgun surgery (also 25)
