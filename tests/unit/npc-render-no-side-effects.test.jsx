@@ -37,13 +37,20 @@ describe('NPC tier display', () => {
     expect(markDirty).not.toHaveBeenCalled();
   });
 
-  // Refuel, Repair and Info Broker panels call this during render
-  it('getServiceDiscount leaves NPC state untouched', () => {
-    const markDirty = vi.spyOn(game, 'markDirty');
-    expect(game.getServiceDiscount('chen_barnards', 'refuel').discount).toBe(0);
-    expect(game.getState().npcs).toEqual({});
-    expect(markDirty).not.toHaveBeenCalled();
-  });
+  // Refuel, Repair and Info Broker panels call this during render. Chen's
+  // service is docking, so 'refuel' covers the early mismatch return and
+  // 'docking' covers the rep read.
+  it.each(['refuel', 'docking'])(
+    'getServiceDiscount(%s) leaves NPC state untouched',
+    (service) => {
+      const markDirty = vi.spyOn(game, 'markDirty');
+      expect(game.getServiceDiscount('chen_barnards', service).discount).toBe(
+        0
+      );
+      expect(game.getState().npcs).toEqual({});
+      expect(markDirty).not.toHaveBeenCalled();
+    }
+  );
 
   it('canGetFreeRepair leaves NPC state untouched', () => {
     const markDirty = vi.spyOn(game, 'markDirty');
