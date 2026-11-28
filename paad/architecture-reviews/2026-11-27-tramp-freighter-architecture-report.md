@@ -435,6 +435,9 @@ How it is built:
 - **Explanation:** Refuel takes the credits before a safety check that can throw, and buying takes the credits before an unguarded lookup. `advanceQuest` adds one to the stage with no check of which stage the caller expected, so calling it twice skips a stage.
 - **Evidence:** `src/game/state/managers/refuel.js:141` (`updateCredits(...)`) runs before the "CRITICAL BUG" throw at 152-157. `src/game/state/managers/trading.js:44-50` (debit, then `currentSystemObj.name`). `src/game/state/managers/quest-manager.js:45-72` ("const nextStage = questState.stage + 1"), called from seven sites in `tanaka-dialogue.js`.
 - **Found by:** Integration & Data
+- **Status:** Fixed
+- **Status reason:** Refuel and buyGood now take credits only after every step that can throw: refuel after the fuel-reduction guard, buyGood after the system lookup and the new cargo are computed, right beside the cargo write. The order of emitted events is unchanged. Tests pin both cases: credits survive the throw. advanceQuest was left alone after a premise check: every call site is an offer-node choice that the player can only reach at the matching stage, and a repeat click lands on the next node's choices, so no input advances twice. A stage guard would mean editing 7 content call sites for a path that can't be reached. Neither debit throw is known to be reachable in play either; the reorder was taken because it costs nothing. Decided by Claude under a delegated session (developer unavailable).
+- **Status date:** 2026-11-28 00:52 UTC
 
 ### [F-22] Gaps in the local persistence lifecycle
 - **Category:** 17 No clear ownership of data

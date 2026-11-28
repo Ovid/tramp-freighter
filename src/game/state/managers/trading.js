@@ -41,8 +41,6 @@ export class TradingManager extends BaseManager {
       return { success: false, reason: 'Not enough cargo space' };
     }
 
-    this.capabilities.updateCredits(credits - totalCost);
-
     // Pass current system and day for purchase metadata
     const currentSystemId = this.capabilities.getCurrentSystem();
     const currentSystemObj = this.capabilities.starData.find(
@@ -60,6 +58,7 @@ export class TradingManager extends BaseManager {
       currentSystemName,
       currentDay
     );
+    this.capabilities.updateCredits(credits - totalCost);
     this.capabilities.updateCargo(newCargo);
 
     // Update market conditions: negative quantity creates deficit (raises prices)
