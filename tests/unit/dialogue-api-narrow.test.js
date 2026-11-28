@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createTestGame } from '../test-utils.js';
 
-// The dialogue engine gets the calls it makes, not the whole game: it cannot
-// reach the live state root or write slices it has no business with.
+// The dialogue engine gets the calls it makes, not the whole game: it has no
+// route to the coordinator or the state root. getPlayer, getShip and
+// getNPCState still return live records, so this does not stop a write to them.
 describe('DialogueManager hands the dialogue engine a narrow API', () => {
   afterEach(() => {
     vi.restoreAllMocks();
