@@ -211,14 +211,6 @@ fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
 
-## `saveGame()` docstring contradicts its return value
-
-`saveGame()` in `src/game/state/managers/save-load.js` is documented as
-returning true when the save "succeeded or was debounced", but it returns
-false when the write is debounced, the same value as a real failure.
-
-Found during the 2026-11-27 architecture review (F-11).
-
 ## Gameplay RNG parameters default to `Math.random`
 
 `generateMissionBoard` and its helpers (`mission-generator.js`),
