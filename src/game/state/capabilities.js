@@ -345,7 +345,8 @@
  * @property {Array} starData
  * @property {Object} navigationSystem
  * @property {function(number): void} updateCredits
- * @property {function(number, Object): void} setPriceKnowledgeEntry
+ * @property {function(number, Object, number, string): void} updatePriceKnowledge
+ *   Delegates to TradingManager
  * @property {function(string, number): void} updateStats
  */
 

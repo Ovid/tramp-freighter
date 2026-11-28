@@ -41,6 +41,25 @@ describe('slice owner writes', () => {
     });
   });
 
+  describe('intelligence purchase price write', () => {
+    it('records the purchased prices through the price-knowledge owner', () => {
+      game.getState().player.credits = 10000;
+      const updatePriceKnowledge = vi.spyOn(
+        game.tradingManager,
+        'updatePriceKnowledge'
+      );
+
+      game.purchaseIntelligence(1);
+
+      expect(updatePriceKnowledge).toHaveBeenCalledWith(
+        1,
+        expect.any(Object),
+        0,
+        INTELLIGENCE_CONFIG.SOURCES.INTELLIGENCE_BROKER
+      );
+    });
+  });
+
   describe('resetNPCInteractions', () => {
     it('zeroes the count, saves, and reports the NPC change', () => {
       game.getNPCState('yumi_delta_pavonis').interactions = 5;

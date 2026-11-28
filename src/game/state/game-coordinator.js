@@ -290,9 +290,13 @@ export class GameCoordinator {
       getPriceKnowledge: () => this.state.world.priceKnowledge,
       updateCredits: (value) => this.stateManager.updateCredits(value),
       updateStats: (key, delta) => this.stateManager.updateStats(key, delta),
-      setPriceKnowledgeEntry: (systemId, entry) => {
-        this.state.world.priceKnowledge[systemId] = entry;
-      },
+      updatePriceKnowledge: (systemId, prices, lastVisit, source) =>
+        this.tradingManager.updatePriceKnowledge(
+          systemId,
+          prices,
+          lastVisit,
+          source
+        ),
       getActiveEvents: () => this.state.world.activeEvents,
       getCurrentSystem: () => this.state.player.currentSystem,
       getShipUpgrades: () => this.state.ship.upgrades,
