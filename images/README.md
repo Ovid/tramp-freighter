@@ -1,4 +1,5 @@
-Source guidance: docs/npcs.md
+Source guidance: docs/npcs.md (`npc/`, `pirate/`, `encounter/`) and
+docs/extra-npcs.md (`narrative/`)
 
 Chat: https://chatgpt.com/c/6b071393-8210-83eb-8bda-7b5bc77b83b5
 
@@ -24,7 +25,9 @@ Chat: https://chatgpt.com/c/6b071393-8210-83eb-8bda-7b5bc77b83b5
 | `pirate/dangerous.png`              | Scarred space pirate warlord on CRT       |
 | `encounter/inspection.png`          | Retro Customs Inspector with Cyan Scanner |
 | `encounter/distress.png`            | Mayday pilot on amber comms               |
+| `narrative/dock_tech_barnards.png`  | Unimpressed Dock Technician on CRT        |
+| `narrative/dockworker_m.png`        | Whispering Dockworker Through CRT Glow    |
 
 Filenames are lookup keys: `npc/<npcId>`, `pirate/<threatLevel>`,
-`encounter/<type>`. Run `scripts/build-portraits.sh` after adding or
-replacing art.
+`encounter/<type>`, and `narrative/<file name from docs/extra-npcs.md>`.
+Run `scripts/build-portraits.sh` after adding or replacing art.

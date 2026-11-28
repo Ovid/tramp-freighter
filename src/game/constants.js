@@ -172,6 +172,39 @@ export function calculateDistanceFromSol(system) {
 }
 
 /**
+ * Station fuel price per percentage point: core systems are cheapest, and
+ * fuel gets dearer the further a system is from Sol.
+ *
+ * @param {number} systemId
+ * @param {Array} starData
+ * @returns {number}
+ */
+export function getFuelPricePerPercent(systemId, starData) {
+  if (FUEL_PRICING_CONFIG.CORE_SYSTEMS.IDS.includes(systemId)) {
+    return FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT;
+  }
+
+  const system = starData.find((s) => s.id === systemId);
+  if (!system) {
+    return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
+  }
+
+  const distanceFromSol = calculateDistanceFromSol(system);
+
+  if (distanceFromSol < FUEL_PRICING_CONFIG.INNER_SYSTEMS.DISTANCE_THRESHOLD) {
+    return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
+  }
+
+  if (
+    distanceFromSol < FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.DISTANCE_THRESHOLD
+  ) {
+    return FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.PRICE_PER_PERCENT;
+  }
+
+  return FUEL_PRICING_CONFIG.OUTER_SYSTEMS.PRICE_PER_PERCENT;
+}
+
+/**
  * Calculate base jump time from distance in light-years.
  * Single source of truth for the jump-time formula used by NavigationSystem,
  * wormhole-graph, and mission-generator.
@@ -1812,6 +1845,11 @@ export const NARRATIVE_EVENT_CONFIG = {
   NARRATIVE_PRIORITY_LOW: 5,
 
   RUMOR_MAX_HOPS: 3,
+
+  // dock_cheap_fuel: the mechanic tops the tank up to this percentage at a
+  // fraction of the local station price.
+  CHEAP_FUEL_FILL_TO: 30,
+  CHEAP_FUEL_PRICE_MULTIPLIER: 0.5,
 };
 
 /**

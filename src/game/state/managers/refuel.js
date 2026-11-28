@@ -1,9 +1,5 @@
 import { BaseManager } from './base-manager.js';
-import {
-  FUEL_PRICING_CONFIG,
-  NAVIGATION_CONFIG,
-  calculateDistanceFromSol,
-} from '../../constants.js';
+import { NAVIGATION_CONFIG, getFuelPricePerPercent } from '../../constants.js';
 
 /**
  * RefuelManager - Manages ship refueling operations
@@ -27,30 +23,7 @@ export class RefuelManager extends BaseManager {
    * @returns {number} Fuel price per percentage point
    */
   getFuelPrice(systemId) {
-    if (FUEL_PRICING_CONFIG.CORE_SYSTEMS.IDS.includes(systemId)) {
-      return FUEL_PRICING_CONFIG.CORE_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    const system = this.capabilities.starData.find((s) => s.id === systemId);
-    if (!system) {
-      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    const distanceFromSol = calculateDistanceFromSol(system);
-
-    if (
-      distanceFromSol < FUEL_PRICING_CONFIG.INNER_SYSTEMS.DISTANCE_THRESHOLD
-    ) {
-      return FUEL_PRICING_CONFIG.INNER_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    if (
-      distanceFromSol < FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.DISTANCE_THRESHOLD
-    ) {
-      return FUEL_PRICING_CONFIG.MID_RANGE_SYSTEMS.PRICE_PER_PERCENT;
-    }
-
-    return FUEL_PRICING_CONFIG.OUTER_SYSTEMS.PRICE_PER_PERCENT;
+    return getFuelPricePerPercent(systemId, this.capabilities.starData);
   }
 
   /**

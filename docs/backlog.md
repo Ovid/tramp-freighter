@@ -68,7 +68,13 @@ A Cole favor passenger template in `src/game/state/managers/debt.js` has no
 `checkCheckpoint` is discarded (`events.js`) and never reaches
 `missions.active`. Fix before wiring favor missions up.
 
-Found during rethink on issue #57.
+Give that `passenger` object a `type` from `PASSENGER_CONFIG.TYPES` too.
+Without one, `passenger_complaint_comfort`'s `generateContent`
+(`src/game/data/narrative-events.js`) returns `{}`, and the complaint shows
+the static `narrative/passenger_business` portrait for Cole's associate.
+
+Found during rethink on issue #57. Portrait note added during rethink of
+the `ovid/images-2` agentic review.
 
 ## Contested-zone config points at the wrong star
 

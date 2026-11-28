@@ -20,7 +20,7 @@ There are two kinds of image:
 |---|---|---|
 | `dock_sol_first` | `scene_dock_sol_first.png` | scene |
 | `dock_barnards_first` | `chen_barnards.png` (from `npcs.md`) | portrait |
-| `dock_generic_rumor` | `dockworker_f.png` or `dockworker_m.png` | portrait |
+| `dock_generic_rumor` | `dockworker_m.png` | portrait |
 | `dock_beyond_the_lanes_rumor` | `dockworker_f.png` | portrait |
 | `dock_barnards_engineer_rumor` | `dockworker_m.png` | portrait |
 | `dock_cheap_fuel` | `mechanic_fuel.png` | portrait |
@@ -121,7 +121,8 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **No text, logos, UI frames, borders or watermarks**, apart from the "0"
   noted above.
 - **File names:** as given in each entry. Portraits use a role name; scenes
-  use `scene_` plus the event id.
+  use `scene_` plus the event id. Source art goes in `images/narrative/`;
+  `scripts/build-portraits.sh` builds `public/portraits/narrative/*.webp`.
 
 ---
 
@@ -179,20 +180,20 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **Pronouns:** they/them
 - **Used by:** `dock_cheap_fuel`
 - **Canon:** "A mechanic notices your fuel gauge as you dock. 'Running on
-  fumes, huh? I got some fuel canisters that fell off a transport. Half
-  price.'"
+  fumes, huh? I can hook you up off the books. Half price, no questions.'"
 - **Look:** Brazilian heritage, early 30s, any gender. Curly dark hair under a
   backwards cap and a thin moustache or a gold tooth. An oil-stained jacket
   with the sleeves pushed up. Deliberately shadier than Rusty Rodriguez: younger,
   slicker, less honest.
-  **Signature detail:** a dented fuel canister held up into frame like a
-  product on display.
+  **Signature detail:** the nozzle of a fuel hose from a dock reel, held up
+  into frame like a product on display.
 - **Expression:** a salesman's wink and grin. Definitely stolen.
 - **Prompt:** A shady Brazilian mechanic in their early 30s with curly dark
   hair under a backwards cap and a gold tooth, wearing an oil-stained jacket
-  with the sleeves pushed up, holding a dented fuel canister up beside their
-  face like a product on display. A salesman's wink and a crooked grin. A
-  dim, cluttered corner of a refuelling dock behind them.
+  with the sleeves pushed up, holding the nozzle of a fuel hose from a
+  wall-mounted dock reel up beside their face like a product on display. A
+  salesman's wink and a crooked grin. A dim, cluttered corner of a
+  refuelling dock behind them.
 
 ### Dock Tech, Barnard's Star
 
@@ -448,12 +449,19 @@ The `npcs.md` negative prompt, minus `full body` and `multiple people`, plus:
 - **Canon:** "A deep groan reverberates through the hull. The patch job from
   last time is holding, but barely. One more hard knock and you'll be
   breathing vacuum."
-- **Composition:** an interior bulkhead with a crudely welded patch plate,
-  slightly buckled, frost creeping from the seam.
-  **Signature detail:** a thin line of vapour escaping from the seam.
-- **Prompt:** Interior bulkhead of a freighter with a crudely welded patch
-  plate, slightly buckled, frost creeping from its seam and a thin wisp of
-  vapour escaping. Dim amber emergency lighting. Tense, fragile mood.
+- **Composition:** a dark grey-steel bulkhead, almost black, with a crudely
+  welded patch plate bulging outward at its centre. Thick white frost spreads
+  from the seam in jagged fingers. A bright jet of white vapour sprays
+  diagonally out of a split in the weld. The leak must be the brightest thing
+  in the image: a first attempt kept the bulkhead and patch the same brown,
+  and at 160 px it read as a plain plate on a wall.
+  **Signature detail:** the jet of white vapour venting from the split weld.
+- **Prompt:** Interior bulkhead of a freighter in dark, almost black grey
+  steel, with a crudely welded patch plate bulging outward. A bright white
+  jet of venting vapour sprays diagonally from a split in the weld, and thick
+  white frost spreads from the seam in jagged fingers. The venting vapour and
+  frost are the brightest elements, in strong contrast against the dark
+  metal. Dim amber emergency lighting from above. Urgent, dangerous mood.
 
 ### Debt Free
 
@@ -485,9 +493,14 @@ These came up while writing this brief. They are not fixed here.
    two portraits to match the text, but the identical opening line still
    reads as one recurring person.
 2. **`dock_barnards_first` has no speaker.** The event introduces Wei Chen
-   ("Her jumpsuit says 'CHEN'") but sets `speaker: null`, so no portrait is
-   shown.
-3. **The panel can't display any of this art yet.** `NarrativeEventPanel`
-   only shows a portrait when `content.speaker` matches a name in `ALL_NPCS`,
-   and it has no way to show a scene image. The *Event → Image* table above
-   is the spec for wiring that up later.
+   ("Her jumpsuit says 'CHEN'") but sets `speaker: null`. It now shows her
+   portrait through `art`, but the panel still doesn't show her name.
+
+## Wiring
+
+Each event names its image in `content.art` as a `'category/key'` path
+(for example `'narrative/news_anchor'`), and `NarrativeEventPanel` shows it.
+Events with an NPC speaker don't need one. `passenger_complaint_comfort`
+sets `art` in `generateContent()` from the passenger on board.
+`tests/unit/portrait-assets.test.js` fails if an event has no art or names a
+file that doesn't exist.

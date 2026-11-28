@@ -2,6 +2,7 @@ import {
   NARRATIVE_EVENT_CONFIG,
   CONDITION_TYPES,
   ENDGAME_CONFIG,
+  getFuelPricePerPercent,
 } from '../constants.js';
 import { getReachableSystems } from '../utils/wormhole-graph.js';
 
@@ -11,6 +12,8 @@ const {
   NARRATIVE_PRIORITY_DEFAULT,
   NARRATIVE_PRIORITY_LOW,
   RUMOR_MAX_HOPS,
+  CHEAP_FUEL_FILL_TO,
+  CHEAP_FUEL_PRICE_MULTIPLIER,
 } = NARRATIVE_EVENT_CONFIG;
 
 /**
@@ -20,7 +23,8 @@ const {
  * - type: dock | jump | time | condition | chain
  * - category: always 'narrative'
  * - trigger: { system, condition, chance }
- * - content: { text[], speaker, mood, choices[] }
+ * - content: { text[], speaker, art, mood, choices[] }
+ *   art is a 'category/key' portrait path, for events without an NPC speaker
  * - choices[].effects: { costs: {}, rewards: {} }
  */
 export const NARRATIVE_EVENTS = [
@@ -41,6 +45,7 @@ export const NARRATIVE_EVENTS = [
         'You feel very small, and very poor.',
       ],
       speaker: null,
+      art: 'narrative/scene_dock_sol_first',
       mood: 'neutral',
       choices: [
         {
@@ -67,6 +72,7 @@ export const NARRATIVE_EVENTS = [
         "A dock worker waves you toward Bay 3. Her jumpsuit says 'CHEN' in faded stencil.",
       ],
       speaker: null,
+      art: 'npc/chen_barnards',
       mood: 'neutral',
       choices: [
         {
@@ -135,6 +141,7 @@ export const NARRATIVE_EVENTS = [
         '"Markets are shifting out there. Keep your eyes open."',
       ],
       speaker: null,
+      art: 'narrative/dockworker_m',
       mood: 'neutral',
       choices: [
         {
@@ -175,6 +182,7 @@ export const NARRATIVE_EVENTS = [
         'She shrugs. "Probably just spacer talk. But who knows?"',
       ],
       speaker: null,
+      art: 'narrative/dockworker_f',
       mood: 'mysterious',
       choices: [
         {
@@ -219,6 +227,7 @@ export const NARRATIVE_EVENTS = [
         'He lowers his voice. "Picky about who she works with, though."',
       ],
       speaker: null,
+      art: 'narrative/dockworker_m',
       mood: 'neutral',
       choices: [
         {
@@ -247,18 +256,48 @@ export const NARRATIVE_EVENTS = [
     once: false,
     cooldown: 5,
     priority: NARRATIVE_PRIORITY_DEFAULT,
+    // A flat price overcharged near the trigger threshold, so price the actual
+    // top-up at half the local station rate to keep "half price" honest.
+    generateContent(state, starData) {
+      const price = Math.ceil(
+        (CHEAP_FUEL_FILL_TO - state.ship.fuel) *
+          getFuelPricePerPercent(state.player.currentSystem, starData) *
+          CHEAP_FUEL_PRICE_MULTIPLIER
+      );
+      return {
+        choices: [
+          {
+            text: `"Deal." (₡${price})`,
+            next: null,
+            effects: {
+              costs: { credits: price },
+              rewards: { fuelMinimum: CHEAP_FUEL_FILL_TO },
+            },
+          },
+          {
+            text: '"No thanks, I like living dangerously."',
+            next: null,
+            effects: { costs: {}, rewards: {} },
+          },
+        ],
+      };
+    },
     content: {
       text: [
         'A mechanic notices your fuel gauge as you dock.',
-        '"Running on fumes, huh? I got some fuel canisters that fell off a transport. Half price."',
+        '"Running on fumes, huh? I can hook you up off the books. Half price, no questions."',
       ],
       speaker: null,
+      art: 'narrative/mechanic_fuel',
       mood: 'tense',
       choices: [
         {
           text: '"Deal."',
           next: null,
-          effects: { costs: { credits: 50 }, rewards: { fuelMinimum: 30 } },
+          effects: {
+            costs: { credits: 50 },
+            rewards: { fuelMinimum: CHEAP_FUEL_FILL_TO },
+          },
         },
         {
           text: '"No thanks, I like living dangerously."',
@@ -285,6 +324,7 @@ export const NARRATIVE_EVENTS = [
         'Looks like a cargo container. Intact, maybe.',
       ],
       speaker: null,
+      art: 'narrative/scene_jump_salvage',
       mood: 'neutral',
       choices: [
         {
@@ -315,6 +355,7 @@ export const NARRATIVE_EVENTS = [
         'Salvage rights. Finders keepers.',
       ],
       speaker: null,
+      art: 'narrative/scene_jump_salvage_result',
       mood: 'neutral',
       choices: [
         {
@@ -353,6 +394,7 @@ export const NARRATIVE_EVENTS = [
         'You wonder how many other freighter captains are out here right now, alone with their thoughts.',
       ],
       speaker: null,
+      art: 'narrative/scene_jump_quiet_moment',
       mood: 'calm',
       choices: [
         {
@@ -384,6 +426,7 @@ export const NARRATIVE_EVENTS = [
         'Whatever sent it is long gone.',
       ],
       speaker: null,
+      art: 'narrative/scene_jump_strange_signal',
       mood: 'mysterious',
       choices: [
         {
@@ -484,6 +527,7 @@ export const NARRATIVE_EVENTS = [
         'Same old story.',
       ],
       speaker: null,
+      art: 'narrative/news_anchor',
       mood: 'neutral',
       choices: [
         {
@@ -521,6 +565,7 @@ export const NARRATIVE_EVENTS = [
         "You're running on fumes.",
       ],
       speaker: null,
+      art: 'narrative/scene_cond_low_fuel',
       mood: 'tense',
       choices: [
         {
@@ -551,6 +596,7 @@ export const NARRATIVE_EVENTS = [
         "One more hard knock and you'll be breathing vacuum.",
       ],
       speaker: null,
+      art: 'narrative/scene_cond_hull_damage',
       mood: 'tense',
       choices: [
         {
@@ -582,6 +628,7 @@ export const NARRATIVE_EVENTS = [
         "Perhaps it's time to see what opportunities the stations ahead have to offer.",
       ],
       speaker: null,
+      art: 'narrative/scene_cond_debt_free',
       mood: 'triumphant',
       choices: [
         {
@@ -603,12 +650,22 @@ export const NARRATIVE_EVENTS = [
     once: false,
     cooldown: 3,
     priority: NARRATIVE_PRIORITY_DEFAULT,
+    // Any passenger type can complain, so show whoever is on board.
+    generateContent(state) {
+      const mission = state.missions.active.find(
+        (m) => m.type === 'passenger' && m.passenger?.type
+      );
+      return mission
+        ? { art: `narrative/passenger_${mission.passenger.type}` }
+        : {};
+    },
     content: {
       text: [
         'Your passenger complains about the cramped quarters.',
         "They're clearly uncomfortable.",
       ],
       speaker: null,
+      art: 'narrative/passenger_business',
       mood: 'annoyed',
       choices: [
         {
@@ -647,6 +704,7 @@ export const NARRATIVE_EVENTS = [
         'They offer a generous tip.',
       ],
       speaker: null,
+      art: 'narrative/passenger_wealthy',
       mood: 'pleased',
       choices: [
         {
@@ -677,6 +735,7 @@ export const NARRATIVE_EVENTS = [
         'The parents look apologetic.',
       ],
       speaker: null,
+      art: 'narrative/passenger_family',
       mood: 'neutral',
       choices: [
         {
@@ -732,6 +791,7 @@ export const NARRATIVE_EVENTS = [
         '"She wants pilots who\'ve seen the sector — been to enough ports to prove they\'re not just running one lane back and forth."',
       ],
       speaker: null,
+      art: 'narrative/dock_tech_barnards',
       mood: 'neutral',
       choices: [
         {
@@ -762,6 +822,7 @@ export const NARRATIVE_EVENTS = [
         '"Visit more systems. Get to know the network. She\'ll notice when you\'ve earned your stripes."',
       ],
       speaker: null,
+      art: 'narrative/dock_tech_barnards',
       mood: 'neutral',
       choices: [
         {

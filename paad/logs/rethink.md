@@ -220,3 +220,26 @@ path were checked.
 - Price "what the player saves" against the actions the UI actually offers,
   not against an idealised exact amount.
 - Before calling a time penalty cheap, read what `updateTime` triggers.
+
+## 2026-11-28 — Drop the passenger_business fallback (agentic-review S1 on ovid/images-2)
+
+**Verdict:** Premise false (the bug can't happen in play today) + the plan
+was missing a step (it would break the art test it relies on).
+
+**What went wrong:**
+- The review flagged that Cole's favor passenger mission shows the business
+  portrait. That mission never reaches `missions.active`, because
+  `events.js:135` discards `processDebtTick()`'s `favorMission`.
+  `docs/backlog.md` already said so ("Cole passenger favor template would
+  crash on completion"). The specialist and the Verifier both traced the
+  mission's shape and never asked whether it could be active.
+- The planned fix didn't account for `tests/unit/portrait-assets.test.js:50-58`,
+  which requires art on every event with no NPC speaker. Removing the fallback
+  fails that test, and the Wiring section of `docs/extra-npcs.md` promises it.
+
+**Guidance for future sessions:**
+- Before acting on a finding about a data shape, check that a real producer
+  can put that shape into live state. Grep for the push or assignment site.
+- Grep `docs/backlog.md` for the symbol before treating a finding as new. It
+  often records why a path is unreachable.
+- Before removing a default, look for tests that assert the default exists.

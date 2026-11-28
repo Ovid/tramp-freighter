@@ -75,7 +75,9 @@ export function NarrativeEventPanel({ event, onClose }) {
 
   const { content } = currentEvent;
   // Events name their speaker by display name, so match it to an NPC for art.
+  // Events without an NPC speaker name their art as 'category/key' instead.
   const speakerNpc = ALL_NPCS.find((npc) => npc.name === content.speaker);
+  const art = content.art ?? (speakerNpc && `npc/${speakerNpc.id}`);
 
   // Backdrop blocks the starmap and station: the player must choose before
   // undocking or jumping. Deliberately not click-to-dismiss.
@@ -94,9 +96,7 @@ export function NarrativeEventPanel({ event, onClose }) {
           <div className="event-speaker">{content.speaker}</div>
         )}
         <div className="portrait-row">
-          {speakerNpc && (
-            <Portrait src={getPortraitUrl('npc', speakerNpc.id)} />
-          )}
+          {art && <Portrait src={getPortraitUrl(...art.split('/'))} />}
           <div className="event-text">
             {content.text.map((paragraph, i) => (
               <p key={i}>{paragraph}</p>

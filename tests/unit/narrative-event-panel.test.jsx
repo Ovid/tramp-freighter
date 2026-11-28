@@ -70,6 +70,19 @@ describe('NarrativeEventPanel', () => {
     );
   });
 
+  it('shows the art named by the event when there is no NPC speaker', () => {
+    const event = makeEvent();
+    event.content.speaker = null;
+    event.content.art = 'narrative/news_anchor';
+    const { container } = render(
+      <NarrativeEventPanel event={event} onClose={onClose} />
+    );
+    expect(container.querySelector('img.portrait')).toHaveAttribute(
+      'src',
+      expect.stringContaining('portraits/narrative/news_anchor.webp')
+    );
+  });
+
   it('shows no portrait for a speaker who is not an NPC', () => {
     const { container } = render(
       <NarrativeEventPanel event={makeEvent()} onClose={onClose} />
