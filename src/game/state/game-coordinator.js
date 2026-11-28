@@ -680,18 +680,22 @@ export class GameCoordinator {
     // previous state back rather than leave a half-restored coordinator.
     const previousState = this.state;
     this.state = migratedState;
+    // Emits run gameplay subscribers (the time-based encounter trigger), so
+    // they go last: a throw before them leaves nothing to undo or re-emit.
+    let emitted = false;
 
     try {
       this._registerEventEngine();
 
-      this._emitAllStateEvents(migratedState);
-
       // Catch up achievements that already meet thresholds (e.g. saves from
       // before the achievements system, or new achievements added in updates).
       this.achievementsManager.checkAchievements();
+
+      emitted = true;
+      this._emitAllStateEvents(migratedState);
     } catch (error) {
       this.state = previousState;
-      if (previousState) this._emitAllStateEvents(previousState);
+      if (emitted && previousState) this._emitAllStateEvents(previousState);
       throw error;
     }
 
