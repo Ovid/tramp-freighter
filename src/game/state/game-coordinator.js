@@ -13,7 +13,7 @@ import { NPCManager } from './managers/npc.js';
 import { NavigationManager } from './managers/navigation.js';
 import { RefuelManager } from './managers/refuel.js';
 import { RepairManager } from './managers/repair.js';
-import { DialogueManager } from './managers/dialogue.js';
+import { DialogueManager, DIALOGUE_API } from './managers/dialogue.js';
 import { EventsManager } from './managers/events.js';
 import { InfoBrokerManager } from './managers/info-broker.js';
 import { EventSystemManager } from './managers/event-system.js';
@@ -248,7 +248,16 @@ export class GameCoordinator {
     this.dialogueManager = new DialogueManager({
       getOwnState: () => this.state.dialogue,
       emit: this.emit.bind(this),
-      coordinatorRef: this,
+      // Looked up at call time, so a method replaced later (a test spy) is
+      // the one called; a name the game lacks still fails here, at startup
+      dialogueApi: Object.fromEntries(
+        DIALOGUE_API.map((name) => {
+          if (typeof this[name] !== 'function') {
+            throw new Error(`DIALOGUE_API names ${name}, which the game lacks`);
+          }
+          return [name, (...args) => this[name](...args)];
+        })
+      ),
       isTestEnvironment: this.isTestEnvironment,
     });
     this.eventsManager = new EventsManager({
@@ -393,6 +402,9 @@ export class GameCoordinator {
       getCredits: () => this.state.player.credits,
       getShipCargo: () => this.state.ship.cargo,
       getShipHiddenCargo: () => this.state.ship.hiddenCargo,
+      updateCargo: (newCargo) => this.stateManager.updateCargo(newCargo),
+      updateHiddenCargo: (newHidden) =>
+        this.shipManager.updateHiddenCargo(newHidden),
       getCargoRemaining: () => this.stateManager.getCargoRemaining(),
       getVisitedSystems: () => this.state.world.visitedSystems,
       getDangerZone: (systemId) => this.dangerManager.getDangerZone(systemId),
@@ -1447,6 +1459,10 @@ export class GameCoordinator {
 
   clearHiddenCargo() {
     return this.shipManager.clearHiddenCargo();
+  }
+
+  updateHiddenCargo(newHiddenCargo) {
+    return this.shipManager.updateHiddenCargo(newHiddenCargo);
   }
 
   // ========================================================================

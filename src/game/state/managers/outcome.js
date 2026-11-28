@@ -175,8 +175,13 @@ export class OutcomeManager extends BaseManager {
         );
       }
 
+      // Never into a mission stack: salvage there would be unsellable and
+      // removed with the mission
       const index = cargo.findIndex(
-        (item) => item.good === reward.good && item.buyPrice === reward.buyPrice
+        (item) =>
+          item.good === reward.good &&
+          item.buyPrice === reward.buyPrice &&
+          !item.missionId
       );
       if (index >= 0) {
         cargo[index] = { ...cargo[index], qty: cargo[index].qty + qtyToAdd };

@@ -40,6 +40,7 @@ export function DevAdminPanel({ onClose }) {
   const quirks = useGameEvent(EVENT_NAMES.QUIRKS_CHANGED);
   const upgrades = useGameEvent(EVENT_NAMES.UPGRADES_CHANGED);
   const cargo = useGameEvent(EVENT_NAMES.CARGO_CHANGED);
+  const hiddenCargoEvent = useGameEvent(EVENT_NAMES.HIDDEN_CARGO_CHANGED);
   const npcs = useGameEvent(EVENT_NAMES.NPCS_CHANGED);
 
   // NPC reputation: selected NPC and input fields keyed by npcId
@@ -73,7 +74,7 @@ export function DevAdminPanel({ onClose }) {
   const currentQuirks = quirks || game.getShip()?.quirks || [];
   const currentUpgrades = upgrades || game.getShip()?.upgrades || [];
   const currentCargo = cargo || game.getShip()?.cargo || [];
-  const hiddenCargo = game.getHiddenCargo() || [];
+  const hiddenCargo = hiddenCargoEvent || game.getHiddenCargo() || [];
   const hasSmugglersPanel = currentUpgrades.includes('smuggler_panels');
 
   // Available quirks and upgrades (excluding already installed)
@@ -285,31 +286,16 @@ export function DevAdminPanel({ onClose }) {
         buyDate: daysElapsed,
       };
 
+      // The ship's own stacking rule, on a copy: the owners write the new hold
+      const addTo = (hold) => {
+        const next = hold.map((c) => ({ ...c }));
+        game.addToCargoArray(next, newCargoItem, qty);
+        return next;
+      };
       if (useHiddenCargo && hasSmugglersPanel) {
-        // Add to hidden cargo
-        const updatedHidden = [...(ship.hiddenCargo || [])];
-        const existingIndex = updatedHidden.findIndex(
-          (c) => c.good === selectedCommodity
-        );
-        if (existingIndex >= 0) {
-          updatedHidden[existingIndex].qty += qty;
-        } else {
-          updatedHidden.push(newCargoItem);
-        }
-        ship.hiddenCargo = updatedHidden;
-        game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, updatedHidden);
+        game.updateHiddenCargo(addTo(ship.hiddenCargo || []));
       } else {
-        // Add to regular cargo
-        const newCargo = [...ship.cargo];
-        const existingIndex = newCargo.findIndex(
-          (c) => c.good === selectedCommodity
-        );
-        if (existingIndex >= 0) {
-          newCargo[existingIndex].qty += qty;
-        } else {
-          newCargo.push(newCargoItem);
-        }
-        game.updateCargo(newCargo);
+        game.updateCargo(addTo(ship.cargo));
       }
       game.markDirty();
     }
@@ -317,9 +303,7 @@ export function DevAdminPanel({ onClose }) {
 
   const handleClearCargo = () => {
     game.updateCargo([]);
-    const ship = game.getShip();
-    ship.hiddenCargo = [];
-    game.emit(EVENT_NAMES.HIDDEN_CARGO_CHANGED, []);
+    game.clearHiddenCargo();
     game.markDirty();
   };
 
@@ -784,8 +768,11 @@ export function DevAdminPanel({ onClose }) {
             min="1"
             max="50"
             style={{ width: '60px' }}
+            aria-label="Cargo quantity"
           />
-          <button onClick={handleAddCargo}>Add</button>
+          <button onClick={handleAddCargo} aria-label="Add cargo">
+            Add
+          </button>
         </div>
         {hasSmugglersPanel && (
           <div className="dev-admin-checkbox">

@@ -67,14 +67,15 @@ export class MissionManager extends BaseManager {
 
     // Place mission cargo in hold for cargo run missions
     if (mission.missionCargo) {
-      const cargo = this.capabilities.getShipCargo();
-      cargo.push({
-        good: mission.missionCargo.good,
-        qty: mission.missionCargo.quantity,
-        buyPrice: 0,
-        missionId: mission.id,
-      });
-      this.capabilities.emit(EVENT_NAMES.CARGO_CHANGED, [...cargo]);
+      this.capabilities.updateCargo([
+        ...this.capabilities.getShipCargo(),
+        {
+          good: mission.missionCargo.good,
+          qty: mission.missionCargo.quantity,
+          buyPrice: 0,
+          missionId: mission.id,
+        },
+      ]);
     }
 
     this.capabilities.emit(EVENT_NAMES.MISSIONS_CHANGED, { ...missions });
@@ -483,20 +484,16 @@ export class MissionManager extends BaseManager {
     ].some((c) => c.missionId === missionId);
   }
 
-  // Filters in place: other managers hold references to these arrays
   removeMissionCargo(missionId) {
-    for (const [hold, event] of [
-      [this.capabilities.getShipCargo(), EVENT_NAMES.CARGO_CHANGED],
+    for (const [hold, update] of [
+      [this.capabilities.getShipCargo(), this.capabilities.updateCargo],
       [
         this.capabilities.getShipHiddenCargo(),
-        EVENT_NAMES.HIDDEN_CARGO_CHANGED,
+        this.capabilities.updateHiddenCargo,
       ],
     ]) {
       const kept = hold.filter((c) => c.missionId !== missionId);
-      if (kept.length === hold.length) continue;
-      hold.length = 0;
-      hold.push(...kept);
-      this.capabilities.emit(event, [...hold]);
+      if (kept.length !== hold.length) update(kept);
     }
   }
 

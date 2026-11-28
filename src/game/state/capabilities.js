@@ -13,6 +13,11 @@
  * Managers mutate through these references. Cross-domain mutations go through
  * injected callbacks.
  *
+ * Exception: cargo holds are announced to subscribers, who keep the array they
+ * were given. So ship.cargo and ship.hiddenCargo, and their stacks, are never
+ * edited through a reference: writers build a new hold and pass it to
+ * updateCargo (StateManager) or updateHiddenCargo (ShipManager).
+ *
  * STATE SLICE OWNERSHIP:
  *
  * | Manager            | Owned State Paths                                                    |
@@ -204,11 +209,10 @@
  *
  * @property {function(string, *): void} emit
  *
- * @property {Object} coordinatorRef
- *   The coordinator instance, passed through to dialogue engine functions
- *   (showDialogue, selectChoice). Those functions use it to build dialogue
- *   context (karma, credits, NPC state, etc.). This is a documented coupling
- *   that will be addressed if the dialogue engine is refactored separately.
+ * @property {Object} dialogueApi
+ *   The coordinator methods named in DIALOGUE_API (managers/dialogue.js),
+ *   each looked up on the coordinator when called, passed to the dialogue engine
+ *   (showDialogue, selectChoice) in place of the coordinator itself.
  */
 
 // ========================================================================
@@ -407,6 +411,10 @@
  * @property {function(number): void} modifyColeRep
  *   Direct Cole reputation delta (bypasses trust modifier)
  * @property {function(string, number): void} removeCargoForMission
+ * @property {function(Array): void} updateCargo
+ *   Replaces the regular hold; pass a new array (see STATE OWNERSHIP MODEL)
+ * @property {function(Array): void} updateHiddenCargo
+ *   Replaces the hidden hold; pass a new array (see STATE OWNERSHIP MODEL)
  * @property {function(string, number): void} updateStats
  * @property {function(): void} markDirty
  * @property {function(string, *): void} emit

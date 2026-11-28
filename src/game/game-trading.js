@@ -530,17 +530,13 @@ export class TradingSystem {
   }
 
   /**
-   * Removes stack entirely if quantity reaches zero
+   * Removes stack entirely if quantity reaches zero. Returns a new hold and a
+   * new stack: holds in state have been announced, and subscribers keep them.
    */
   static removeFromCargoStack(cargo, stackIndex, quantity) {
-    const updatedCargo = [...cargo];
-    const stack = updatedCargo[stackIndex];
-    stack.qty -= quantity;
-
-    if (stack.qty <= 0) {
-      updatedCargo.splice(stackIndex, 1);
-    }
-
-    return updatedCargo;
+    const remaining = cargo[stackIndex].qty - quantity;
+    return remaining > 0
+      ? cargo.map((s, i) => (i === stackIndex ? { ...s, qty: remaining } : s))
+      : cargo.filter((_, i) => i !== stackIndex);
   }
 }

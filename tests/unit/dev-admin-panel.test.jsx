@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup, fireEvent, act } from '@testing-library/react';
 import { DevAdminPanel } from '../../src/features/dev-admin/DevAdminPanel.jsx';
 import { GameCoordinator } from '@game/state/game-coordinator.js';
 import { STAR_DATA } from '../../src/game/data/star-data.js';
@@ -50,6 +50,47 @@ describe('DevAdminPanel', () => {
       // Verify fuel is also set to 100
       const ship = game.getShip();
       expect(ship.fuel).toBe(100);
+    });
+  });
+
+  describe('Add cargo', () => {
+    it('keeps added cargo apart from a mission stack of the same good', () => {
+      game.updateCargo([
+        { good: 'grain', qty: 4, buyPrice: 0, missionId: 'run_1' },
+      ]);
+
+      const wrapper = createWrapper(game);
+      const { getByRole } = render(<DevAdminPanel onClose={() => {}} />, {
+        wrapper,
+      });
+      fireEvent.click(getByRole('button', { name: 'Add cargo' }));
+
+      expect(
+        game.getShip().cargo.map(({ good, qty, missionId }) => ({
+          good,
+          qty,
+          missionId,
+        }))
+      ).toEqual([
+        { good: 'grain', qty: 4, missionId: 'run_1' },
+        { good: 'grain', qty: 5, missionId: undefined },
+      ]);
+    });
+  });
+
+  describe('Hidden cargo list', () => {
+    it('shows hidden cargo written after the panel opened', () => {
+      game.addUpgrade('smuggler_panels');
+
+      const wrapper = createWrapper(game);
+      const { getByText } = render(<DevAdminPanel onClose={() => {}} />, {
+        wrapper,
+      });
+      act(() => {
+        game.updateHiddenCargo([{ good: 'ore', qty: 3, buyPrice: 10 }]);
+      });
+
+      expect(getByText('ore: 3 @ ₡10')).toBeTruthy();
     });
   });
 

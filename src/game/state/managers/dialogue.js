@@ -16,6 +16,49 @@
 import { BaseManager } from './base-manager.js';
 import { EVENT_NAMES } from '../../constants.js';
 
+/**
+ * Every game call the dialogue engine (game-dialogue.js) makes, including
+ * storeCargo and retrieveCargo, which it looks up by name for picker choices.
+ * The coordinator exposes exactly these, so the engine never holds the whole
+ * game; a name the coordinator lacks fails when the game is built.
+ */
+export const DIALOGUE_API = [
+  'advanceQuest',
+  'canContributeSupply',
+  'canGetTip',
+  'canRequestFavor',
+  'canStartQuestStage',
+  'checkQuestObjectives',
+  'claimStageRewards',
+  'clearDialogueState',
+  'contributeSupply',
+  'getDialogueState',
+  'getFactionRep',
+  'getHeatTier',
+  'getKarma',
+  'getNarrativeFlags',
+  'getNPCState',
+  'getPlayer',
+  'getQuestDefinition',
+  'getQuestStage',
+  'getQuestState',
+  'getRepTier',
+  'getShip',
+  'getTip',
+  'getUnmetRequirements',
+  'getVisitedSystems',
+  'hasClaimedStageRewards',
+  'modifyColeRep',
+  'modifyRepRaw',
+  'repayLoan',
+  'requestLoan',
+  'retrieveCargo',
+  'setDialogueState',
+  'startPavonisRun',
+  'storeCargo',
+  'updateQuestData',
+];
+
 export class DialogueManager extends BaseManager {
   /**
    * Set current dialogue state
@@ -89,7 +132,7 @@ export class DialogueManager extends BaseManager {
     const dialogueDisplay = showDialogue(
       npcId,
       nodeId,
-      this.capabilities.coordinatorRef
+      this.capabilities.dialogueApi
     );
 
     const dialogue = this.capabilities.getOwnState();
@@ -122,7 +165,7 @@ export class DialogueManager extends BaseManager {
     const result = selectChoice(
       npcId,
       choiceIndex,
-      this.capabilities.coordinatorRef,
+      this.capabilities.dialogueApi,
       options
     );
 

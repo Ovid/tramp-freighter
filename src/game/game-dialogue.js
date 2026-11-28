@@ -47,24 +47,25 @@ const PICKER_OPERATIONS = {
  * Build a flat context object for dialogue text/condition/action functions.
  * Replaces direct gameStateManager access in dialogue data files.
  *
- * @param {Object} gameStateManager - The game state manager instance
+ * @param {Object} gameStateManager - The dialogue API (see DIALOGUE_API in managers/dialogue.js) or the game itself
  * @param {string} npcId - NPC identifier for NPC-specific data
  * @returns {Object} Context object with data properties and action callbacks
  */
 export function buildDialogueContext(gameStateManager, npcId) {
-  const state = gameStateManager.getState();
+  const player = gameStateManager.getPlayer();
+  const ship = gameStateManager.getShip();
   return {
     // Read-only data
     karma: gameStateManager.getKarma(),
     heat: gameStateManager.getHeatTier(),
     npcState: gameStateManager.getNPCState(npcId),
-    daysElapsed: state.player.daysElapsed,
-    credits: state.player.credits,
-    cargo: state.ship.cargo,
-    shipHull: state.ship.hull,
-    shipEngine: state.ship.engine,
-    debt: state.player.debt,
-    systemsVisited: state.world.visitedSystems.length,
+    daysElapsed: player.daysElapsed,
+    credits: player.credits,
+    cargo: ship.cargo,
+    shipHull: ship.hull,
+    shipEngine: ship.engine,
+    debt: player.debt,
+    systemsVisited: gameStateManager.getVisitedSystems().length,
     narrativeFlags: gameStateManager.getNarrativeFlags(),
     canGetTip: gameStateManager.canGetTip(npcId),
     canRequestLoan: gameStateManager.canRequestFavor(npcId, 'loan'),
@@ -130,7 +131,7 @@ function validateNPCId(npcId) {
  *
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {string} [nodeId='greeting'] - Dialogue node identifier within the NPC's dialogue tree
- * @param {GameCoordinator} gameStateManager - Game state manager instance for reputation and state access
+ * @param {Object} gameStateManager - The dialogue API (see DIALOGUE_API in managers/dialogue.js) or the game itself
  * @returns {Object} Dialogue display object with the following properties:
  *   - npcId: string - The NPC identifier
  *   - npcName: string - Display name of the NPC
@@ -232,7 +233,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
   let questProgress = null;
   if (npcData.questId) {
     const questStage = gameStateManager.getQuestStage(npcData.questId);
-    const questDef = gameStateManager.getQuestDefinition?.(npcData.questId);
+    const questDef = gameStateManager.getQuestDefinition(npcData.questId);
     if (questDef && questDef.stages) {
       const nextStage = questDef.stages.find((s) => s.stage === questStage + 1);
       const nextRepThreshold = nextStage?.requirements?.npcRep?.[1] ?? null;
@@ -276,7 +277,7 @@ export function showDialogue(npcId, nodeId = 'greeting', gameStateManager) {
  *
  * @param {string} npcId - NPC identifier (e.g., 'chen_barnards', 'whisper_sirius')
  * @param {number} choiceIndex - Index of selected choice from the current dialogue node's choices array
- * @param {GameCoordinator} gameStateManager - Game state manager instance for state modifications
+ * @param {Object} gameStateManager - The dialogue API (see DIALOGUE_API in managers/dialogue.js) or the game itself
  * @param {Object} [options]
  * @param {Array<{stackIndex: number, qty: number}>} [options.selections] - Cargo picked for a picker choice
  * @returns {Object} { success: boolean, message?: string, display: Object|null }
