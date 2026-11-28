@@ -98,6 +98,31 @@ export class NPCManager extends BaseManager {
   }
 
   /**
+   * Read an NPC's reputation without creating their record.
+   *
+   * Safe to call during render, unlike getNPCState, which writes a default
+   * record and schedules a save.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {number} Stored reputation, or the NPC's initial reputation
+   */
+  getNPCRep(npcId) {
+    const npcData = this.validateAndGetNPCData(npcId);
+    const stored = this.getStoredNPCState(npcId);
+    return stored ? stored.rep : npcData.initialRep;
+  }
+
+  /**
+   * Read an NPC's stored record without creating one.
+   *
+   * @param {string} npcId - NPC identifier
+   * @returns {Object|null} The stored record, or null if the NPC has none yet
+   */
+  getStoredNPCState(npcId) {
+    return this.capabilities.getOwnState()[npcId] ?? null;
+  }
+
+  /**
    * Modify NPC reputation with trust modifier and quirk support
    *
    * Applies reputation change with NPC personality trust modifier and
@@ -289,9 +314,6 @@ export class NPCManager extends BaseManager {
     // Validate NPC ID and get NPC data
     const npcData = this.validateAndGetNPCData(npcId);
 
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.getNPCState(npcId);
-
     // Check if NPC's discountService matches serviceType
     if (!npcData.discountService || npcData.discountService !== serviceType) {
       return {
@@ -300,8 +322,8 @@ export class NPCManager extends BaseManager {
       };
     }
 
-    // Get reputation tier
-    const repTier = this.getRepTier(npcState.rep);
+    // Panels call this during render, so read without creating a record
+    const repTier = this.getRepTier(this.getNPCRep(npcId));
 
     // Get discount percentage based on tier
     const discountPercentage =
@@ -453,6 +475,9 @@ export class NPCManager extends BaseManager {
     // Set lastFavorDay to current day
     npcState.lastFavorDay = daysElapsed;
 
+    this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+      ...this.capabilities.getOwnState(),
+    });
     this.capabilities.markDirty();
 
     return {
@@ -594,6 +619,9 @@ export class NPCManager extends BaseManager {
             `Loan default penalty for ${npcId}: ${oldRep} -> ${npcState.rep} (loan default, tier reduction)`
           );
 
+          this.capabilities.emit(EVENT_NAMES.NPCS_CHANGED, {
+            ...this.capabilities.getOwnState(),
+          });
           this.capabilities.markDirty();
         }
       }

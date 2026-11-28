@@ -1,7 +1,6 @@
 /**
  * Unit Tests for Save/Load Error Recovery Paths
- * Covers _forceSave error handling, handleLoadError routing,
- * and attemptNPCRecovery in SaveLoadManager.
+ * Covers _forceSave error handling in SaveLoadManager.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -37,68 +36,6 @@ describe('Save/Load Error Recovery', () => {
       gsm.saveLoadManager._forceSave();
 
       expect(setItemSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('handleLoadError', () => {
-    it('returns null for non-NPC errors', () => {
-      const error = new Error('Something went wrong');
-      const result = gsm.saveLoadManager.handleLoadError(error);
-
-      expect(result).toBeNull();
-    });
-
-    it('calls attemptNPCRecovery when error message includes NPC', () => {
-      const recoverySpy = vi
-        .spyOn(gsm.saveLoadManager, 'attemptNPCRecovery')
-        .mockReturnValue({ recovered: true });
-
-      const error = new Error('Invalid NPC data found');
-      const result = gsm.saveLoadManager.handleLoadError(error);
-
-      expect(recoverySpy).toHaveBeenCalled();
-      expect(result).toEqual({ recovered: true });
-    });
-  });
-
-  describe('attemptNPCRecovery', () => {
-    it('clears NPC and dialogue state then restores successfully', () => {
-      // Save current valid game state to localStorage first
-      gsm.saveLoadManager._forceSave();
-
-      const restoreSpy = vi.spyOn(gsm, 'restoreState');
-
-      const result = gsm.saveLoadManager.attemptNPCRecovery();
-
-      // Should return non-null on successful recovery
-      expect(result).not.toBeNull();
-
-      expect(restoreSpy).toHaveBeenCalledTimes(1);
-      const restoredArg = restoreSpy.mock.calls[0][0];
-      expect(restoredArg.npcs).toEqual({});
-      expect(restoredArg.dialogue).toEqual({
-        currentNpcId: null,
-        currentNodeId: null,
-        isActive: false,
-        display: null,
-      });
-    });
-
-    it('returns null when no saved state exists', () => {
-      // localStorage is already clear from beforeEach
-      const result = gsm.saveLoadManager.attemptNPCRecovery();
-
-      expect(result).toBeNull();
-    });
-
-    it('returns null when recovery itself throws', () => {
-      vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
-        throw new Error('localStorage read error');
-      });
-
-      const result = gsm.saveLoadManager.attemptNPCRecovery();
-
-      expect(result).toBeNull();
     });
   });
 });

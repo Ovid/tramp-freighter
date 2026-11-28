@@ -74,6 +74,22 @@ describe('NPCManager markDirty contract', () => {
     }
   });
 
+  // Tier badges re-render only on NPCS_CHANGED, and a loan raises rep
+  it('requestLoan emits NPCS_CHANGED with the new rep', () => {
+    const npcState = gsm.npcManager.getNPCState(TEST_NPC_ID);
+    npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN;
+    npcState.lastFavorDay = null;
+    gsm.getState().player.credits = 100;
+
+    const received = [];
+    gsm.subscribe(EVENT_NAMES.NPCS_CHANGED, (data) => received.push(data));
+    const result = gsm.npcManager.requestLoan(TEST_NPC_ID);
+
+    expect(result.success).toBe(true);
+    expect(received.length).toBe(1);
+    expect(received[0][TEST_NPC_ID].rep).toBe(npcState.rep);
+  });
+
   it('repayLoan calls markDirty on success', () => {
     const npcState = gsm.npcManager.getNPCState(TEST_NPC_ID);
     npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN;
@@ -99,6 +115,30 @@ describe('NPCManager markDirty contract', () => {
     gsm.npcManager.checkLoanDefaults();
 
     expect(spy).toHaveBeenCalled();
+  });
+
+  // A default drops the NPC a tier, which can remove free repair eligibility
+  it('checkLoanDefaults emits NPCS_CHANGED when a penalty is applied', () => {
+    const npcState = gsm.npcManager.getNPCState(TEST_NPC_ID);
+    npcState.rep = REPUTATION_BOUNDS.TRUSTED_MIN;
+    npcState.loanAmount = 500;
+    npcState.loanDay = 0;
+    gsm.getState().player.daysElapsed = 50; // > 30 day deadline
+
+    const received = [];
+    gsm.subscribe(EVENT_NAMES.NPCS_CHANGED, (data) => received.push(data));
+    gsm.npcManager.checkLoanDefaults();
+
+    expect(received.length).toBe(1);
+    expect(received[0][TEST_NPC_ID].rep).toBe(npcState.rep);
+  });
+
+  it('checkLoanDefaults does not emit NPCS_CHANGED with no overdue loan', () => {
+    const received = [];
+    gsm.subscribe(EVENT_NAMES.NPCS_CHANGED, (data) => received.push(data));
+    gsm.npcManager.checkLoanDefaults();
+
+    expect(received.length).toBe(0);
   });
 
   it('storeCargo calls markDirty on success', () => {

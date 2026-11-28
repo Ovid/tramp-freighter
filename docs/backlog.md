@@ -104,36 +104,6 @@ event frequency before changing it, because more events will fire.
 
 Found during pushback on `docs/plans/2026-11-25-navigation-sphere-plan.md`.
 
-## `npm run all` fails on knip
-
-All tests pass, but the final `knip` step of `npm run all` exits 1. It
-reports an unused file, `src/game/state/capabilities.js`, and an unused
-export, `YUMI_TANAKA_POSTCREDITS_DIALOGUE` in
-`src/game/data/dialogue-trees.js`. Commit `0f5fe1a` gives the same result,
-so this predates the navigation sphere branch.
-
-Possible fixes: delete what is truly unused, or tell knip about it (for
-example, `capabilities.js` may be documentation-only by design; the GSM
-refactor notes describe a capabilities object).
-
-Found while executing `docs/plans/2026-11-25-navigation-sphere-plan.md`.
-
-## System panel shows 0.0 LY, 0% fuel, 0 days for systems with no direct wormhole
-
-When the selected system has no direct wormhole link to the current one,
-the SystemPanel jump section shows "Jump Distance: 0.0 LY", "Fuel Cost: 0%"
-and "Jump Time: 0 days" above the "No wormhole connection to target system"
-error. The same panel can say "Status: Reachable" (reachable through the
-network). The zeros read as real values. Seen with Procyon → Sirius and
-Procyon → 82 Eridani. `SystemPanel.jsx`'s jump section and
-`validateJump` in `src/game/game-navigation.js` are unchanged on the
-navigation sphere branch, so this predates it.
-
-Possible fix: hide the distance, fuel and time rows (or show "—") when
-the jump is invalid because there is no connection.
-
-Found during UAT of `docs/plans/2026-11-25-navigation-sphere-plan.md`.
-
 ## Missions in old saves still name "L 726-8 A" and similar
 
 Missions store their destination name when created. A save made before
@@ -186,15 +156,17 @@ Found while fixing the SystemPanel accessibility audit.
 
 `state.dialogue` is saved and restored as-is, so a save written while a
 conversation was open loads with `isActive: true` and no panel showing it.
-Only the NPC-recovery path in `src/game/state/managers/save-load.js` resets it.
+No load path resets it; the NPC-recovery path in
+`src/game/state/managers/save-load.js` that used to was deleted with F-8.
 `clearDialogueState` in `src/game/state/managers/dialogue.js` also skips
 `markDirty()`, so a cleared dialogue isn't saved until something else dirties
 the state. `DialoguePanel` now tolerates the stale state (see `fb5f280`), so
 nothing visible breaks today, but anything else reading `dialogue.isActive`
 after a load would see a conversation that isn't happening.
 
-Possible fix: reset `dialogue` to its inactive defaults on every load, the
-same way the recovery path does.
+Possible fix: reset `dialogue` to its inactive defaults
+(`currentNpcId`/`currentNodeId`/`display` null, `isActive` false) on every
+load, in `restoreState` or `addStateDefaults`.
 
 Found while debugging NPC dialogue not opening under StrictMode on `ovid/images`.
 
@@ -211,34 +183,6 @@ fills the width there.
 
 Found during UAT of the `ovid/images` branch (NPC portraits).
 
-## Refuel charges credits before a check that can throw
-
-`refuel()` in `src/game/state/managers/refuel.js` calls `updateCredits` before
-the "CRITICAL BUG" guard that throws if fuel would decrease. If the guard ever
-fires, the player has paid and got no fuel. `buyGood` in `trading.js`
-similarly debits before an unguarded `currentSystemObj.name` lookup.
-
-Found during the 2026-11-27 architecture review (F-21).
-
-## UPGRADES_CHANGED emits the live upgrades array
-
-`ShipManager` pushes to `ship.upgrades` in place and then emits the same array
-(`ship.js` install, remove and purchase paths). `useGameEvent` stores it with
-`setState`, and React's `Object.is` check treats it as unchanged, so
-subscribers update only if another event fires in the same action (dev-admin
-install and remove have none). The quest path in `game-coordinator.js` copies
-the array. `trading.js` does the same with `priceKnowledge`.
-
-Found during the 2026-11-27 architecture review (F-19).
-
-## `saveGame()` docstring contradicts its return value
-
-`saveGame()` in `src/game/state/managers/save-load.js` is documented as
-returning true when the save "succeeded or was debounced", but it returns
-false when the write is debounced, the same value as a real failure.
-
-Found during the 2026-11-27 architecture review (F-11).
-
 ## Gameplay RNG parameters default to `Math.random`
 
 `generateMissionBoard` and its helpers (`mission-generator.js`),
@@ -249,26 +193,6 @@ caller that omits it silently loses determinism, against the project rule. Make
 the argument required, or throw when it is missing.
 
 Found during the 2026-11-27 CLAUDE.md pushback review.
-
-## NPC-recovery branch in `handleLoadError` is unreachable
-
-`SaveLoadManager.handleLoadError` (`src/game/state/managers/save-load.js`)
-only attempts `attemptNPCRecovery` when the error message contains "NPC".
-Nothing reachable from `restoreState` throws such an error, so the branch is
-dead. If it ever did succeed, `checkAchievements` could mark dirty and write
-the NPC-wiped state while the player is still on the title screen.
-
-Found during the 2026-11-27 rethink of the F-1 fix options.
-
-## A restore that throws after assigning state leaves partial state on Continue
-
-`restoreState` assigns `this.state` before `_registerEventEngine`,
-`_emitAllStateEvents` and `checkAchievements`. If any of those throws,
-`loadGame` returns null but the coordinator keeps the half-restored state. At
-boot `initNewGame` papers over this; a second load on Continue does not. No
-concrete triggering input is known.
-
-Found during the 2026-11-27 rethink of the F-1 fix options (see also F-8).
 
 ## Save-failure toasts are invisible on the title and ship-naming screens
 

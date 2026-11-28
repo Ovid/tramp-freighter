@@ -41,8 +41,6 @@ export class TradingManager extends BaseManager {
       return { success: false, reason: 'Not enough cargo space' };
     }
 
-    this.capabilities.updateCredits(credits - totalCost);
-
     // Pass current system and day for purchase metadata
     const currentSystemId = this.capabilities.getCurrentSystem();
     const currentSystemObj = this.capabilities.starData.find(
@@ -60,6 +58,7 @@ export class TradingManager extends BaseManager {
       currentSystemName,
       currentDay
     );
+    this.capabilities.updateCredits(credits - totalCost);
     this.capabilities.updateCargo(newCargo);
 
     // Update market conditions: negative quantity creates deficit (raises prices)
@@ -300,10 +299,9 @@ export class TradingManager extends BaseManager {
       source: source,
     };
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**
@@ -323,10 +321,9 @@ export class TradingManager extends BaseManager {
       ownState.priceKnowledge[systemId].lastVisit += days;
     }
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**
@@ -377,10 +374,9 @@ export class TradingManager extends BaseManager {
       }
     }
 
-    this.capabilities.emit(
-      EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-      ownState.priceKnowledge
-    );
+    this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+      ...ownState.priceKnowledge,
+    });
   }
 
   /**

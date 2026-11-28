@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { useGame } from '../../context/GameContext';
 import { useGameAction } from '../../hooks/useGameAction';
@@ -31,6 +31,8 @@ export function StationMenu({ onOpenPanel, onUndock }) {
   const game = useGame();
   const { getNarrativeFlags, dismissMissionFailureNotice } = useGameAction();
   const missions = useGameEvent(EVENT_NAMES.MISSIONS_CHANGED);
+  // Subscribed only to re-render tier badges when rep changes while docked
+  useGameEvent(EVENT_NAMES.NPCS_CHANGED);
   const pendingNotices = missions?.pendingFailureNotices ?? [];
   const currentNotice = pendingNotices[0] ?? null;
 
@@ -54,25 +56,12 @@ export function StationMenu({ onOpenPanel, onUndock }) {
     onOpenPanel('dialogue', npcId);
   };
 
-  // Compute NPC display info using Bridge Pattern
-  // This memoized computation updates when location changes (via currentSystemId dependency)
-  // and provides the NPC display data without direct GameCoordinator method calls
-  const npcDisplayData = useMemo(() => {
-    return npcsAtSystem.map((npc) => {
-      // Access NPC state through GameCoordinator (this is acceptable in useMemo)
-      // since it's computed once per location change, not on every render
-      const npcState = game.getNPCState(npc.id);
-      const currentRep = npcState.rep;
-      const tier = game.getRepTier(currentRep);
-
-      return {
-        id: npc.id,
-        name: npc.name,
-        role: npc.role,
-        tierName: tier.name,
-      };
-    });
-  }, [npcsAtSystem, game]);
+  const npcDisplayData = npcsAtSystem.map((npc) => ({
+    id: npc.id,
+    name: npc.name,
+    role: npc.role,
+    tierName: game.getRepTier(game.getNPCRep(npc.id)).name,
+  }));
 
   return (
     <div id="station-interface" className="visible" ref={ref} data-panel>

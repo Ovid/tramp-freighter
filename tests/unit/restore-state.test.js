@@ -16,6 +16,53 @@ describe('GameCoordinator.restoreState', () => {
     vi.restoreAllMocks();
   });
 
+  it('keeps the previous state when a post-install step throws', () => {
+    manager.initNewGame();
+    const previous = manager.getState();
+    const incoming = JSON.parse(JSON.stringify(previous));
+    incoming.player.credits = previous.player.credits + 1234;
+    vi.spyOn(
+      manager.achievementsManager,
+      'checkAchievements'
+    ).mockImplementation(() => {
+      throw new Error('boom');
+    });
+    const credits = [];
+    const days = [];
+    manager.subscribe('creditsChanged', (c) => credits.push(c));
+    manager.subscribe('timeChanged', (d) => days.push(d));
+
+    expect(() => manager.restoreState(incoming)).toThrow('boom');
+    expect(manager.getState()).toBe(previous);
+    // Nothing was emitted, so no subscriber (including the time-based
+    // encounter trigger) ever acted on the rejected save
+    expect(credits).toEqual([]);
+    expect(days).toEqual([]);
+  });
+
+  it('re-emits the previous state when emitting the incoming one throws', () => {
+    manager.initNewGame();
+    const previous = manager.getState();
+    const incoming = JSON.parse(JSON.stringify(previous));
+    incoming.player.credits = previous.player.credits + 1234;
+    const realCapacity = manager.shipManager.getFuelCapacity.bind(
+      manager.shipManager
+    );
+    let calls = 0;
+    vi.spyOn(manager.shipManager, 'getFuelCapacity').mockImplementation(() => {
+      calls += 1;
+      if (calls === 1) throw new Error('boom');
+      return realCapacity();
+    });
+    const credits = [];
+    manager.subscribe('creditsChanged', (c) => credits.push(c));
+
+    expect(() => manager.restoreState(incoming)).toThrow('boom');
+    expect(manager.getState()).toBe(previous);
+    // Subscribers that saw the incoming values are told the previous ones again
+    expect(credits).toEqual([incoming.player.credits, previous.player.credits]);
+  });
+
   it('restores valid current-version state and returns success', () => {
     // Generate valid state from a separate manager to avoid direct .state mutation
     const sourceManager = new GameCoordinator(

@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameAction } from '../../hooks/useGameAction';
 import { useGameEvent } from '../../hooks/useGameEvent';
 import { Modal } from '../../components/Modal';
-import { EVENT_NAMES } from '../../game/constants.js';
+import { EVENT_NAMES, PASSENGER_CONFIG } from '../../game/constants.js';
+
+const THRESHOLDS = PASSENGER_CONFIG.SATISFACTION_THRESHOLDS;
 
 function getSatisfactionLabel(satisfaction) {
-  if (satisfaction >= 80) return 'Very Satisfied';
-  if (satisfaction >= 60) return 'Satisfied';
-  if (satisfaction >= 40) return 'Neutral';
-  if (satisfaction >= 20) return 'Dissatisfied';
+  if (satisfaction >= THRESHOLDS.VERY_SATISFIED) return 'Very Satisfied';
+  if (satisfaction >= THRESHOLDS.SATISFIED) return 'Satisfied';
+  if (satisfaction >= THRESHOLDS.NEUTRAL) return 'Neutral';
+  if (satisfaction >= THRESHOLDS.DISSATISFIED) return 'Dissatisfied';
   return 'Very Dissatisfied';
 }
 

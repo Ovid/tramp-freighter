@@ -272,10 +272,10 @@ How it is built:
   - `src/game/state/managers/save-load.js:169`: "if (error.message && error.message.includes('NPC'))".
   - `src/game/state/game-coordinator.js:614`: `this.state` is assigned before `_registerEventEngine`, `_emitAllStateEvents` and `checkAchievements`.
 - **Found by:** Error Handling & Observability, Integration & Data
-- **Status:** Partially fixed
-- **Status reason:** Encounter and dialogue failures now reach the player. A failed encounter resolution is dismissed with an error toast (one helper replaces the two catch blocks). A dialogue that fails to start closes with a message instead of hanging on "Loading dialogue...". A failed choice closes with a message. A dialogue action that throws now returns a warning through selectDialogueChoice, which the panel shows while the conversation continues, replacing the console.warn. The panel's unreachable catch blocks are gone. Not done, deliberately: the save-load "NPC" error-text branch and the half-restore in restoreState. A premise check found no reachable trigger for either, and F-1 already keeps the player on the title screen when a load fails.
-- **Status date:** 2026-11-27 18:10 UTC
-- **Status commit:** 2df8c47
+- **Status:** Fixed
+- **Status reason:** Encounter and dialogue failures now reach the player. A failed encounter resolution is dismissed with an error toast (one helper replaces the two catch blocks). A dialogue that fails to start closes with a message instead of hanging on "Loading dialogue...". A failed choice closes with a message. A dialogue action that throws now returns a warning through selectDialogueChoice, which the panel shows while the conversation continues, replacing the console.warn. The panel's unreachable catch blocks are gone. Not done, deliberately: the save-load "NPC" error-text branch and the half-restore in restoreState. A premise check found no reachable trigger for either, and F-1 already keeps the player on the title screen when a load fails. Completed 2026-11-28 at the developer's request: the "NPC" error-text recovery (handleLoadError, attemptNPCRecovery) is deleted, so any throw during load is reported on the title screen like every other rejected save, and relationships are never wiped because of an error message. restoreState now puts the previous state back and re-emits its events if a step after installing the new state throws, then rethrows so loadGame reports it. The 8 tests of the deleted branch went with it; new tests pin the rollback and the "NPC" message case. The two matching docs/backlog.md entries are removed and DEVELOPMENT.md is updated.
+- **Status date:** 2026-11-28 10:40 UTC
+- **Status commit:** 2df8c47, cca67a6
 
 ### [F-9] The coordinator facade is bypassed even where facade methods exist
 - **Category:** 2 God object (facade variant; also 6)
@@ -335,6 +335,10 @@ How it is built:
 - **Explanation:** `getNPCState` creates a default record and calls `markDirty()`, which schedules a save timer. It is called inside `useMemo` during render, so rendering a component can schedule a save.
 - **Evidence:** `src/game/state/managers/npc.js:74-98` (`getNPCState` → `this.capabilities.markDirty()`). Called from `src/features/station/StationMenu.jsx:64` and `src/features/endgame/PostCreditsStation.jsx:16`.
 - **Found by:** Error Handling & Observability
+- **Status:** Fixed
+- **Status reason:** New side-effect-free NPCManager.getNPCRep (and facade game.getNPCRep) returns the stored rep, or the NPC's initialRep, without creating a record. StationMenu and PostCreditsStation use it. UAT found three more render-time callers: RefuelPanel, RepairPanel and InfoBrokerPanel reached getNPCState through getServiceDiscount and canGetFreeRepair, so both getters now read rep through getNPCRep. Rendering no longer writes NPC state or schedules a save. getNPCState is unchanged for its write-path callers. Behaviour check: an NPC first seen at a station now gets its record on first real interaction instead of on render. Nothing reads lastInteraction for logic, and the epilogue's trusted-NPC count can't change, because the highest initialRep is 10 (the threshold is 60). Decided by Claude under a delegated session (developer unavailable). Follow-ups: canGetFreeRepair reads lastFreeRepairDay through a new read-only getStoredNPCState, so it never creates a record even for an NPC whose initial rep is Trusted or higher. StationMenu, RepairPanel and PostCreditsStation subscribe to NPCS_CHANGED so tier badges and free repair tiers follow rep changes made while they are open, and the StationMenu and PostCreditsStation useMemos, which never memoized, are gone. requestLoan and checkLoanDefaults now emit NPCS_CHANGED, since they change rep.
+- **Status date:** 2026-11-28 11:22 UTC
+- **Status commit:** 19f44d7, 8edd047, 6706b0c, 680617d, 30e92bf
 
 ### [F-14] Magic numbers in components and managers, and rounding done in JSX
 - **Category:** 28 Magic numbers/strings everywhere
@@ -348,6 +352,10 @@ How it is built:
     - `src/game/state/managers/quest-manager.js:323`: `tanakaState.stage !== 2`.
   - Rounding in JSX: `{Math.round(x)}%` in `SystemPanel.jsx:310, 413`, `RefuelPanel.jsx:154, 195`, `CombatPanel.jsx:160, 171`.
 - **Found by:** Error Handling & Observability
+- **Status:** Fixed
+- **Status reason:** The three components that hard-coded constant values now read the constants. RepairPanel's tier label uses NPC_BENEFITS_CONFIG.FREE_REPAIR_LIMITS.family. MissionCompleteNotifier's labels use PASSENGER_CONFIG.SATISFACTION_THRESHOLDS. DangerWarningDialog's engine risk factor uses DANGER_CONFIG.ENGINE_CONDITION_MODIFIER.POOR_CONDITION_THRESHOLD, the threshold danger.js applies. A grep found no other copies. Boundary tests pin each label. Deliberately left: (1) quest-manager.js `stage !== 2`, since quest stage numbers are stage identifiers used as literals in about 12 places (game-coordinator.js, the dialogue files), and replacing one would make the code less consistent; (2) `Math.round` in JSX, which turns fractions into percentages for display; the resolvers need the fractions, and the displayed value is already an integer, so nothing shown is a raw float. Revisit (2) only if the project wants percent-valued display getters. Decided by Claude under a delegated session (developer unavailable). Marked Fixed on 2026-11-28 at the developer's request, with (1) and (2) left as they are. A later review found one more copy, contradicting the grep above: DevAdminPanel's mechanical failure trigger hard-coded the FAILURE_CONFIG.CONDITION_THRESHOLDS values; it now reads them.
+- **Status date:** 2026-11-28 11:22 UTC
+- **Status commit:** 82303f6, 9313583, 0dee1bf
 
 ### [F-15] No observability plan, and logging conventions are inconsistent
 - **Category:** 21 No observability plan (also 34)
@@ -407,6 +415,10 @@ How it is built:
 - **Explanation:** Some emitters send fresh copies and others mutate the array in place and emit the same reference. `useGameEvent` stores the payload with `setState`, so React sees an unchanged value and skips the update. Whether a screen updates then depends on some other event firing in the same action. The quest path for the same event copies the array.
 - **Evidence:** `src/game/state/managers/ship.js:199` ("ship.upgrades.push(upgradeId)") then `emit(UPGRADES_CHANGED, ship.upgrades)` at 223, 275 and 480. `src/game/state/managers/trading.js:304, 327, 381` (live `priceKnowledge`). `src/hooks/useGameEvent.js:39-41`. The copy: `game-coordinator.js:443-445` (`[...this.state.ship.upgrades]`).
 - **Found by:** Integration & Data
+- **Status:** Fixed
+- **Status reason:** Every emitter that mutates a slice in place now emits a copy: UPGRADES_CHANGED (ship.js, 3 sites), QUIRKS_CHANGED (ship.js addQuirk/removeQuirk, not in the original evidence) and PRICE_KNOWLEDGE_CHANGED (trading.js, 3 sites, plus info-broker.js purchaseIntelligence, also not in the original evidence). A hook-level test pins that each one hands useGameEvent subscribers a new value. Load-time re-emits in _emitAllStateEvents were left as they are, since they send a freshly loaded state, not one mutated in place. Decided by Claude under a delegated session (developer unavailable): only one sound approach; fixing it in useGameEvent instead would mask the problem for every event.
+- **Status date:** 2026-11-28 00:36 UTC
+- **Status commit:** a178f00
 
 ### [F-20] Result shapes drift at the edges, and the bridge hook has a subscribe gap
 - **Category:** 24 Inconsistent API contracts
@@ -427,6 +439,10 @@ How it is built:
 - **Explanation:** Refuel takes the credits before a safety check that can throw, and buying takes the credits before an unguarded lookup. `advanceQuest` adds one to the stage with no check of which stage the caller expected, so calling it twice skips a stage.
 - **Evidence:** `src/game/state/managers/refuel.js:141` (`updateCredits(...)`) runs before the "CRITICAL BUG" throw at 152-157. `src/game/state/managers/trading.js:44-50` (debit, then `currentSystemObj.name`). `src/game/state/managers/quest-manager.js:45-72` ("const nextStage = questState.stage + 1"), called from seven sites in `tanaka-dialogue.js`.
 - **Found by:** Integration & Data
+- **Status:** Fixed
+- **Status reason:** Refuel and buyGood now take credits only after every step that can throw: refuel after the fuel-reduction guard, buyGood after the system lookup and the new cargo are computed, right beside the cargo write. The order of emitted events is unchanged. Tests pin both cases: credits survive the throw. advanceQuest was left alone after a premise check: every call site is an offer-node choice that the player can only reach at the matching stage, and a repeat click lands on the next node's choices, so no input advances twice. A stage guard would mean editing 7 content call sites for a path that can't be reached. Neither debit throw is known to be reachable in play either; the reorder was taken because it costs nothing. Decided by Claude under a delegated session (developer unavailable). Marked Fixed on 2026-11-28 at the developer's request, with advanceQuest left as it is.
+- **Status date:** 2026-11-28 09:19 UTC
+- **Status commit:** ca60519, 9313583
 
 ### [F-22] Gaps in the local persistence lifecycle
 - **Category:** 17 No clear ownership of data

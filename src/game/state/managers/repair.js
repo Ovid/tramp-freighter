@@ -358,15 +358,15 @@ export class RepairManager extends BaseManager {
     // Validate NPC ID
     this.capabilities.validateAndGetNPCData(npcId);
 
-    // Get NPC state (creates default if doesn't exist)
-    const npcState = this.capabilities.getNPCState(npcId);
+    // RepairPanel calls this during render, so read rep without creating a record
+    const rep = this.capabilities.getNPCRep(npcId);
 
     // Check reputation tier is Trusted or Family
-    const repTier = this.capabilities.getRepTier(npcState.rep);
+    const repTier = this.capabilities.getRepTier(rep);
     const isTrusted =
-      npcState.rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
-      npcState.rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
-    const isFamily = npcState.rep >= REPUTATION_BOUNDS.FAMILY_MIN;
+      rep >= REPUTATION_BOUNDS.TRUSTED_MIN &&
+      rep <= REPUTATION_BOUNDS.TRUSTED_MAX;
+    const isFamily = rep >= REPUTATION_BOUNDS.FAMILY_MIN;
 
     if (!isTrusted && !isFamily) {
       return {
@@ -377,11 +377,10 @@ export class RepairManager extends BaseManager {
     }
 
     // Check once-per-visit limitation (lastFreeRepairDay is not current day)
+    const lastFreeRepairDay =
+      this.capabilities.getStoredNPCState(npcId)?.lastFreeRepairDay ?? null;
     const currentDay = this.capabilities.getDaysElapsed();
-    if (
-      npcState.lastFreeRepairDay !== null &&
-      npcState.lastFreeRepairDay === currentDay
-    ) {
+    if (lastFreeRepairDay !== null && lastFreeRepairDay === currentDay) {
       return {
         available: false,
         maxHullPercent: 0,

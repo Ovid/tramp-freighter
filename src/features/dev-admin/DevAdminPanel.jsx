@@ -10,6 +10,7 @@ import {
   REPUTATION_TIER_PRESETS,
   EVENT_NAMES,
   ENDGAME_CONFIG,
+  FAILURE_CONFIG,
 } from '../../game/constants.js';
 import { ALL_NPCS } from '../../game/data/npc-data.js';
 import { STAR_DATA } from '../../game/data/star-data.js';
@@ -371,8 +372,14 @@ export function DevAdminPanel({ onClose }) {
     const condition = game.getShipCondition();
     // Determine failure type based on ship condition
     let failureType = 'engine_failure';
-    if (condition.hull < 50) failureType = 'hull_breach';
-    else if (condition.lifeSupport < 30) failureType = 'life_support';
+    const thresholds = FAILURE_CONFIG.CONDITION_THRESHOLDS;
+    if (condition.hull < thresholds.HULL_BREACH_THRESHOLD) {
+      failureType = 'hull_breach';
+    } else if (
+      condition.lifeSupport < thresholds.LIFE_SUPPORT_FAILURE_THRESHOLD
+    ) {
+      failureType = 'life_support';
+    }
 
     game.emit(EVENT_NAMES.ENCOUNTER_TRIGGERED, {
       type: 'mechanical_failure',

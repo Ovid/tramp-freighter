@@ -111,8 +111,6 @@ export class RefuelManager extends BaseManager {
       return { success: false, reason: validation.reason };
     }
 
-    this.capabilities.updateCredits(credits - validation.cost);
-
     // Clamp fuel to max capacity to handle floating point rounding
     // (validation allows slight overage with epsilon, but actual fuel must not exceed max)
     const maxFuel = this.capabilities.getFuelCapacity();
@@ -129,6 +127,7 @@ export class RefuelManager extends BaseManager {
       );
     }
 
+    this.capabilities.updateCredits(credits - validation.cost);
     this.capabilities.updateFuel(newFuel);
 
     // Persist immediately - refuel modifies credits and fuel

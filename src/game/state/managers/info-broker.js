@@ -48,10 +48,9 @@ export class InfoBrokerManager extends BaseManager {
 
     if (result.success) {
       this.capabilities.emit(EVENT_NAMES.CREDITS_CHANGED, state.player.credits);
-      this.capabilities.emit(
-        EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED,
-        state.world.priceKnowledge
-      );
+      this.capabilities.emit(EVENT_NAMES.PRICE_KNOWLEDGE_CHANGED, {
+        ...state.world.priceKnowledge,
+      });
       this.capabilities.markDirty();
     }
 

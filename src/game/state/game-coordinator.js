@@ -240,6 +240,8 @@ export class GameCoordinator {
       getCredits: () => this.state.player.credits,
       getDaysElapsed: () => this.state.player.daysElapsed,
       getNPCState: (npcId) => this.npcManager.getNPCState(npcId),
+      getNPCRep: (npcId) => this.npcManager.getNPCRep(npcId),
+      getStoredNPCState: (npcId) => this.npcManager.getStoredNPCState(npcId),
       validateAndGetNPCData: (npcId) =>
         this.npcManager.validateAndGetNPCData(npcId),
       getRepTier: (rep) => this.npcManager.getRepTier(rep),
@@ -674,15 +676,28 @@ export class GameCoordinator {
 
     migratedState = addStateDefaults(migratedState, this.starData);
 
+    // The steps below need this.state installed, so a throw must put the
+    // previous state back rather than leave a half-restored coordinator.
+    const previousState = this.state;
     this.state = migratedState;
+    // Emits run gameplay subscribers (the time-based encounter trigger), so
+    // they go last: a throw before them leaves nothing to undo or re-emit.
+    let emitted = false;
 
-    this._registerEventEngine();
+    try {
+      this._registerEventEngine();
 
-    this._emitAllStateEvents(migratedState);
+      // Catch up achievements that already meet thresholds (e.g. saves from
+      // before the achievements system, or new achievements added in updates).
+      this.achievementsManager.checkAchievements();
 
-    // Catch up achievements that already meet thresholds (e.g. saves from
-    // before the achievements system, or new achievements added in updates).
-    this.achievementsManager.checkAchievements();
+      emitted = true;
+      this._emitAllStateEvents(migratedState);
+    } catch (error) {
+      this.state = previousState;
+      if (emitted && previousState) this._emitAllStateEvents(previousState);
+      throw error;
+    }
 
     devLog('State restored successfully');
 
@@ -1028,6 +1043,10 @@ export class GameCoordinator {
 
   getNPCState(npcId) {
     return this.npcManager.getNPCState(npcId);
+  }
+
+  getNPCRep(npcId) {
+    return this.npcManager.getNPCRep(npcId);
   }
 
   modifyRep(npcId, amount, reason) {
